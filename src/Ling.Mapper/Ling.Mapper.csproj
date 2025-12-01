@@ -2,7 +2,7 @@
 
 	<PropertyGroup>
 		<!-- 包版本 -->
-		<Version>1.0.3</Version>
+		<Version>1.0.0</Version>
 
 		<!-- 多目标框架 -->
 		<TargetFrameworks>net6.0;net8.0;net9.0;net10.0</TargetFrameworks>
@@ -33,7 +33,7 @@
 		<PackageIcon>ling.png</PackageIcon>
 
 		<!-- README（NuGet 搜索必备） -->
-		<PackageReadmeFile>README.md</PackageReadmeFile>
+		<PackageReadmeFile>../../README.md</PackageReadmeFile>
 
 		<!-- Tag 提升 NuGet 搜索曝光 -->
 		<PackageTags>mapper;map;fluent;automapper;object-mapper;AOT;DI</PackageTags>
