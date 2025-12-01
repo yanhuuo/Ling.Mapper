@@ -33,7 +33,7 @@
 		<PackageIcon>ling.png</PackageIcon>
 
 		<!-- README（NuGet 搜索必备） -->
-		<PackageReadmeFile>../../README.md</PackageReadmeFile>
+		<PackageReadmeFile>README.md</PackageReadmeFile>
 
 		<!-- Tag 提升 NuGet 搜索曝光 -->
 		<PackageTags>mapper;map;fluent;automapper;object-mapper;AOT;DI</PackageTags>
@@ -47,7 +47,6 @@
 		<None Include="ling.png" Pack="true" PackagePath="" />
 
 		<!-- 打包 README -->
-		<None Include="README.md" Pack="true" PackagePath="" />
 
 		<!-- 依赖 -->
 		<PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.0" />
