@@ -1,0 +1,45 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<!-- NuGet 包图标 -->
+		<PackageIcon>ling.png</PackageIcon>
+		<PackageIconFullPath>$(MSBuildThisFileDirectory)ling.png</PackageIconFullPath>
+
+		<!-- 多目标框架：同时支持 .NET 6 / 8 / 9 / 10 -->
+		<TargetFrameworks>net6.0;net8.0;net9.0;net10.0</TargetFrameworks>
+
+		<!-- 自动引入常用命名空间 -->
+		<ImplicitUsings>enable</ImplicitUsings>
+
+		<!-- 启用可空引用类型 -->
+		<Nullable>enable</Nullable>
+
+		<!-- 生成 XML 文档（用于 IntelliSense 和 API 文档） -->
+		<GenerateDocumentationFile>true</GenerateDocumentationFile>
+		<DocumentationFile>bin\$(Configuration)\$(TargetFramework)\Ling.Mapper.xml</DocumentationFile>
+
+		<!-- AOT 兼容（如要启用可取消注释） -->
+		<!-- <IsAotCompatible>true</IsAotCompatible> -->
+
+		<!-- NuGet 打包配置 -->
+		<GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+		<PackageId>Ling.Mapper</PackageId>
+		<AssemblyName>Ling.Mapper</AssemblyName>
+		<RootNamespace>Ling.Mapper</RootNamespace>
+
+		<!-- 元数据 -->
+		<Authors>yanhuuo</Authors>
+		<Company>Mapper</Company>
+		<Description>轻量级 Fluent 风格对象映射器（Fluent Object Mapper）</Description>
+		<RepositoryUrl>https://gitee.com/wwbaiziji/mapper</RepositoryUrl>
+		<PackageLicenseExpression>MIT</PackageLicenseExpression>
+		<RepositoryType>git</RepositoryType>
+
+	</PropertyGroup>
+
+	<ItemGroup>
+	  <None Include="ling.png" Pack="true" PackagePath="" />
+	  <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.0" />
+	</ItemGroup>
+
+</Project>

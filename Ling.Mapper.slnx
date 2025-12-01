@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="src/Ling.Mapper/Ling.Mapper.csproj" />
+  <Project Path="tests/Ling.Mapper.Tests/TestConsole.csproj" />
+</Solution>
