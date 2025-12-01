@@ -3,7 +3,7 @@ name: Publish NuGet Package
 on:
   push:
     tags:
-      - "v*"   # example: v1.0.0
+      - "v*"     # 只有打 tag 才会触发（比如 v1.0.0）
 
 jobs:
   publish:
@@ -19,6 +19,15 @@ jobs:
         dotnet-version: |
           6.0.x
           8.0.x
+          9.0.x
+          10.0.x
+
+    # 读取 csproj 版本号（自动输出版本号给发布使用）
+    - name: Extract version from csproj
+      id: get_version
+      run: |
+        version=$(grep -oPm1 "(?<=<Version>)[^<]+" src/Ling.Mapper/Ling.Mapper.csproj)
+        echo "version=$version" >> $GITHUB_OUTPUT
 
     - name: Restore
       run: dotnet restore ./src/Ling.Mapper/Ling.Mapper.csproj
@@ -30,4 +39,4 @@ jobs:
       run: dotnet pack ./src/Ling.Mapper/Ling.Mapper.csproj -c Release -o ./output
 
     - name: Publish to NuGet
-      run: dotnet nuget push "./output/*.nupkg" --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json
+      run: dotnet nuget push "./output/Ling.Mapper.${{ steps.get_version.outputs.version }}.nupkg" --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json
