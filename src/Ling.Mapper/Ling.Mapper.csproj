@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<Version>v1.0.1</Version>
+		<Version>1.0.2</Version>
 
 		<!-- NuGet 包图标 -->
 		<PackageIcon>ling.png</PackageIcon>
