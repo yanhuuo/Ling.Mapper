@@ -10,6 +10,10 @@
 		<!-- 编译配置 -->
 		<Nullable>enable</Nullable>
 		<ImplicitUsings>enable</ImplicitUsings>
+		
+		<!-- 设置源代码编码为 UTF-8，解决中文注释乱码问题 -->
+		<Utf8Output>true</Utf8Output>
+		<LangVersion>latest</LangVersion>
 
 		<!-- 文档 -->
 		<GenerateDocumentationFile>true</GenerateDocumentationFile>
