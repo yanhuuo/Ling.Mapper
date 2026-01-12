@@ -2,9 +2,11 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>net6.0</TargetFramework>
+    <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <!-- 禁用 CS8603 警告：MappingExpression 方法永远不会返回 null -->
+    <NoWarn>$(NoWarn);CS8603</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq.Expressions;
 using System.Reflection;
 
@@ -46,6 +47,7 @@ namespace Ling.Mapper
         /// <param name="destMember">目标属性选择器。</param>
         /// <param name="srcExpr">源映射表达式，从源对象映射到目标属性值。</param>
         /// <returns>当前 <see cref="MappingExpression{TSource,TDestination}"/> 实例，用于链式调用。</returns>
+        [return: NotNull]
         public MappingExpression<TSource, TDestination> ForMember<TMember>(
             Expression<Func<TDestination, TMember>> destMember,
             Expression<Func<TSource, TMember>> srcExpr)
@@ -60,6 +62,7 @@ namespace Ling.Mapper
         /// </summary>
         /// <param name="destMember">目标属性选择器。</param>
         /// <returns>当前 <see cref="MappingExpression{TSource,TDestination}"/> 实例。</returns>
+        [return: NotNull]
         public MappingExpression<TSource, TDestination> Ignore(
             Expression<Func<TDestination, object>> destMember)
         {
@@ -75,6 +78,7 @@ namespace Ling.Mapper
         /// <param name="destMember">目标属性选择器。</param>
         /// <param name="srcName">源属性名称。</param>
         /// <returns>当前 <see cref="MappingExpression{TSource,TDestination}"/> 实例。</returns>
+        [return: NotNull]
         public MappingExpression<TSource, TDestination> Rename(
             Expression<Func<TDestination, object>> destMember,
             string srcName)
@@ -89,7 +93,8 @@ namespace Ling.Mapper
         /// 当前实现仅将标志位设置为 true，返回一个新的反向映射表达式对象，
         /// 方便后续扩展更多配置。
         /// </summary>
-        /// <returns>从 TDestination 到 TSource 的反向映射表达式。</returns>
+        /// <returns>从 TDestination 到 TSource 的反向映射表达式，永不为 null。</returns>
+        [return: NotNull]
         public MappingExpression<TDestination, TSource> ReverseMap()
         {
             ReverseMapRequested = true;

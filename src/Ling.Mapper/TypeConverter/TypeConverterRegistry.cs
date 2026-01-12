@@ -62,10 +62,10 @@ namespace Ling.Mapper
         }
 
         /// <summary>
-        /// 为某个类型注册 JSON 互转转换器。
-        /// 会同时注册 string -&gt; T（反序列化）和 T -&gt; string（序列化）两个方向的转换。
+        /// 为某个类型注册 JSON 序列化转换器。
+        /// 会同时注册 string -&gt; T（反序列化）和 T -&gt; string（序列化）两个方向的转换器。
         /// </summary>
-        /// <typeparam name="T">需要进行 JSON 转换的类型。</param>
+        /// <typeparam name="T">需要进行 JSON 转换的类型。</typeparam>
         public static void RegisterJson<T>()
         {
             Register(typeof(string), typeof(T), new Func<string, T?>(s =>

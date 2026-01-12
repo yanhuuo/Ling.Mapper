@@ -1,12 +1,13 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Ling.Mapper
 {
     /// <summary>
-    /// 映射配置 Profile 基类。
-    /// 你可以继承该类，在构造函数中调用 <see cref="CreateMap{TSource,TDestination}"/> 
-    /// 来定义一组映射配置。
+    /// 映射器配置 Profile 基类。
+    /// 用户应继承该类，在构造函数中调用 <see cref="CreateMap{TSource,TDestination}"/> 
+    /// 方法添加一组映射配置。
     /// </summary>
     public abstract class MapperProfile
     {
@@ -21,6 +22,7 @@ namespace Ling.Mapper
         /// <typeparam name="TSource">源类型。</typeparam>
         /// <typeparam name="TDestination">目标类型。</typeparam>
         /// <returns>用于进一步配置的 <see cref="MappingExpression{TSource,TDestination}"/> 实例。</returns>
+        [return: NotNull]
         protected MappingExpression<TSource, TDestination> CreateMap<TSource, TDestination>()
         {
             var expr = new MappingExpression<TSource, TDestination>();

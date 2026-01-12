@@ -1,3 +1,5 @@
+using System.Linq;
+
 namespace Ling.Mapper
 {
     /// <summary>
@@ -580,5 +582,255 @@ namespace Ling.Mapper
                     $"请检查构造函数是否抛出了异常，或目标类型是否可以正常实例化。", ex);
             }
         }
+
+        #region 带 AdaptOptions 的 Adapt 扩展方法
+
+        /// <summary>
+        /// 使用映射规则选项进行映射（带 mapper 参数）
+        /// </summary>
+        /// <typeparam name="TDestination">目标类型</typeparam>
+        /// <typeparam name="TSource">源类型</typeparam>
+        /// <param name="source">源对象</param>
+        /// <param name="mapper">IMapper 实例</param>
+        /// <param name="options">映射规则选项</param>
+        /// <param name="custom">可选的回调函数</param>
+        /// <returns>映射后的目标对象</returns>
+        /// <remarks>
+        /// <para>此方法支持在运行时指定映射规则，包括：</para>
+        /// <list type="bullet">
+        /// <item><description>IgnoreCase: 忽略属性名称大小写</description></item>
+        /// <item><description>IgnoreUnderscore: 忽略属性名称中的下划线</description></item>
+        /// <item><description>IgnoreProperties: 忽略指定的属性</description></item>
+        /// <item><description>IgnoreNullValues: 忽略 null 值属性</description></item>
+        /// </list>
+        /// <example>
+        /// 示例 1：忽略大小写匹配
+        /// <code>
+        /// var target = source.Adapt&lt;TargetDto, SourceDto&gt;(mapper, 
+        ///     AdaptOptions.IgnoreCaseOption);
+        /// </code>
+        /// </example>
+        /// <example>
+        /// 示例 2：自定义规则
+        /// <code>
+        /// var target = source.Adapt&lt;TargetDto, SourceDto&gt;(mapper, 
+        ///     new AdaptOptions 
+        ///     { 
+        ///         IgnoreCase = true,
+        ///         IgnoreUnderscore = true,
+        ///         IgnoreProperties = new[] { "Password", "CreditCard" }
+        ///     });
+        /// </code>
+        /// </example>
+        /// <example>
+        /// 示例 3：配合回调函数
+        /// <code>
+        /// var target = source.Adapt&lt;TargetDto, SourceDto&gt;(mapper, 
+        ///     AdaptOptions.FlexibleOption,
+        ///     (dest, src) => dest.FullName = $"{src.FirstName} {src.LastName}");
+        /// </code>
+        /// </example>
+        /// </remarks>
+        public static TDestination? Adapt<TDestination, TSource>(
+            this TSource source,
+            IMapper mapper,
+            AdaptOptions options,
+            System.Action<TDestination?, TSource>? custom = null)
+        {
+            if (source == null) return default;
+            if (options == null) options = AdaptOptions.Default;
+
+            // 1. 先执行基础映射
+            var dest = mapper.Map<TDestination>(source);
+
+            if (dest == null && !typeof(TDestination).IsValueType)
+            {
+                dest = CreateInstance<TDestination>();
+            }
+
+            if (dest == null) return default;
+
+            // 2. 应用映射规则
+            ApplyAdaptOptions(source, dest, options);
+
+            // 3. 执行自定义回调
+            if (dest != null)
+                custom?.Invoke(dest, source);
+
+            return dest;
+        }
+
+        /// <summary>
+        /// 使用映射规则选项进行映射（使用全局 Mapper）
+        /// </summary>
+        /// <typeparam name="TDestination">目标类型</typeparam>
+        /// <typeparam name="TSource">源类型</typeparam>
+        /// <param name="source">源对象</param>
+        /// <param name="options">映射规则选项</param>
+        /// <param name="custom">可选的回调函数</param>
+        /// <returns>映射后的目标对象</returns>
+        /// <exception cref="System.InvalidOperationException">未注册全局 Mapper</exception>
+        public static TDestination? Adapt<TDestination, TSource>(
+            this TSource source,
+            AdaptOptions options,
+            System.Action<TDestination?, TSource>? custom = null)
+        {
+            var mapper = MapperProvider.Current ?? throw new System.InvalidOperationException("没有注册默认的 mapper。请调用 MapperProvider.SetCurrent(mapper) 或使用带 IMapper 参数的重载.");
+            return source.Adapt<TDestination, TSource>(mapper, options, custom);
+        }
+
+        /// <summary>
+        /// 使用映射规则选项进行映射（简化版本，自动推断源类型）
+        /// </summary>
+        /// <typeparam name="TDestination">目标类型</typeparam>
+        /// <param name="source">源对象</param>
+        /// <param name="mapper">IMapper 实例</param>
+        /// <param name="options">映射规则选项</param>
+        /// <param name="custom">可选的回调函数</param>
+        /// <returns>映射后的目标对象</returns>
+        public static TDestination? Adapt<TDestination>(
+            this object source,
+            IMapper mapper,
+            AdaptOptions options,
+            System.Action<TDestination?, object>? custom = null)
+        {
+            if (source == null) return default;
+            if (options == null) options = AdaptOptions.Default;
+
+            // 1. 先执行基础映射
+            var dest = mapper.Map<TDestination>(source);
+
+            if (dest == null && !typeof(TDestination).IsValueType)
+            {
+                dest = CreateInstance<TDestination>();
+            }
+
+            if (dest == null) return default;
+
+            // 2. 应用映射规则
+            ApplyAdaptOptions(source, dest, options);
+
+            // 3. 执行自定义回调
+            if (dest != null)
+                custom?.Invoke(dest, source);
+
+            return dest;
+        }
+
+        /// <summary>
+        /// 使用映射规则选项进行映射（简化版本，使用全局 Mapper）
+        /// </summary>
+        /// <typeparam name="TDestination">目标类型</typeparam>
+        /// <param name="source">源对象</param>
+        /// <param name="options">映射规则选项</param>
+        /// <param name="custom">可选的回调函数</param>
+        /// <returns>映射后的目标对象</returns>
+        /// <exception cref="System.InvalidOperationException">未注册全局 Mapper</exception>
+        public static TDestination? Adapt<TDestination>(
+            this object source,
+            AdaptOptions options,
+            System.Action<TDestination?, object>? custom = null)
+        {
+            var mapper = MapperProvider.Current ?? throw new System.InvalidOperationException("没有注册默认的 mapper。请调用 MapperProvider.SetCurrent(mapper) 或使用带 IMapper 参数的重载.");
+            return source.Adapt<TDestination>(mapper, options, custom);
+        }
+
+        /// <summary>
+        /// 应用 AdaptOptions 规则到映射结果
+        /// </summary>
+        private static void ApplyAdaptOptions<TDestination, TSource>(
+            TSource source,
+            TDestination dest,
+            AdaptOptions options)
+        {
+            if (source == null || dest == null || options == null) return;
+
+            var destType = typeof(TDestination);
+            var srcType = typeof(TSource);
+
+            var destProps = destType.GetProperties(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance);
+            var srcProps = srcType.GetProperties(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance)
+                .ToDictionary(p => p.Name, p => p);
+
+            foreach (var destProp in destProps)
+            {
+                if (!destProp.CanWrite) continue;
+
+                // 1. 处理忽略属性
+                if (options.IgnoreProperties != null && 
+                    options.IgnoreProperties.Contains(destProp.Name, System.StringComparer.OrdinalIgnoreCase))
+                {
+                    var defaultValue = destProp.PropertyType.IsValueType
+                        ? System.Activator.CreateInstance(destProp.PropertyType)
+                        : null;
+                    destProp.SetValue(dest, defaultValue);
+                    continue;
+                }
+
+                // 2. 查找匹配的源属性（支持 IgnoreCase 和 IgnoreUnderscore）
+                System.Reflection.PropertyInfo? srcProp = null;
+                string destPropName = destProp.Name;
+
+                if (options.IgnoreUnderscore)
+                {
+                    destPropName = destPropName.Replace("_", "");
+                }
+
+                foreach (var kvp in srcProps)
+                {
+                    string srcPropName = kvp.Key;
+                    if (options.IgnoreUnderscore)
+                    {
+                        srcPropName = srcPropName.Replace("_", "");
+                    }
+
+                    var comparison = options.IgnoreCase
+                        ? System.StringComparison.OrdinalIgnoreCase
+                        : System.StringComparison.Ordinal;
+
+                    if (string.Equals(srcPropName, destPropName, comparison))
+                    {
+                        srcProp = kvp.Value;
+                        break;
+                    }
+                }
+
+                if (srcProp == null || !srcProp.CanRead) continue;
+
+                // 3. 处理 IgnoreNullValues
+                var srcValue = srcProp.GetValue(source);
+                if (options.IgnoreNullValues && srcValue == null)
+                {
+                    var defaultValue = destProp.PropertyType.IsValueType
+                        ? System.Activator.CreateInstance(destProp.PropertyType)
+                        : null;
+                    destProp.SetValue(dest, defaultValue);
+                    continue;
+                }
+
+                // 4. 如果启用了特殊匹配规则，需要手动赋值（因为 mapper 可能没有匹配）
+                if ((options.IgnoreCase || options.IgnoreUnderscore) && srcValue != null)
+                {
+                    try
+                    {
+                        // 尝试类型转换
+                        if (destProp.PropertyType.IsAssignableFrom(srcProp.PropertyType))
+                        {
+                            destProp.SetValue(dest, srcValue);
+                        }
+                        else if (destProp.PropertyType == srcProp.PropertyType)
+                        {
+                            destProp.SetValue(dest, srcValue);
+                        }
+                    }
+                    catch
+                    {
+                        // 类型不兼容，跳过
+                    }
+                }
+            }
+        }
+
+        #endregion
     }
 }

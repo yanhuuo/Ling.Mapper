@@ -52,7 +52,7 @@ namespace Ling.Mapper
         /// <summary>
         /// 将指定源对象映射为目标类型 TDestination 的实例。
         /// 如果 source 为 null，则返回默认值（null）。
-        /// 优先使用已缓存的高性能 wrapper(Func<object,object?>) 委托来避免装箱与 DynamicInvoke。
+        /// 优先使用已缓存的高性能 wrapper(Func&lt;object,object?&gt;) 委托来避免装箱与 DynamicInvoke。
         /// </summary>
         public TDestination? Map<TDestination>(object? source)
         {
@@ -91,7 +91,7 @@ namespace Ling.Mapper
         /// <summary>
         /// 获取或编译并缓存源类型到目标类型的映射委托。
         /// 调用顺序：
-        /// 1) 查询用户通过 MapperRegistry 手动注册的 wrapper（Func<object,object?>），优先使用；
+        /// 1) 查询用户通过 MapperRegistry 手动注册的 wrapper（Func&lt;object,object?&gt;），优先使用；
         /// 2) 查询用户注册的强类型委托并包装为 wrapper；
         /// 3) 查询由 Source Generator 生成并注册的 mapper（GeneratedMapperFactory），如存在则直接使用；
         /// 4) 回退到运行时使用表达式树编译映射逻辑（CompileMapper）。
@@ -105,11 +105,11 @@ namespace Ling.Mapper
                     return wrapper;
 
                 // 0.5) 如果用户注册了强类型委托，则将其包装为 wrapper（若已有 wrapper 则上面已返回）
-                if (MapperRegistry.TryGet(key.Item1, key.Item2, out var reg))
+                if (MapperRegistry.TryGet(key.Item1, key.Item2, out var reg) && reg != null)
                 {
                     if (reg is Func<object, object?> fo) return fo;
                     // 无法直接转换为 wrapper 时，创建一个使用 DynamicInvoke 的 wrapper 作为后备（尽量避免）
-                    return new Func<object, object?>(o => (object?)reg.DynamicInvoke(o));
+                    return new Func<object, object?>(o => (object?)reg!.DynamicInvoke(o));
                 }
 
                 // 1) 尝试通过反射调用 GeneratedMapperFactory.TryGetMapper 获取由 Source Generator 生成的映射（如果存在）
@@ -147,10 +147,10 @@ namespace Ling.Mapper
         }
 
         /// <summary>
-        /// 使用表达式树构建从 srcType 到 destType 的映射逻辑并返回一个 wrapper（Func<object,object?>）。
+        /// 使用表达式树构建从 srcType 到 destType 的映射逻辑并返回一个 wrapper（Func&lt;object,object?&gt;）。
         /// 具体做法：
-        /// - 构造一个强类型的映射表达式（Func<srcType, destType>），表达式体中为创建目标对象并按规则给属性赋值；
-        /// - 然后基于该强类型表达式生成一个通用 wrapper（接收 object、内部 cast 到 srcType、调用强类型表达式、再转换为 object 返回）；
+        /// - 构造一个强类型的映射表达式（Func&lt;srcType,destType&gt;），表达式体中为创建目标对象并按规则给属性赋值；
+        /// - 然后基于该强类型表达式生成一个通用 wrapper（接收 object、内部 cast 到 srcType、调用强类型表达式、再转换为 object 返回）;
         /// - 返回已编译的 wrapper，以便运行时调用时无需 DynamicInvoke，从而提升性能。
         /// </summary>
         private Delegate CompileMapper(Type srcType, Type destType, IMappingConfig? cfg)
@@ -208,10 +208,10 @@ namespace Ling.Mapper
                             var invoke = Expression.Invoke(delConst, srcAccess);
                             valueExpr = Expression.Convert(invoke, dp.PropertyType);
                         }
-                        else if (TypeUtils.IsSimple(dp.PropertyType))
+                        else if (TypeUtils.IsSimple(dp.PropertyType) && TypeUtils.IsSimple(sp.PropertyType))
                         {
-                            // 简单类型直接转换赋值
-                            valueExpr = Expression.Convert(srcAccess, dp.PropertyType);
+                            // 简单类型转换，处理可空类型
+                            valueExpr = ConvertSimpleType(srcAccess, sp.PropertyType, dp.PropertyType);
                         }
                         else if (TypeUtils.IsCollection(dp.PropertyType))
                         {
@@ -293,6 +293,109 @@ namespace Ling.Mapper
         }
 
         /// <summary>
+        /// 处理简单类型之间的转换，特别处理可空类型。
+        /// </summary>
+        /// <param name="srcAccess">源属性访问表达式</param>
+        /// <param name="srcType">源属性类型</param>
+        /// <param name="destType">目标属性类型</param>
+        /// <returns>转换表达式</returns>
+        private Expression ConvertSimpleType(Expression srcAccess, Type srcType, Type destType)
+        {
+            // 获取底层类型（如果是可空类型）
+            var srcUnderlyingType = Nullable.GetUnderlyingType(srcType) ?? srcType;
+            var destUnderlyingType = Nullable.GetUnderlyingType(destType) ?? destType;
+
+            var srcIsNullable = Nullable.GetUnderlyingType(srcType) != null;
+            var destIsNullable = Nullable.GetUnderlyingType(destType) != null;
+
+            // 情况 1: T → T（类型完全相同）
+            if (srcType == destType)
+            {
+                return srcAccess;
+            }
+
+            // 情况 2: T → T?（非可空 → 可空）
+            if (!srcIsNullable && destIsNullable && srcUnderlyingType == destUnderlyingType)
+            {
+                // 直接转换为可空类型
+                return Expression.Convert(srcAccess, destType);
+            }
+
+            // 情况 3: T? → T（可空 → 非可空）
+            if (srcIsNullable && !destIsNullable && srcUnderlyingType == destUnderlyingType)
+            {
+                // 使用 GetValueOrDefault() 或条件表达式
+                // 优先使用 GetValueOrDefault() 方法
+                var getValueMethod = srcType.GetMethod("GetValueOrDefault", Type.EmptyTypes);
+                if (getValueMethod != null)
+                {
+                    return Expression.Call(srcAccess, getValueMethod);
+                }
+                
+                // 回退到条件表达式：src.HasValue ? src.Value : default(T)
+                var hasValueProp = srcType.GetProperty("HasValue");
+                var valueProp = srcType.GetProperty("Value");
+                if (hasValueProp != null && valueProp != null)
+                {
+                    return Expression.Condition(
+                        Expression.Property(srcAccess, hasValueProp),
+                        Expression.Property(srcAccess, valueProp),
+                        Expression.Default(destType)
+                    );
+                }
+            }
+
+            // 情况 4: T? → U?（可空到可空，但底层类型不同）
+            if (srcIsNullable && destIsNullable)
+            {
+                // 先转换底层类型，再包装为可空
+                var hasValueProp = srcType.GetProperty("HasValue");
+                var valueProp = srcType.GetProperty("Value");
+                
+                if (hasValueProp != null && valueProp != null)
+                {
+                    var convertedValue = Expression.Convert(
+                        Expression.Property(srcAccess, valueProp),
+                        destUnderlyingType
+                    );
+                    
+                    return Expression.Condition(
+                        Expression.Property(srcAccess, hasValueProp),
+                        Expression.Convert(convertedValue, destType),
+                        Expression.Default(destType)
+                    );
+                }
+            }
+
+            // 情况 5: T → U（非可空类型之间的转换）
+            if (!srcIsNullable && !destIsNullable && srcUnderlyingType != destUnderlyingType)
+            {
+                return Expression.Convert(srcAccess, destType);
+            }
+
+            // 情况 6: T → U?（非可空转换为不同类型的可空）
+            if (!srcIsNullable && destIsNullable && srcUnderlyingType != destUnderlyingType)
+            {
+                var converted = Expression.Convert(srcAccess, destUnderlyingType);
+                return Expression.Convert(converted, destType);
+            }
+
+            // 情况 7: T? → U（可空转换为不同类型的非可空）
+            if (srcIsNullable && !destIsNullable && srcUnderlyingType != destUnderlyingType)
+            {
+                var getValueMethod = srcType.GetMethod("GetValueOrDefault", Type.EmptyTypes);
+                if (getValueMethod != null)
+                {
+                    var value = Expression.Call(srcAccess, getValueMethod);
+                    return Expression.Convert(value, destType);
+                }
+            }
+
+            // 默认：尝试直接转换
+            return Expression.Convert(srcAccess, destType);
+        }
+
+        /// <summary>
         /// 在源属性列表中查找与目标属性名匹配的属性，依据 NormalizeName 的规则对比。
         /// 如果找不到返回 null。
         /// </summary>
@@ -313,7 +416,7 @@ namespace Ling.Mapper
 
         /// <summary>
         /// 内部集合映射实现：将 srcCollection 中的每个元素映射为目标元素类型并装入目标集合（List 或数组）。
-        /// 注意：对于目标为数组的情况，会将临时 List 转为数组返回；对于 IEnumerable / List 会直接返回 List&lt;T&gt;。
+        /// 注意：对于目标为数组的情况，会将临时 List 转为数组返回；对于 IEnumerable 或 List 会直接返回 List&lt;T&gt;。
         /// </summary>
         private object? MapCollectionInternal(object? srcCollection, Type srcType, Type destType)
         {

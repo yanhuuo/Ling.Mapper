@@ -2,7 +2,7 @@
 
 	<PropertyGroup>
 		<!-- 包版本 -->
-		<Version>1.0.3</Version>
+		<Version>1.0.5-bate</Version>
 
 		<!-- 多目标框架 -->
 		<TargetFrameworks>net6.0;net8.0;net9.0;net10.0</TargetFrameworks>
@@ -23,7 +23,7 @@
 		<PackageId>Ling.Mapper</PackageId>
 		<Authors>yanhuuo</Authors>
 		<Company>Mapper</Company>
-		<Description>轻量级 Fluent 风格对象映射器（Fluent Object Mapper），支持多层级映射、链式 API、AOT、DI 注入。</Description>
+		<Description>轻量级 Fluent 风格对象映射器（Fluent Object Mapper），支持多层级映射、链式 API、AOT、DI 注入、运行时映射规则配置。</Description>
 
 		<!-- 仓库地址（建议用 GitHub） -->
 		<RepositoryUrl>https://github.com/yanhuuo/Ling.Mapper</RepositoryUrl>
@@ -40,7 +40,7 @@
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 
 		<!-- Tag 提升 NuGet 搜索曝光 -->
-		<PackageTags>mapper;map;fluent;automapper;object-mapper;AOT;DI</PackageTags>
+		<PackageTags>mapper;map;fluent;automapper;object-mapper;AOT;DI;adapt</PackageTags>
 
 		<!-- 构建时是否自动打包（CI 用 false 正确） -->
 		<GeneratePackageOnBuild>false</GeneratePackageOnBuild>
@@ -51,9 +51,12 @@
 		<None Include="ling.png" Pack="true" PackagePath="" />
 
 		<!-- 打包 README -->
-		<None Include="../../README.md" Pack="true" PackagePath="" />
-		<!-- 依赖 -->
-		<PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.0" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<!-- 依赖：使用条件版本以兼容不同的 .NET 框架 -->
+		<PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.0" Condition="'$(TargetFramework)' == 'net6.0' or '$(TargetFramework)' == 'net8.0'" />
+		<PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.0" Condition="'$(TargetFramework)' == 'net9.0' or '$(TargetFramework)' == 'net10.0'" />
 	</ItemGroup>
 
 </Project>

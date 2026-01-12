@@ -20,8 +20,8 @@ public class ActivityProfile : MapperProfile
 
             // 忽略 InternalCode
             .Ignore(d => d.InternalCode)
-
-            // 生成反向映射（你还没实现反向，标记即可）
+            
+            // 生成反向映射
             .ReverseMap();
     }
 }
