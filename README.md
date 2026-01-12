@@ -21,12 +21,14 @@ Ling.Mapper 是一个轻量级、高性能的 .NET 对象映射库，专注于提供**简单易用**和**高
 
 ### 为什么选择 Ling.Mapper？
 
-- ?? **简单直观**：Fluent API 设计，链式调用，5 分钟上手
-- ? **性能卓越**：表达式树编译 + 委托缓存，接近手写代码的性能
-- ?? **类型安全**：完整的泛型支持和可空类型处理
-- ?? **灵活强大**：Profile 配置 + 运行时规则 + 自定义转换器
-- ??? **AOT 友好**：支持原生 AOT 编译和 Source Generator
-- ?? **DI 集成**：开箱即用的依赖注入支持
+| 特点 | 说明 |
+|------|------|
+| ?? **简单直观** | Fluent API 设计，链式调用，5 分钟上手 |
+| ? **性能卓越** | 表达式树编译 + 委托缓存，接近手写代码的性能 |
+| ??? **类型安全** | 完整的泛型支持和可空类型处理 |
+| ?? **灵活强大** | Profile 配置 + 运行时规则 + 自定义转换器 |
+| ?? **AOT 友好** | 支持原生 AOT 编译和 Source Generator |
+| ?? **DI 集成** | 开箱即用的依赖注入支持 |
 
 ---
 
@@ -34,24 +36,38 @@ Ling.Mapper 是一个轻量级、高性能的 .NET 对象映射库，专注于提供**简单易用**和**高
 
 ### 核心功能
 
-- ? **自动映射**：基于属性名称自动映射，支持大小写不敏感
-- ? **Profile 配置**：通过 Profile 集中管理映射规则
-- ? **ForMember**：自定义属性映射表达式
-- ? **Rename**：处理属性名称不一致的映射
-- ? **Ignore**：忽略不需要映射的属性
-- ? **可空类型**：完整支持 `int?`、`string?` 等可空类型转换
-- ? **集合映射**：List、Array、IEnumerable 的元素映射
-- ? **嵌套映射**：递归处理复杂对象
-- ? **类型转换器**：自定义类型转换逻辑（如 JSON 转换）
+<table>
+<tr>
+<td width="50%">
+
+**基础映射**
+- ? 自动映射同名属性
+- ? Profile 配置高级规则
+- ? ForMember 自定义表达式
+- ? Rename 属性重命名
+- ? Ignore 忽略属性
+
+</td>
+<td width="50%">
+
+**类型支持**
+- ? 可空类型（`int?`, `string?`）
+- ? 枚举转换（enum ? int/string）
+- ? 集合映射（List, Array, IEnumerable）
+- ? 嵌套对象递归映射
+- ? 自定义类型转换器
+
+</td>
+</tr>
+</table>
 
 ### 高级特性
 
-- ? **运行时规则**：`AdaptOptions` 灵活配置映射行为
+- ?? **运行时规则**：`AdaptOptions` 灵活配置映射行为
 - ?? **扩展方法**：`Adapt<T>()` 简洁的映射语法
 - ?? **手动注册**：`MapperRegistry` 注册高性能委托
 - ?? **反向映射**：`ReverseMap()` 自动生成反向配置
-- ??? **严格模式**：开发时检测未映射属性
-- ?? **多框架支持**：.NET 6/8/9/10
+- ?? **严格模式**：开发时检测未映射属性
 
 ---
 
@@ -89,7 +105,8 @@ public class UserProfile : MapperProfile
     public UserProfile()
     {
         CreateMap<UserDto, User>()
-            .ForMember(dest => dest.FullName, src => src.FirstName + " " + src.LastName)
+            .ForMember(dest => dest.FullName, 
+                       src => src.FirstName + " " + src.LastName)
             .Rename(dest => dest.UserId, "Id")
             .Ignore(dest => dest.Password);
     }
@@ -105,10 +122,9 @@ config.ConfigureConventions(opt =>
 {
     opt.CaseInsensitiveNameMatch = true;
 });
-var mapper = config.CreateMapper();
 
-// 设置全局 Mapper（可选）
-MapperProvider.SetCurrent(mapper);
+var mapper = config.CreateMapper();
+MapperProvider.SetCurrent(mapper);  // 设置全局 Mapper
 ```
 
 ### 3. 执行映射
@@ -117,11 +133,11 @@ MapperProvider.SetCurrent(mapper);
 // 基础映射
 var user = mapper.Map<User>(userDto);
 
-// 使用扩展方法（需要先设置 MapperProvider.Current）
+// 使用扩展方法
 var user = userDto.Adapt<User>();
 
 // 带回调的映射
-var user = userDto.Adapt<User>((dest, src) => 
+var user = userDto.Adapt<User>((src, dest) => 
 {
     dest.UpdatedAt = DateTime.Now;
 });
@@ -134,7 +150,7 @@ var user = userDto.Adapt<User>((dest, src) =>
 ### 基本映射
 
 ```csharp
-// 定义 DTO 和实体
+// 定义模型
 public class UserDto
 {
     public int Id { get; set; }
@@ -154,12 +170,13 @@ public class UserProfile : MapperProfile
     public UserProfile()
     {
         CreateMap<UserDto, User>()
-            .ForMember(d => d.FullName, s => s.FirstName + " " + s.LastName)
+            .ForMember(d => d.FullName, 
+                       s => s.FirstName + " " + s.LastName)
             .Rename(d => d.UserId, "Id");
     }
 }
 
-// 使用
+// 执行映射
 var user = userDto.Adapt<User>();
 ```
 
@@ -174,32 +191,50 @@ public class Source
 
 public class Target
 {
-    public int Id { get; set; }  // null 会转换为 0
+    public int Id { get; set; }        // null → 0
     public string? Name { get; set; }
 }
 
-// 自动处理可空类型
+// 自动处理
 var target = source.Adapt<Target>();
 
-// 自定义 null 处理
+// 自定义处理
 CreateMap<Source, Target>()
     .ForMember(d => d.Id, s => s.NullableId ?? -1);
+```
+
+### 枚举类型映射
+
+```csharp
+public enum UserStatus { Inactive = 0, Active = 1, Pending = 2 }
+
+// enum → int
+var source = new { Status = UserStatus.Active };
+var target = source.Adapt<IntTarget>();  // Status = 1
+
+// int → enum
+var source2 = new { StatusCode = 1 };
+var target2 = source2.Adapt<EnumTarget>();  // Status = Active
+
+// enum → string
+var target3 = source.Adapt<StringTarget>();  // Status = "Active"
+
+// string → enum (不区分大小写)
+var source3 = new { Status = "active" };
+var target4 = source3.Adapt<EnumTarget>();  // Status = Active
 ```
 
 ### 运行时映射规则
 
 ```csharp
-// 忽略大小写（API 响应映射）
+// 忽略大小写
 var user = apiResponse.Adapt<User>(AdaptOptions.IgnoreCaseOption);
-// username -> UserName
 
-// 忽略下划线（数据库映射）
+// 忽略下划线
 var user = dbRow.Adapt<User>(AdaptOptions.IgnoreUnderscoreOption);
-// user_name -> UserName
 
-// 灵活匹配（第三方数据）
+// 灵活匹配
 var user = data.Adapt<User>(AdaptOptions.FlexibleOption);
-// User_Name -> UserName
 
 // 组合规则
 var user = source.Adapt<User>(new AdaptOptions
@@ -217,7 +252,7 @@ var user = source.Adapt<User>(new AdaptOptions
 var users = userDtos.AdaptList<User>();
 
 // 带索引处理
-var users = userDtos.AdaptList<User>((dest, src, index) => 
+var users = userDtos.AdaptList<User>((src, dest, index) => 
 {
     dest.RowNumber = index + 1;
 });
@@ -226,7 +261,7 @@ var users = userDtos.AdaptList<User>((dest, src, index) =>
 ### DI 集成
 
 ```csharp
-// Program.cs 或 Startup.cs
+// Program.cs
 services.AddFluentMapper(config => 
 {
     config.AddProfile(new UserProfile());
@@ -260,20 +295,20 @@ public class UserService
 
 ### 核心文档
 
-- [?? 快速开始指南](docs/QuickStart_AdaptOptions.md) - 5 分钟快速上手
-- [?? API 完整参考](docs/API_Reference.md) - 所有类和方法详解
-- [?? AdaptOptions 使用](docs/AdaptOptions_Usage.md) - 运行时规则详细说明
-- [?? 可空类型支持](docs/NullableTypes_Support.md) - int?、string? 等处理
+| 文档 | 说明 |
+|------|------|
+| [?? 功能概览](docs/Feature-Summary.md) | 完整的功能列表 |
+| [?? Adapt 使用](docs/Adapt-Usage.md) | Adapt 方法详解 |
+| [?? 枚举转换](docs/EnumConversion_Support.md) | enum ? int/string |
+| [?? 异常处理](docs/Exception-Handling-Quick-Guide.md) | 异常处理策略 |
 
 ### 更新日志
 
-- [?? v1.0.5 更新](NULLABLE_TYPES_UPDATE.md) - 可空类型支持
-- [?? v1.0.4 更新](RELEASE_NOTES_v1.0.4.md) - 警告修复和文档完善
-- [?? CS8603 警告修复](CS8603_WARNING_FIX.md) - 可空引用类型警告处理
-
-### 文档导航
-
-访问 [docs/README.md](docs/README.md) 获取完整的文档结构和快速查找索引。
+| 版本 | 说明 |
+|------|------|
+| v1.0.5 | 可空类型支持 |
+| v1.0.4 | 警告修复 |
+| v1.0.3 | 运行时规则 |
 
 ---
 
@@ -281,13 +316,20 @@ public class UserService
 
 ### 性能特点
 
-1. **表达式树编译**：一次编译，多次复用
-2. **委托缓存**：避免重复编译开销
-3. **Source Generator**：编译时生成映射代码
-4. **手动注册优先**：最高性能路径
+<table>
+<tr>
+<td width="50%">
 
-### 执行顺序
+**优化机制**
+1. 表达式树编译（一次编译，多次复用）
+2. 委托缓存（避免重复编译）
+3. Source Generator（编译时生成代码）
+4. 手动注册优先（最高性能路径）
 
+</td>
+<td width="50%">
+
+**执行顺序**
 ```
 MapperRegistry 注册的委托（最快）
     ↓
@@ -296,12 +338,18 @@ Source Generator 生成的代码
 表达式树编译（运行时回退）
 ```
 
+</td>
+</tr>
+</table>
+
 ### 性能建议
 
-- ? 使用 `MapperRegistry.Register` 手动注册高频映射
-- ? 启用 Source Generator（如果可用）
-- ? 缓存 Mapper 实例（线程安全，建议单例）
-- ? 避免频繁配置，在启动时配置一次
+| 建议 | 说明 |
+|------|------|
+| ? 手动注册 | 使用 `MapperRegistry.Register` 注册高频映射 |
+| ? Source Generator | 启用 Source Generator（如果可用） |
+| ? 缓存实例 | Mapper 线程安全，建议单例 |
+| ? 一次配置 | 在启动时配置，避免频繁配置 |
 
 ---
 
@@ -333,7 +381,7 @@ var users = dbResult.Select(row =>
 var externalData = await _httpClient.GetAsync<ExternalApiResponse>();
 var user = externalData.Adapt<User>(
     AdaptOptions.IgnoreCaseOption,
-    (dest, src) => dest.Source = "ExternalAPI"
+    (src, dest) => dest.Source = "ExternalAPI"
 );
 ```
 
@@ -351,25 +399,27 @@ var user = externalData.Adapt<User>(
 | 轻量级 | ? (< 100KB) | ? | ? |
 | DI 集成 | ? | ? | ?? |
 | 链式 API | ? | ? | ? |
-| Source Generator | ? | ? | ?? |
 
 ---
 
 ## ?? 更新日志
 
-### v1.0.5 (最新)
-- ? **新增**：完整的可空类型支持（`int?`、`string?` 等）
-- ? **新增**：`ConvertSimpleType` 方法处理 7 种可空类型转换场景
-- ?? **文档**：新增可空类型完整使用文档
-- ?? **测试**：新增 6+ 个可空类型测试场景
+### v1.0.5 (当前) - 可空类型支持
 
-### v1.0.4
-- ?? **修复**：所有 XML 注释警告（27 → 2）
-- ?? **修复**：空引用警告和 CS8603 警告
-- ?? **优化**：DependencyInjection 包版本兼容性
+- ? **新增**：完整的可空类型支持（`int?`、`string?` 等）
+- ? **增强**：`ConvertSimpleType` 方法新增 7 种可空类型转换场景
+- ?? **文档**：添加可空类型详细使用文档
+- ? **测试**：添加 6+ 个可空类型测试场景
+
+### v1.0.4 - 警告修复
+
+- ??? **修复**：所有 XML 注释警告（27 → 2）
+- ??? **修复**：空引用警告和 CS8603 警告
+- ??? **优化**：DependencyInjection 包版本兼容性
 - ?? **文档**：完善 README 和 API 参考文档
 
-### v1.0.3
+### v1.0.3 - 运行时规则
+
 - ? **新增**：运行时映射规则（AdaptOptions）
 - ? **新增**：AdaptList 集合映射扩展
 - ?? **修复**：类型转换器问题
@@ -388,6 +438,13 @@ var user = externalData.Adapt<User>(
 4. 推送到分支 (`git push origin feature/AmazingFeature`)
 5. 开启 Pull Request
 
+### 贡献指南
+
+- 遵循现有代码风格
+- 添加适当的测试
+- 更新相关文档
+- 确保所有测试通过
+
 ---
 
 ## ?? 许可证
@@ -398,17 +455,23 @@ var user = externalData.Adapt<User>(
 
 ## ?? 相关链接
 
-- ?? [NuGet 包](https://www.nuget.org/packages/Ling.Mapper/)
-- ?? [GitHub 仓库](https://github.com/yanhuuo/Ling.Mapper)
-- ?? [完整文档](docs/README.md)
-- ?? [问题反馈](https://github.com/yanhuuo/Ling.Mapper/issues)
-- ?? [功能建议](https://github.com/yanhuuo/Ling.Mapper/issues)
+<div align="center">
+
+| 链接 | 说明 |
+|------|------|
+| ?? [NuGet 包](https://www.nuget.org/packages/Ling.Mapper/) | 下载最新版本 |
+| ?? [GitHub 仓库](https://github.com/yanhuuo/Ling.Mapper) | 源代码和问题追踪 |
+| ?? [完整文档](docs/README.md) | 详细的技术文档 |
+| ?? [问题反馈](https://github.com/yanhuuo/Ling.Mapper/issues) | 报告 Bug |
+| ?? [功能建议](https://github.com/yanhuuo/Ling.Mapper/issues) | 提出新想法 |
+
+</div>
 
 ---
 
-## ?? Star 历史
+## ? Star 历史
 
-如果这个项目对您有帮助，请给一个 ?? Star 支持一下！
+如果这个项目对您有帮助，请给一个 ? Star 支持一下！
 
 [![Stargazers over time](https://starchart.cc/yanhuuo/Ling.Mapper.svg)](https://starchart.cc/yanhuuo/Ling.Mapper)
 
@@ -416,8 +479,16 @@ var user = externalData.Adapt<User>(
 
 <div align="center">
 
-**让对象映射变得简单高效！** ??
+### ?? 让对象映射变得简单高效！
+
+**Ling.Mapper** - 轻量、高效、易用的对象映射库
 
 Made with ?? by [yanhuuo](https://github.com/yanhuuo)
+
+---
+
+[![GitHub stars](https://img.shields.io/github/stars/yanhuuo/Ling.Mapper?style=social)](https://github.com/yanhuuo/Ling.Mapper)
+[![GitHub forks](https://img.shields.io/github/forks/yanhuuo/Ling.Mapper?style=social)](https://github.com/yanhuuo/Ling.Mapper)
+[![GitHub watchers](https://img.shields.io/github/watchers/yanhuuo/Ling.Mapper?style=social)](https://github.com/yanhuuo/Ling.Mapper)
 
 </div>

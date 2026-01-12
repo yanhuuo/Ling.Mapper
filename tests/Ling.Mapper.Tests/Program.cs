@@ -1,101 +1,190 @@
 ﻿// See https://aka.ms/new-console-template for more information
 using Ling.Mapper;
 using TestConsole;
+using System;
+using System.Diagnostics;
 
-Console.WriteLine("=== Ling.Mapper Test Console ===");
+Console.WriteLine("╔═══════════════════════════════════════════════════════════════╗");
+Console.WriteLine("║         Ling.Mapper v2 - Comprehensive Test Suite            ║");
+Console.WriteLine("╚═══════════════════════════════════════════════════════════════╝");
+Console.WriteLine();
 
-//1. 注册 JSON 转换器：string <-> ExtraInfoModel
-TypeConverterRegistry.RegisterJson<ExtraInfoModel>();
+// 初始化 Mapper 配置
+InitializeMapper();
 
-//2. 配置 Mapper
-var cfg = new MapperConfiguration();
-cfg.AddProfile(new ActivityProfile());
-cfg.AddProfile(new CustomerDemoProfile());
-cfg.AddProfile(new UserProfile()); // 添加用户映射配置
-cfg.AddProfile(new NullableTypeProfile()); // 添加可空类型映射配置
-cfg.ConfigureConventions(opt =>
+// 显示测试菜单
+ShowTestMenu();
+
+var choice = Console.ReadLine();
+
+switch (choice)
 {
-    //目标属性名称不分大小写
-    opt.CaseInsensitiveNameMatch = true;
-});
-
-var mapper = cfg.CreateMapper();
-// register global default
-MapperProvider.SetCurrent(mapper);
-
-//3. 构建 DTO 数据用于测试
-var dto = new ActivityDto
-{
-    FirstName = "Tom",
-    LastName = "Lee",
-    Uid = 1001,
-    ExtraInfoJson = "{\"Level\":3,\"Tag\":\"VIP\"}",
-    Items = new List<ActivityItemDto>
-    {
-        new ActivityItemDto { Key = "A", Price = 99 },
-        new ActivityItemDto { Key = "B", Price = 199 }
-    },
-    User = new ActivityUserDto { NickName = "SuperTom" }
-};
-
-//4. 执行映射
-var entity = dto.Adapt<MallActivityEntity, ActivityDto>((src, dest) =>
-{
-    if (dest != null)
-    {
-        dest.Name = src.FirstName + " - MappedInAction";
-    }
-});
-
-//5. 输出测试结果
-Console.WriteLine("\n=== 映射结果 ===");
-Console.WriteLine($"Name: {entity?.Name}");
-Console.WriteLine($"UserId: {entity?.UserId}");
-Console.WriteLine($"ExtraInfo.Level: {entity?.ExtraInfo?.Level}");
-Console.WriteLine($"ExtraInfo.Tag: {entity?.ExtraInfo?.Tag}");
-Console.WriteLine($"User.NickName: {entity?.User?.NickName}");
-Console.WriteLine("Items:");
-if (entity?.Items != null)
-{
-    foreach (var item in entity.Items)
-    {
-        Console.WriteLine($" - Key: {item.Key}, Price: {item.Price}");
-    }
+    case "1":
+        RunBasicTests();
+        break;
+    case "2":
+        RunAdvancedTests();
+        break;
+    case "3":
+        RunPerformanceTests();
+        break;
+    case "4":
+        RunStressTests();
+        break;
+    case "5":
+        RunAllTests();
+        break;
+    case "0":
+        return;
+    default:
+        Console.WriteLine("无效选择，运行所有测试...");
+        RunAllTests();
+        break;
 }
-Console.WriteLine("InternalCode (should be null due to Ignore): " + entity?.InternalCode);
 
-//6. 执行映射
-var entity2 = dto.Adapt<MallActivityEntity>();
-
-
-var result = dto.Adapt<MallActivityEntity, ActivityDto>(mapper, (src, dest) =>
-{
-    if (dest != null)
-    {
-        // 自定义映射逻辑（覆盖自动映射）
-        dest.Name = src.FirstName + " - CustomMap";
-        dest.UserId = src.Uid + 999;
-    }
-});
-
-Console.WriteLine("\n==== 测试 Adapt(Action)结果 ====");
-Console.WriteLine("Name: " + result?.Name);
-Console.WriteLine("UserId: " + result?.UserId);
-
-// 7. 演示 List 转换功能
-AdaptListDemo.Run();
-
-// 8. 演示异常处理行为
-ExceptionHandlingTest.Run();
-
-// 9. 演示忽略属性功能
-IgnorePropertiesDemo.Run();
-
-// 10. 演示 AdaptOptions 映射规则功能
-AdaptOptionsDemo.Run();
-
-// 11. 演示可空类型映射功能
-NullableTypeDemo.Run();
-
-Console.WriteLine("\n=== Test Completed ===");
+Console.WriteLine("\n按任意键退出...");
 Console.ReadLine();
+
+// ============ 初始化方法 ============
+
+void InitializeMapper()
+{
+    Console.WriteLine("📦 初始化 Mapper 配置...");
+    
+    // 注册 JSON 转换器
+    TypeConverterRegistry.RegisterJson<ExtraInfoModel>();
+    
+    // 配置 Mapper
+    var cfg = new MapperConfiguration();
+    cfg.AddProfile(new ActivityProfile());
+    cfg.AddProfile(new CustomerDemoProfile());
+    cfg.AddProfile(new UserProfile());
+    cfg.AddProfile(new NullableTypeProfile());
+    cfg.ConfigureConventions(opt =>
+    {
+        opt.CaseInsensitiveNameMatch = true;
+    });
+    
+    var mapper = cfg.CreateMapper();
+    MapperProvider.SetCurrent(mapper);
+    
+    Console.WriteLine("✅ Mapper 配置完成\n");
+}
+
+void ShowTestMenu()
+{
+    Console.WriteLine("请选择测试类型：");
+    Console.WriteLine("  1 - 基础功能测试 (Basic Tests)");
+    Console.WriteLine("  2 - 高级功能测试 (Advanced Tests)");
+    Console.WriteLine("  3 - 性能基准测试 (Performance Tests)");
+    Console.WriteLine("  4 - 压力测试 (Stress Tests)");
+    Console.WriteLine("  5 - 运行所有测试 (Run All Tests)");
+    Console.WriteLine("  0 - 退出 (Exit)");
+    Console.Write("\n选择 (1-5): ");
+}
+
+// ============ 测试套件 ============
+
+void RunBasicTests()
+{
+    Console.WriteLine("\n╔═══════════════════════════════════════╗");
+    Console.WriteLine("║      基础功能测试 (Basic Tests)        ║");
+    Console.WriteLine("╚═══════════════════════════════════════╝\n");
+    
+    var sw = Stopwatch.StartNew();
+    
+    // 1. 基本映射测试
+    BasicMappingTest.Run();
+    
+    // 2. 集合映射测试
+    AdaptListDemo.Run();
+    
+    // 3. 可空类型测试
+    NullableTypeDemo.Run();
+    
+    // 4. 枚举转换测试
+    EnumConversionDemo.Run();
+    
+    // 5. AdaptOptions 测试
+    AdaptOptionsDemo.Run();
+    
+    // 6. Adapt 扩展方法测试
+    AdaptExtensionsTest.Run();
+    
+    sw.Stop();
+    Console.WriteLine($"\n✅ 基础测试完成，耗时: {sw.ElapsedMilliseconds} ms\n");
+}
+
+void RunAdvancedTests()
+{
+    Console.WriteLine("\n╔═══════════════════════════════════════╗");
+    Console.WriteLine("║     高级功能测试 (Advanced Tests)      ║");
+    Console.WriteLine("╚═══════════════════════════════════════╝\n");
+    
+    var sw = Stopwatch.StartNew();
+    
+    // 1. 复杂对象映射测试
+    ComplexObjectMappingTest.Run();
+    
+    // 2. 嵌套集合映射测试
+    NestedCollectionTest.Run();
+    
+    // 3. 异常处理测试
+    ExceptionHandlingTest.Run();
+    
+    // 4. Mapper v2 验证测试
+    MapperV2ValidationTests.Run();
+    
+    // 5. 循环引用测试
+    CircularReferenceTest.Run();
+    
+    // 6. 多层嵌套测试
+    DeepNestingTest.Run();
+    
+    // 7. StackOverflow 修复验证测试（重要！）
+    StackOverflowFixTest.Run();
+    
+    sw.Stop();
+    Console.WriteLine($"\n✅ 高级测试完成，耗时: {sw.ElapsedMilliseconds} ms\n");
+}
+
+void RunPerformanceTests()
+{
+    Console.WriteLine("\n╔═══════════════════════════════════════╗");
+    Console.WriteLine("║    性能基准测试 (Performance Tests)    ║");
+    Console.WriteLine("╚═══════════════════════════════════════╝\n");
+    
+    PerformanceBenchmarkTest.Run();
+}
+
+void RunStressTests()
+{
+    Console.WriteLine("\n╔═══════════════════════════════════════╗");
+    Console.WriteLine("║       压力测试 (Stress Tests)         ║");
+    Console.WriteLine("╚═══════════════════════════════════════╝\n");
+    
+    StressTest.Run();
+}
+
+void RunAllTests()
+{
+    Console.WriteLine("\n╔═══════════════════════════════════════╗");
+    Console.WriteLine("║    运行所有测试 (Run All Tests)        ║");
+    Console.WriteLine("╚═══════════════════════════════════════╝\n");
+    
+    var totalSw = Stopwatch.StartNew();
+    
+    RunBasicTests();
+    RunAdvancedTests();
+    RunPerformanceTests();
+    RunStressTests();
+    
+    totalSw.Stop();
+    
+    Console.WriteLine("\n╔═══════════════════════════════════════╗");
+    Console.WriteLine("║           测试总结 (Summary)           ║");
+    Console.WriteLine("╚═══════════════════════════════════════╝");
+    Console.WriteLine($"  总耗时: {totalSw.ElapsedMilliseconds} ms");
+    Console.WriteLine($"  状态: ✅ 所有测试完成");
+    Console.WriteLine();
+}
