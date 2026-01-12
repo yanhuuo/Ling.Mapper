@@ -51,6 +51,7 @@
 		<None Include="ling.png" Pack="true" PackagePath="" />
 
 		<!-- 打包 README -->
+		<None Include="..\..\README.md" Pack="true" PackagePath="\" />
 	</ItemGroup>
 
 	<ItemGroup>
