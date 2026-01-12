@@ -1,0 +1,96 @@
+{
+  // 编辑器设置
+  "editor.formatOnSave": true,
+  "editor.formatOnPaste": false,
+  "editor.tabSize": 4,
+  "editor.insertSpaces": true,
+  "editor.detectIndentation": false,
+  "editor.trimAutoWhitespace": true,
+  
+  // 文件编码设置（核心配置）
+  "files.encoding": "utf8",
+  "files.autoGuessEncoding": false,
+  "files.eol": "\r\n",
+  
+  // 自动保存
+  "files.autoSave": "afterDelay",
+  "files.autoSaveDelay": 1000,
+  
+  // 排除文件
+  "files.exclude": {
+    "**/bin": true,
+    "**/obj": true,
+    "**/.vs": true,
+    "**/.git": true
+  },
+  
+  // C# 特定设置
+  "[csharp]": {
+    "editor.tabSize": 4,
+    "editor.insertSpaces": true,
+    "files.encoding": "utf8",
+    "editor.formatOnSave": true,
+    "editor.codeActionsOnSave": {
+      "source.organizeImports": "explicit"
+    }
+  },
+  
+  // Markdown 特定设置
+  "[markdown]": {
+    "editor.tabSize": 2,
+    "files.encoding": "utf8",
+    "editor.wordWrap": "on",
+    "editor.quickSuggestions": {
+      "comments": "off",
+      "strings": "off",
+      "other": "off"
+    }
+  },
+  
+  // JSON 特定设置
+  "[json]": {
+    "editor.tabSize": 2,
+    "files.encoding": "utf8",
+    "editor.formatOnSave": true
+  },
+  
+  // XML 特定设置
+  "[xml]": {
+    "editor.tabSize": 2,
+    "files.encoding": "utf8"
+  },
+  
+  // C# 扩展设置
+  "omnisharp.enableRoslynAnalyzers": true,
+  "omnisharp.enableEditorConfigSupport": true,
+  "omnisharp.enableImportCompletion": true,
+  
+  // Git 设置
+  "git.enabled": true,
+  "git.autofetch": true,
+  
+  // 搜索排除
+  "search.exclude": {
+    "**/bin": true,
+    "**/obj": true,
+    "**/.vs": true,
+    "**/.git": true,
+    "**/node_modules": true,
+    "**/packages": true
+  },
+  
+  // 终端设置
+  "terminal.integrated.defaultProfile.windows": "PowerShell",
+  
+  // 建议和智能感知
+  "editor.suggestSelection": "first",
+  "vsintellicode.modify.editor.suggestSelection": "automaticallyOverrodeDefaultValue",
+  
+  // 文件关联
+  "files.associations": {
+    "*.csproj": "xml",
+    "*.props": "xml",
+    "*.targets": "xml",
+    ".editorconfig": "properties"
+  }
+}

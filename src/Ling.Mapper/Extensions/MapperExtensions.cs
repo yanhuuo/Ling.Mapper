@@ -1,20 +1,39 @@
 using System.Linq;
+using System.Collections.Generic;
 
 namespace Ling.Mapper
 {
     /// <summary>
-    /// IMapper À©Õ¹·½·¨¼¯ºÏ
+    /// IMapper æ‰©å±•æ–¹æ³•é›†åˆ
     /// </summary>
+    /// <remarks>
+    /// <para>æœ¬ç±»æä¾›äº†ä¸°å¯Œçš„å¯¹è±¡æ˜ å°„æ‰©å±•æ–¹æ³•ï¼Œç®€åŒ–æ˜ å°„æ“ä½œã€‚</para>
+    /// <para><strong>ä¸»è¦åŠŸèƒ½ï¼š</strong></para>
+    /// <list type="bullet">
+    /// <item><description><strong>Adapt ç³»åˆ—</strong>ï¼šçµæ´»çš„å¯¹è±¡æ˜ å°„ï¼Œæ”¯æŒå›è°ƒå‡½æ•°</description></item>
+    /// <item><description><strong>AdaptList ç³»åˆ—</strong>ï¼šé›†åˆæ˜ å°„ï¼Œæ”¯æŒå…ƒç´ çº§å¤„ç†</description></item>
+    /// <item><description><strong>MapTo / MapInto</strong>ï¼šåŸºç¡€æ˜ å°„æ“ä½œ</description></item>
+    /// <item><description><strong>TryMap / MapOrDefault / MapOrThrow</strong>ï¼šå®‰å…¨çš„æ˜ å°„æ–¹æ³•</description></item>
+    /// <item><description><strong>AdaptOptions</strong>ï¼šè¿è¡Œæ—¶æ˜ å°„è§„åˆ™é…ç½®</description></item>
+    /// </list>
+    /// <para><strong>ç›¸å…³æ–‡æ¡£ï¼š</strong></para>
+    /// <list type="bullet">
+    /// <item><description>è¯¦ç»†ä½¿ç”¨æŒ‡å—ï¼š<c>docs/Adaptä½¿ç”¨æŒ‡å—.md</c></description></item>
+    /// <item><description>å…¨å±€é…ç½®è¯´æ˜ï¼š<c>docs/å…¨å±€é…ç½®å’Œè¿è¡Œæ—¶é€‰é¡¹æŒ‡å—.md</c></description></item>
+    /// <item><description>åŠŸèƒ½æ¦‚è§ˆï¼š<c>docs/åŠŸèƒ½æ¦‚è§ˆ.md</c></description></item>
+    /// <item><description>å¼‚å¸¸å¤„ç†ï¼š<c>docs/å¼‚å¸¸å¤„ç†å¿«é€ŸæŒ‡å—.md</c></description></item>
+    /// </list>
+    /// </remarks>
     public static class MapperExtensions
     {
         /// <summary>
-        /// Ê¹ÓÃÖ¸¶¨µÄ IMapper ½«µ±Ç°¶ÔÏóÓ³ÉäÎªÄ¿±êÀàĞÍ TDestination¡£
+        /// ä½¿ç”¨æŒ‡å®šçš„ IMapper å°†å½“å‰å¯¹è±¡æ˜ å°„ä¸ºç›®æ ‡ç±»å‹ TDestinationã€‚
         /// </summary>
-        /// <typeparam name="TDestination">Ä¿±êÀàĞÍ¡£</typeparam>
-        /// <typeparam name="TSource">Ô´ÀàĞÍ¡£</typeparam>
-        /// <param name="source">Ô´¶ÔÏóÊµÀı¡£</param>
-        /// <param name="mapper">IMapper ÊµÀı¡£</param>
-        /// <returns>Ó³ÉäºóµÄÄ¿±êÀàĞÍÊµÀı¡£</returns>
+        /// <typeparam name="TDestination">ç›®æ ‡ç±»å‹ã€‚</typeparam>
+        /// <typeparam name="TSource">æºç±»å‹ã€‚</typeparam>
+        /// <param name="source">æºå¯¹è±¡å®ä¾‹ã€‚</param>
+        /// <param name="mapper">IMapper å®ä¾‹ã€‚</param>
+        /// <returns>æ˜ å°„åçš„ç›®æ ‡ç±»å‹å®ä¾‹ã€‚</returns>
         public static TDestination? MapTo<TDestination, TSource>(
             this TSource source, IMapper mapper)
         {
@@ -22,20 +41,20 @@ namespace Ling.Mapper
         }
 
         /// <summary>
-        /// Ó³Éä²¢ÔÊĞíÊ¹ÓÃÄäÃû·½·¨¶ÔÄ¿±ê¶ÔÏó½øĞĞ¶ş´Î¼Ó¹¤¡£
+        /// æ˜ å°„å¹¶å…è®¸ä½¿ç”¨åŒ¿åæ–¹æ³•å¯¹ç›®æ ‡å¯¹è±¡è¿›è¡ŒäºŒæ¬¡åŠ å·¥ã€‚
         /// </summary>
-        /// <typeparam name="TDestination">Ä¿±êÀàĞÍ</typeparam>
-        /// <typeparam name="TSource">Ô´ÀàĞÍ</typeparam>
-        /// <param name="source">Ô´¶ÔÏóÊµÀı</param>
-        /// <param name="mapper">IMapper ÊµÀı</param>
-        /// <param name="custom">×Ô¶¨Òå´¦Àí»Øµ÷</param>
-        /// <returns>Ó³ÉäºóµÄÄ¿±êÀàĞÍÊµÀı</returns>
+        /// <typeparam name="TDestination">ç›®æ ‡ç±»å‹</typeparam>
+        /// <typeparam name="TSource">æºç±»å‹</typeparam>
+        /// <param name="source">æºå¯¹è±¡å®ä¾‹</param>
+        /// <param name="mapper">IMapper å®ä¾‹</param>
+        /// <param name="custom">è‡ªå®šä¹‰å¤„ç†å›è°ƒ</param>
+        /// <returns>æ˜ å°„åçš„ç›®æ ‡ç±»å‹å®ä¾‹</returns>
         /// <remarks>
-        /// Èç¹ûÓ³Éä½á¹ûÎª null ÇÒÄ¿±êÀàĞÍ²»ÊÇÖµÀàĞÍ£¬½«³¢ÊÔ´´½¨Ä¿±êÀàĞÍµÄÊµÀı¡£
-        /// Èç¹ûÊµÀı»¯Ê§°Ü£¬½«Å×³öÏàÓ¦µÄÒì³££¬¶ø²»ÊÇ·µ»Ø null¡£
+        /// å¦‚æœæ˜ å°„ç»“æœä¸º null ä¸”ç›®æ ‡ç±»å‹ä¸æ˜¯å€¼ç±»å‹ï¼Œå°†å°è¯•åˆ›å»ºç›®æ ‡ç±»å‹çš„å®ä¾‹ã€‚
+        /// å¦‚æœå®ä¾‹åŒ–å¤±è´¥ï¼Œå°†æŠ›å‡ºç›¸åº”çš„å¼‚å¸¸ï¼Œè€Œä¸æ˜¯è¿”å› nullã€‚
         /// </remarks>
-        /// <exception cref="System.MissingMethodException">Ä¿±êÀàĞÍÃ»ÓĞÎŞ²Î¹¹Ôìº¯Êı</exception>
-        /// <exception cref="System.MemberAccessException">Ä¿±êÀàĞÍµÄ¹¹Ôìº¯Êı²»¿É·ÃÎÊ</exception>
+        /// <exception cref="System.MissingMethodException">ç›®æ ‡ç±»å‹æ²¡æœ‰æ— å‚æ„é€ å‡½æ•°</exception>
+        /// <exception cref="System.MemberAccessException">ç›®æ ‡ç±»å‹çš„æ„é€ å‡½æ•°ä¸å¯è®¿é—®</exception>
         public static TDestination? Adapt<TDestination, TSource>(
             this TSource source,
             IMapper mapper,
@@ -55,26 +74,26 @@ namespace Ling.Mapper
         }
 
         /// <summary>
-        /// ½«Ô´Ó³Éäµ½ÒÑÓĞÄ¿±êÊµÀı£¨²»»á´´½¨ĞÂÊµÀı£©¡£
-        /// ÒªÇó mapper ÊµÏÖ Map(object, Type, Type, object) »òÍ¨¹ı·´ÉäÉèÖÃÊôĞÔ¡£
+        /// å°†æºæ˜ å°„åˆ°å·²æœ‰ç›®æ ‡å®ä¾‹ï¼ˆä¸ä¼šåˆ›å»ºæ–°å®ä¾‹ï¼‰ã€‚
+        /// è¦æ±‚ mapper å®ç° Map(object, Type, Type, object) æˆ–é€šè¿‡åå°„è®¾ç½®å±æ€§ã€‚
         /// </summary>
-        /// <typeparam name="TDestination">Ä¿±êÀàĞÍ</typeparam>
-        /// <param name="mapper">IMapper ÊµÀı</param>
-        /// <param name="source">Ô´¶ÔÏó</param>
-        /// <param name="destination">Ä¿±ê¶ÔÏóÊµÀı</param>
-        /// <returns>¸üĞÂºóµÄÄ¿±ê¶ÔÏó</returns>
-        /// <exception cref="System.ArgumentNullException">mapper »ò destination Îª null</exception>
+        /// <typeparam name="TDestination">ç›®æ ‡ç±»å‹</typeparam>
+        /// <param name="mapper">IMapper å®ä¾‹</param>
+        /// <param name="source">æºå¯¹è±¡</param>
+        /// <param name="destination">ç›®æ ‡å¯¹è±¡å®ä¾‹</param>
+        /// <returns>æ›´æ–°åçš„ç›®æ ‡å¯¹è±¡</returns>
+        /// <exception cref="System.ArgumentNullException">mapper æˆ– destination ä¸º null</exception>
         public static TDestination MapInto<TDestination>(
             this IMapper mapper, object source, TDestination destination)
         {
             if (mapper == null) throw new System.ArgumentNullException(nameof(mapper));
             if (destination == null) throw new System.ArgumentNullException(nameof(destination));
 
-            // Èç¹û mapper Ö§³ÖÖ±½Ó Map(object, Type, Type, object) µÄÖØÔØ£¬¿ÉÖ±½Óµ÷ÓÃ£¨µ±Ç°ÊµÏÖÍ¨¹ı Map +¸´ÖÆÊôĞÔ£©
+            // å¦‚æœ mapper æ”¯æŒç›´æ¥ Map(object, Type, Type, object) çš„é‡è½½ï¼Œå¯ç›´æ¥è°ƒç”¨ï¼ˆå½“å‰å®ç°é€šè¿‡ Map +å¤åˆ¶å±æ€§ï¼‰
             var mapped = mapper.Map<object>(source);
             if (mapped == null) return destination;
 
-            // ¼òµ¥µØ½« mapped µÄ¿ÉĞ´ÊôĞÔ¸´ÖÆµ½ destination
+            // ç®€å•åœ°å°† mapped çš„å¯å†™å±æ€§å¤åˆ¶åˆ° destination
             var destType = typeof(TDestination);
             var srcType = mapped.GetType();
 
@@ -91,13 +110,13 @@ namespace Ling.Mapper
         }
 
         /// <summary>
-        /// ³¢ÊÔÓ³Éä£¬±ÜÃâÅ×³öÒì³££¬·µ»Ø bool ²¢Êä³öÄ¿±êÊµÀı¡£
+        /// å°è¯•æ˜ å°„ï¼Œé¿å…æŠ›å‡ºå¼‚å¸¸ï¼Œè¿”å› bool å¹¶è¾“å‡ºç›®æ ‡å®ä¾‹ã€‚
         /// </summary>
-        /// <typeparam name="TDestination">Ä¿±êÀàĞÍ</typeparam>
-        /// <param name="mapper">IMapper ÊµÀı</param>
-        /// <param name="source">Ô´¶ÔÏó</param>
-        /// <param name="destination">Ó³Éä½á¹û</param>
-        /// <returns>Ó³ÉäÊÇ·ñ³É¹¦</returns>
+        /// <typeparam name="TDestination">ç›®æ ‡ç±»å‹</typeparam>
+        /// <param name="mapper">IMapper å®ä¾‹</param>
+        /// <param name="source">æºå¯¹è±¡</param>
+        /// <param name="destination">æ˜ å°„ç»“æœ</param>
+        /// <returns>æ˜ å°„æ˜¯å¦æˆåŠŸ</returns>
         public static bool TryMap<TDestination>(
             this IMapper mapper, object? source, out TDestination? destination)
         {
@@ -115,24 +134,24 @@ namespace Ling.Mapper
         }
 
         /// <summary>
-        /// ÖØĞÂÒıÈëÒ»¸ö¼òµ¥µÄ Adapt ÖØÔØ£¬Ê¹ÓÃÈ«¾ÖµÄ MapperProvider£¨Ô´ÓÅÏÈĞÎÊ½£©
+        /// é‡æ–°å¼•å…¥ä¸€ä¸ªç®€å•çš„ Adapt é‡è½½ï¼Œä½¿ç”¨å…¨å±€çš„ MapperProviderï¼ˆæºä¼˜å…ˆå½¢å¼ï¼‰
         /// </summary>
-        /// <typeparam name="TDestination">Ä¿±êÀàĞÍ</typeparam>
-        /// <typeparam name="TSource">Ô´ÀàĞÍ</typeparam>
-        /// <param name="source">Ô´¶ÔÏó</param>
-        /// <param name="custom">×Ô¶¨Òå´¦Àí»Øµ÷</param>
-        /// <returns>Ó³ÉäºóµÄÄ¿±ê¶ÔÏó</returns>
-        /// <exception cref="System.InvalidOperationException">Î´×¢²áÈ«¾Ö Mapper</exception>
-        /// <exception cref="System.MissingMethodException">Ä¿±êÀàĞÍÃ»ÓĞÎŞ²Î¹¹Ôìº¯Êı</exception>
-        /// <exception cref="System.MemberAccessException">Ä¿±êÀàĞÍµÄ¹¹Ôìº¯Êı²»¿É·ÃÎÊ</exception>
+        /// <typeparam name="TDestination">ç›®æ ‡ç±»å‹</typeparam>
+        /// <typeparam name="TSource">æºç±»å‹</typeparam>
+        /// <param name="source">æºå¯¹è±¡</param>
+        /// <param name="custom">è‡ªå®šä¹‰å¤„ç†å›è°ƒ</param>
+        /// <returns>æ˜ å°„åçš„ç›®æ ‡å¯¹è±¡</returns>
+        /// <exception cref="System.InvalidOperationException">æœªæ³¨å†Œå…¨å±€ Mapper</exception>
+        /// <exception cref="System.MissingMethodException">ç›®æ ‡ç±»å‹æ²¡æœ‰æ— å‚æ„é€ å‡½æ•°</exception>
+        /// <exception cref="System.MemberAccessException">ç›®æ ‡ç±»å‹çš„æ„é€ å‡½æ•°ä¸å¯è®¿é—®</exception>
         /// <remarks>
-        /// Èç¹ûÓ³Éä½á¹ûÎª null ÇÒÄ¿±êÀàĞÍ²»ÊÇÖµÀàĞÍ£¬½«³¢ÊÔ´´½¨Ä¿±êÀàĞÍµÄÊµÀı¡£
-        /// Èç¹ûÊµÀı»¯Ê§°Ü£¬½«Å×³öÏàÓ¦µÄÒì³££¬¶ø²»ÊÇ·µ»Ø null¡£
+        /// å¦‚æœæ˜ å°„ç»“æœä¸º null ä¸”ç›®æ ‡ç±»å‹ä¸æ˜¯å€¼ç±»å‹ï¼Œå°†å°è¯•åˆ›å»ºç›®æ ‡ç±»å‹çš„å®ä¾‹ã€‚
+        /// å¦‚æœå®ä¾‹åŒ–å¤±è´¥ï¼Œå°†æŠ›å‡ºç›¸åº”çš„å¼‚å¸¸ï¼Œè€Œä¸æ˜¯è¿”å› nullã€‚
         /// </remarks>
         public static TDestination? Adapt<TDestination, TSource>(
             this TSource source, System.Action<TSource, TDestination?>? custom)
         {
-            var mapper = MapperProvider.Current ?? throw new System.InvalidOperationException("Ã»ÓĞ×¢²áÄ¬ÈÏµÄ mapper¡£Çëµ÷ÓÃ MapperProvider.SetCurrent(mapper) »òÊ¹ÓÃ´ø IMapper ²ÎÊıµÄÖØÔØ.");
+            var mapper = MapperProvider.Current ?? throw new System.InvalidOperationException("æ²¡æœ‰æ³¨å†Œé»˜è®¤çš„ mapperã€‚è¯·è°ƒç”¨ MapperProvider.SetCurrent(mapper) æˆ–ä½¿ç”¨å¸¦ IMapper å‚æ•°çš„é‡è½½.");
             var dest = mapper.Map<TDestination>(source);
 
             if (dest == null && !typeof(TDestination).IsValueType)
@@ -147,13 +166,13 @@ namespace Ling.Mapper
         }
 
         /// <summary>
-        /// Ìá¹©½ÓÊÜ mapper ²ÎÊı²¢Ö±½Ó·µ»ØÓ³Éä½á¹ûµÄ Adapt ÖØÔØ£¨ÎŞ×Ô¶¨Òå»Øµ÷£©¡£
+        /// æä¾›æ¥å— mapper å‚æ•°å¹¶ç›´æ¥è¿”å›æ˜ å°„ç»“æœçš„ Adapt é‡è½½ï¼ˆæ— è‡ªå®šä¹‰å›è°ƒï¼‰ã€‚
         /// </summary>
-        /// <typeparam name="TDestination">Ä¿±êÀàĞÍ</typeparam>
-        /// <typeparam name="TSource">Ô´ÀàĞÍ</typeparam>
-        /// <param name="source">Ô´¶ÔÏó</param>
-        /// <param name="mapper">IMapper ÊµÀı</param>
-        /// <returns>Ó³ÉäºóµÄÄ¿±ê¶ÔÏó</returns>
+        /// <typeparam name="TDestination">ç›®æ ‡ç±»å‹</typeparam>
+        /// <typeparam name="TSource">æºç±»å‹</typeparam>
+        /// <param name="source">æºå¯¹è±¡</param>
+        /// <param name="mapper">IMapper å®ä¾‹</param>
+        /// <returns>æ˜ å°„åçš„ç›®æ ‡å¯¹è±¡</returns>
         public static TDestination? Adapt<TDestination, TSource>(
             this TSource source, IMapper mapper)
         {
@@ -161,24 +180,24 @@ namespace Ling.Mapper
         }
 
         /// <summary>
-        /// ĞÂµÄÖØÔØ£ºÄ¿±êÓÅÏÈµÄ»Øµ÷Ç©Ãû£¨²ÎÊıË³ĞòÎª (dest, src)£©£¬Óë¾É API ±£³Ö¼æÈİ¡£
+        /// æ–°çš„é‡è½½ï¼šç›®æ ‡ä¼˜å…ˆçš„å›è°ƒç­¾åï¼ˆå‚æ•°é¡ºåºä¸º (dest, src)ï¼‰ï¼Œä¸æ—§ API ä¿æŒå…¼å®¹ã€‚
         /// </summary>
-        /// <typeparam name="TDestination">Ä¿±êÀàĞÍ</typeparam>
-        /// <typeparam name="TSource">Ô´ÀàĞÍ</typeparam>
-        /// <param name="source">Ô´¶ÔÏó</param>
-        /// <param name="custom">×Ô¶¨Òå´¦Àí»Øµ÷£¬²ÎÊıË³ĞòÎª (destination, source)</param>
-        /// <returns>Ó³ÉäºóµÄÄ¿±ê¶ÔÏó</returns>
-        /// <exception cref="System.InvalidOperationException">Î´×¢²áÈ«¾Ö Mapper</exception>
-        /// <exception cref="System.MissingMethodException">Ä¿±êÀàĞÍÃ»ÓĞÎŞ²Î¹¹Ôìº¯Êı</exception>
-        /// <exception cref="System.MemberAccessException">Ä¿±êÀàĞÍµÄ¹¹Ôìº¯Êı²»¿É·ÃÎÊ</exception>
+        /// <typeparam name="TDestination">ç›®æ ‡ç±»å‹</typeparam>
+        /// <typeparam name="TSource">æºç±»å‹</typeparam>
+        /// <param name="source">æºå¯¹è±¡</param>
+        /// <param name="custom">è‡ªå®šä¹‰å¤„ç†å›è°ƒï¼Œå‚æ•°é¡ºåºä¸º (destination, source)</param>
+        /// <returns>æ˜ å°„åçš„ç›®æ ‡å¯¹è±¡</returns>
+        /// <exception cref="System.InvalidOperationException">æœªæ³¨å†Œå…¨å±€ Mapper</exception>
+        /// <exception cref="System.MissingMethodException">ç›®æ ‡ç±»å‹æ²¡æœ‰æ— å‚æ„é€ å‡½æ•°</exception>
+        /// <exception cref="System.MemberAccessException">ç›®æ ‡ç±»å‹çš„æ„é€ å‡½æ•°ä¸å¯è®¿é—®</exception>
         /// <remarks>
-        /// Èç¹ûÓ³Éä½á¹ûÎª null ÇÒÄ¿±êÀàĞÍ²»ÊÇÖµÀàĞÍ£¬½«³¢ÊÔ´´½¨Ä¿±êÀàĞÍµÄÊµÀı¡£
-        /// Èç¹ûÊµÀı»¯Ê§°Ü£¬½«Å×³öÏàÓ¦µÄÒì³££¬¶ø²»ÊÇ·µ»Ø null¡£
+        /// å¦‚æœæ˜ å°„ç»“æœä¸º null ä¸”ç›®æ ‡ç±»å‹ä¸æ˜¯å€¼ç±»å‹ï¼Œå°†å°è¯•åˆ›å»ºç›®æ ‡ç±»å‹çš„å®ä¾‹ã€‚
+        /// å¦‚æœå®ä¾‹åŒ–å¤±è´¥ï¼Œå°†æŠ›å‡ºç›¸åº”çš„å¼‚å¸¸ï¼Œè€Œä¸æ˜¯è¿”å› nullã€‚
         /// </remarks>
         public static TDestination? Adapt<TDestination, TSource>(
             this TSource source, System.Action<TDestination?, TSource>? custom)
         {
-            var mapper = MapperProvider.Current ?? throw new System.InvalidOperationException("Ã»ÓĞ×¢²áÄ¬ÈÏµÄ mapper¡£Çëµ÷ÓÃ MapperProvider.SetCurrent(mapper) »òÊ¹ÓÃ´ø IMapper ²ÎÊıµÄÖØÔØ.");
+            var mapper = MapperProvider.Current ?? throw new System.InvalidOperationException("æ²¡æœ‰æ³¨å†Œé»˜è®¤çš„ mapperã€‚è¯·è°ƒç”¨ MapperProvider.SetCurrent(mapper) æˆ–ä½¿ç”¨å¸¦ IMapper å‚æ•°çš„é‡è½½.");
             var dest = mapper.Map<TDestination>(source);
 
             if (dest == null && !typeof(TDestination).IsValueType)
@@ -193,19 +212,19 @@ namespace Ling.Mapper
         }
 
         /// <summary>
-        /// ¿ÉÑ¡µÄÄ¿±êÓÅÏÈĞÎÊ½µÄ Adapt ÖØÔØ£¬½ÓÊÜ mapper ²ÎÊıºÍ»Øµ÷¡£
+        /// å¯é€‰çš„ç›®æ ‡ä¼˜å…ˆå½¢å¼çš„ Adapt é‡è½½ï¼Œæ¥å— mapper å‚æ•°å’Œå›è°ƒã€‚
         /// </summary>
-        /// <typeparam name="TDestination">Ä¿±êÀàĞÍ</typeparam>
-        /// <typeparam name="TSource">Ô´ÀàĞÍ</typeparam>
-        /// <param name="source">Ô´¶ÔÏó</param>
-        /// <param name="mapper">IMapper ÊµÀı</param>
-        /// <param name="custom">×Ô¶¨Òå´¦Àí»Øµ÷£¬²ÎÊıË³ĞòÎª (destination, source)</param>
-        /// <returns>Ó³ÉäºóµÄÄ¿±ê¶ÔÏó</returns>
-        /// <exception cref="System.MissingMethodException">Ä¿±êÀàĞÍÃ»ÓĞÎŞ²Î¹¹Ôìº¯Êı</exception>
-        /// <exception cref="System.MemberAccessException">Ä¿±êÀàĞÍµÄ¹¹Ôìº¯Êı²»¿É·ÃÎÊ</exception>
+        /// <typeparam name="TDestination">ç›®æ ‡ç±»å‹</typeparam>
+        /// <typeparam name="TSource">æºç±»å‹</typeparam>
+        /// <param name="source">æºå¯¹è±¡</param>
+        /// <param name="mapper">IMapper å®ä¾‹</param>
+        /// <param name="custom">è‡ªå®šä¹‰å¤„ç†å›è°ƒï¼Œå‚æ•°é¡ºåºä¸º (destination, source)</param>
+        /// <returns>æ˜ å°„åçš„ç›®æ ‡å¯¹è±¡</returns>
+        /// <exception cref="System.MissingMethodException">ç›®æ ‡ç±»å‹æ²¡æœ‰æ— å‚æ„é€ å‡½æ•°</exception>
+        /// <exception cref="System.MemberAccessException">ç›®æ ‡ç±»å‹çš„æ„é€ å‡½æ•°ä¸å¯è®¿é—®</exception>
         /// <remarks>
-        /// Èç¹ûÓ³Éä½á¹ûÎª null ÇÒÄ¿±êÀàĞÍ²»ÊÇÖµÀàĞÍ£¬½«³¢ÊÔ´´½¨Ä¿±êÀàĞÍµÄÊµÀı¡£
-        /// Èç¹ûÊµÀı»¯Ê§°Ü£¬½«Å×³öÏàÓ¦µÄÒì³££¬¶ø²»ÊÇ·µ»Ø null¡£
+        /// å¦‚æœæ˜ å°„ç»“æœä¸º null ä¸”ç›®æ ‡ç±»å‹ä¸æ˜¯å€¼ç±»å‹ï¼Œå°†å°è¯•åˆ›å»ºç›®æ ‡ç±»å‹çš„å®ä¾‹ã€‚
+        /// å¦‚æœå®ä¾‹åŒ–å¤±è´¥ï¼Œå°†æŠ›å‡ºç›¸åº”çš„å¼‚å¸¸ï¼Œè€Œä¸æ˜¯è¿”å› nullã€‚
         /// </remarks>
         public static TDestination? Adapt<TDestination, TSource>(
             this TSource source, IMapper mapper, System.Action<TDestination?, TSource>? custom)
@@ -224,13 +243,13 @@ namespace Ling.Mapper
         }
 
         /// <summary>
-        /// ±ã½İÀ©Õ¹·½·¨
+        /// ä¾¿æ·æ‰©å±•æ–¹æ³•
         /// </summary>
-        /// <typeparam name="TDestination">Ä¿±êÀàĞÍ</typeparam>
-        /// <param name="mapper">IMapper ÊµÀı</param>
-        /// <param name="source">Ô´¶ÔÏó</param>
-        /// <param name="defaultValue">Ä¬ÈÏÖµ</param>
-        /// <returns>Ó³Éä½á¹û»òÄ¬ÈÏÖµ</returns>
+        /// <typeparam name="TDestination">ç›®æ ‡ç±»å‹</typeparam>
+        /// <param name="mapper">IMapper å®ä¾‹</param>
+        /// <param name="source">æºå¯¹è±¡</param>
+        /// <param name="defaultValue">é»˜è®¤å€¼</param>
+        /// <returns>æ˜ å°„ç»“æœæˆ–é»˜è®¤å€¼</returns>
         public static TDestination? MapOrDefault<TDestination>(this IMapper mapper, object? source, TDestination? defaultValue = default)
         {
             var d = mapper.Map<TDestination>(source);
@@ -238,65 +257,65 @@ namespace Ling.Mapper
         }
 
         /// <summary>
-        /// Ó³Éä¶ÔÏó£¬Èç¹û½á¹ûÎª null ÔòÅ×³öÒì³£
+        /// æ˜ å°„å¯¹è±¡ï¼Œå¦‚æœç»“æœä¸º null åˆ™æŠ›å‡ºå¼‚å¸¸
         /// </summary>
-        /// <typeparam name="TDestination">Ä¿±êÀàĞÍ</typeparam>
-        /// <param name="mapper">IMapper ÊµÀı</param>
-        /// <param name="source">Ô´¶ÔÏó</param>
-        /// <returns>Ó³ÉäºóµÄ¶ÔÏó</returns>
-        /// <exception cref="System.InvalidOperationException">Ó³Éä½á¹ûÎª null</exception>
+        /// <typeparam name="TDestination">ç›®æ ‡ç±»å‹</typeparam>
+        /// <param name="mapper">IMapper å®ä¾‹</param>
+        /// <param name="source">æºå¯¹è±¡</param>
+        /// <returns>æ˜ å°„åçš„å¯¹è±¡</returns>
+        /// <exception cref="System.InvalidOperationException">æ˜ å°„ç»“æœä¸º null</exception>
         public static TDestination MapOrThrow<TDestination>(this IMapper mapper, object? source)
         {
             var d = mapper.Map<TDestination>(source);
-            if (d == null) throw new System.InvalidOperationException("Ó³Éä½á¹ûÎª null");
+            if (d == null) throw new System.InvalidOperationException("æ˜ å°„ç»“æœä¸º null");
             return d;
         }
 
         /// <summary>
-        /// ¼ò»¯µÄ Adapt ·½·¨£¬×Ô¶¯ÍÆ¶ÏÔ´ÀàĞÍ£¬»Øµ÷²ÎÊıÎª (destination, source)
+        /// ç®€åŒ–çš„ Adapt æ–¹æ³•ï¼Œè‡ªåŠ¨æ¨æ–­æºç±»å‹ï¼Œå›è°ƒå‚æ•°ä¸º (destination, source)
         /// </summary>
-        /// <typeparam name="TDestination">Ä¿±êÀàĞÍ</typeparam>
-        /// <param name="source">Ô´¶ÔÏó</param>
-        /// <param name="custom">¿ÉÑ¡µÄ»Øµ÷º¯Êı£¬ÓÃÓÚ¶ÔÓ³Éä½á¹û½øĞĞÌØÊâ´¦Àí¡£²ÎÊıÎª (destination, source)</param>
-        /// <returns>Ó³ÉäºóµÄÄ¿±ê¶ÔÏó</returns>
+        /// <typeparam name="TDestination">ç›®æ ‡ç±»å‹</typeparam>
+        /// <param name="source">æºå¯¹è±¡</param>
+        /// <param name="custom">å¯é€‰çš„å›è°ƒå‡½æ•°ï¼Œç”¨äºå¯¹æ˜ å°„ç»“æœè¿›è¡Œç‰¹æ®Šå¤„ç†ã€‚å‚æ•°ä¸º (destination, source)</param>
+        /// <returns>æ˜ å°„åçš„ç›®æ ‡å¯¹è±¡</returns>
         /// <remarks>
-        /// <para>´Ë·½·¨Ê¹ÓÃÈ«¾ÖµÄ MapperProvider.Current ½øĞĞÓ³Éä£¬²¢Ö§³ÖÔÚÓ³ÉäÍê³ÉºóÍ¨¹ıÄäÃûº¯Êı½øĞĞ¶îÍâ´¦Àí¡£</para>
-        /// <para>Èç¹ûÓ³Éä½á¹ûÎª null ÇÒÄ¿±êÀàĞÍ²»ÊÇÖµÀàĞÍ£¬½«³¢ÊÔ´´½¨Ä¿±êÀàĞÍµÄÊµÀı¡£</para>
-        /// <para>Èç¹ûÊµÀı»¯Ê§°Ü£¨ÀıÈçÃ»ÓĞÎŞ²Î¹¹Ôìº¯Êı£©£¬½«Å×³öÒì³£¡£</para>
-        /// <para>ÌØ±ğÊÊÓÃÓÚĞèÒª¶ÔÓ³Éä½á¹û½øĞĞ¶ş´Î¼Ó¹¤µÄ³¡¾°£¬ÀıÈç£º</para>
+        /// <para>æ­¤æ–¹æ³•ä½¿ç”¨å…¨å±€çš„ MapperProvider.Current è¿›è¡Œæ˜ å°„ï¼Œå¹¶æ”¯æŒåœ¨æ˜ å°„å®Œæˆåé€šè¿‡åŒ¿åå‡½æ•°è¿›è¡Œé¢å¤–å¤„ç†ã€‚</para>
+        /// <para>å¦‚æœæ˜ å°„ç»“æœä¸º null ä¸”ç›®æ ‡ç±»å‹ä¸æ˜¯å€¼ç±»å‹ï¼Œå°†å°è¯•åˆ›å»ºç›®æ ‡ç±»å‹çš„å®ä¾‹ã€‚</para>
+        /// <para>å¦‚æœå®ä¾‹åŒ–å¤±è´¥ï¼ˆä¾‹å¦‚æ²¡æœ‰æ— å‚æ„é€ å‡½æ•°ï¼‰ï¼Œå°†æŠ›å‡ºå¼‚å¸¸ã€‚</para>
+        /// <para>ç‰¹åˆ«é€‚ç”¨äºéœ€è¦å¯¹æ˜ å°„ç»“æœè¿›è¡ŒäºŒæ¬¡åŠ å·¥çš„åœºæ™¯ï¼Œä¾‹å¦‚ï¼š</para>
         /// <list type="bullet">
-        /// <item><description>Ñ­»·´¦Àí·ÖÒ³½á¹ûÖĞµÄÁĞ±íÏî</description></item>
-        /// <item><description>¸ù¾İÔ­Ê¼Êı¾İ¼ÆËãÅÉÉú×Ö¶Î</description></item>
-        /// <item><description>¶ÔÓ³Éä½á¹û½øĞĞÌõ¼şÅĞ¶ÏºÍĞŞ¸Ä</description></item>
+        /// <item><description>å¾ªç¯å¤„ç†åˆ†é¡µç»“æœä¸­çš„åˆ—è¡¨é¡¹</description></item>
+        /// <item><description>æ ¹æ®åŸå§‹æ•°æ®è®¡ç®—æ´¾ç”Ÿå­—æ®µ</description></item>
+        /// <item><description>å¯¹æ˜ å°„ç»“æœè¿›è¡Œæ¡ä»¶åˆ¤æ–­å’Œä¿®æ”¹</description></item>
         /// </list>
         /// <example>
-        /// Ê¾Àı 1£º´¦Àí·ÖÒ³½á¹ûÖĞµÄÁĞ±íÊı¾İ
+        /// ç¤ºä¾‹ 1ï¼šå¤„ç†åˆ†é¡µç»“æœä¸­çš„åˆ—è¡¨æ•°æ®
         /// <code>
         /// var page = await query
         ///     .ToPageResultAsync(dto.page ?? 1, dto.size ?? 1)
         ///     .Adapt&lt;PageResult&lt;GetCustomerRewardConditionPageRes&gt;&gt;((res, dis) =>
         ///     {
-        ///         // res ÊÇÓ³ÉäºóµÄ PageResult&lt;GetCustomerRewardConditionPageRes&gt;
-        ///         // dis ÊÇÔ­Ê¼µÄÔ´¶ÔÏó
+        ///         // res æ˜¯æ˜ å°„åçš„ PageResult&lt;GetCustomerRewardConditionPageRes&gt;
+        ///         // dis æ˜¯åŸå§‹çš„æºå¯¹è±¡
         ///         
-        ///         // Ñ­»·´¦ÀíÁĞ±íÖĞµÄÃ¿Ò»Ïî
+        ///         // å¾ªç¯å¤„ç†åˆ—è¡¨ä¸­çš„æ¯ä¸€é¡¹
         ///         if (res.Items != null)
         ///         {
         ///             foreach (var item in res.Items)
         ///             {
-        ///                 // ¶ÔÃ¿¸öÏî½øĞĞÌØÊâ´¦Àí
+        ///                 // å¯¹æ¯ä¸ªé¡¹è¿›è¡Œç‰¹æ®Šå¤„ç†
         ///                 item.SomeProperty = CalculateValue(item);
         ///                 item.AnotherProperty = GetExtraData(item.Id);
         ///             }
         ///         }
         ///         
-        ///         // Ò²¿ÉÒÔĞŞ¸Ä·ÖÒ³ĞÅÏ¢
+        ///         // ä¹Ÿå¯ä»¥ä¿®æ”¹åˆ†é¡µä¿¡æ¯
         ///         res.Total = res.Items?.Count ?? 0;
         ///     });
         /// </code>
         /// </example>
         /// <example>
-        /// Ê¾Àı 2£ºÊ¹ÓÃ LINQ ÅúÁ¿´¦Àí
+        /// ç¤ºä¾‹ 2ï¼šä½¿ç”¨ LINQ æ‰¹é‡å¤„ç†
         /// <code>
         /// var page = await query
         ///     .ToPageResultAsync(dto.page ?? 1, dto.size ?? 1)
@@ -317,7 +336,7 @@ namespace Ling.Mapper
         /// </code>
         /// </example>
         /// <example>
-        /// Ê¾Àı 3£º²»ĞèÒªÌØÊâ´¦ÀíÊ±£¬Ê¡ÂÔÄäÃûº¯Êı
+        /// ç¤ºä¾‹ 3ï¼šä¸éœ€è¦ç‰¹æ®Šå¤„ç†æ—¶ï¼Œçœç•¥åŒ¿åå‡½æ•°
         /// <code>
         /// var page = await query
         ///     .ToPageResultAsync(dto.page ?? 1, dto.size ?? 1)
@@ -325,13 +344,13 @@ namespace Ling.Mapper
         /// </code>
         /// </example>
         /// </remarks>
-        /// <exception cref="System.InvalidOperationException">Î´×¢²áÈ«¾Ö Mapper Ê±Å×³ö</exception>
-        /// <exception cref="System.MissingMethodException">Ä¿±êÀàĞÍÃ»ÓĞÎŞ²Î¹¹Ôìº¯Êı</exception>
-        /// <exception cref="System.MemberAccessException">Ä¿±êÀàĞÍµÄ¹¹Ôìº¯Êı²»¿É·ÃÎÊ</exception>
+        /// <exception cref="System.InvalidOperationException">æœªæ³¨å†Œå…¨å±€ Mapper æ—¶æŠ›å‡º</exception>
+        /// <exception cref="System.MissingMethodException">ç›®æ ‡ç±»å‹æ²¡æœ‰æ— å‚æ„é€ å‡½æ•°</exception>
+        /// <exception cref="System.MemberAccessException">ç›®æ ‡ç±»å‹çš„æ„é€ å‡½æ•°ä¸å¯è®¿é—®</exception>
         public static TDestination? Adapt<TDestination>(
             this object source, System.Action<TDestination?, object>? custom = null)
         {
-            var mapper = MapperProvider.Current ?? throw new System.InvalidOperationException("Ã»ÓĞ×¢²áÄ¬ÈÏµÄ mapper£¬ÇëÏÈµ÷ MapperProvider.SetCurrent(mapper) »òÊ¹ÓÃ´ø IMapper ²ÎÊıµÄÖØÔØ¡£");
+            var mapper = MapperProvider.Current ?? throw new System.InvalidOperationException("æ²¡æœ‰æ³¨å†Œé»˜è®¤çš„ mapperï¼Œè¯·å…ˆè°ƒ MapperProvider.SetCurrent(mapper) æˆ–ä½¿ç”¨å¸¦ IMapper å‚æ•°çš„é‡è½½ã€‚");
             var dest = mapper.Map<TDestination>(source);
 
             if (dest == null && !typeof(TDestination).IsValueType)
@@ -346,29 +365,29 @@ namespace Ling.Mapper
         }
 
         /// <summary>
-        /// ´ø IMapper ²ÎÊıµÄ¼ò»¯ Adapt ·½·¨£¬»Øµ÷²ÎÊıÎª (destination, source)
+        /// å¸¦ IMapper å‚æ•°çš„ç®€åŒ– Adapt æ–¹æ³•ï¼Œå›è°ƒå‚æ•°ä¸º (destination, source)
         /// </summary>
-        /// <typeparam name="TDestination">Ä¿±êÀàĞÍ</typeparam>
-        /// <param name="source">Ô´¶ÔÏó</param>
-        /// <param name="mapper">Ö¸¶¨µÄ IMapper ÊµÀı</param>
-        /// <param name="custom">¿ÉÑ¡µÄ»Øµ÷º¯Êı£¬ÓÃÓÚ¶ÔÓ³Éä½á¹û½øĞĞÌØÊâ´¦Àí¡£²ÎÊıÎª (destination, source)</param>
-        /// <returns>Ó³ÉäºóµÄÄ¿±ê¶ÔÏó</returns>
+        /// <typeparam name="TDestination">ç›®æ ‡ç±»å‹</typeparam>
+        /// <param name="source">æºå¯¹è±¡</param>
+        /// <param name="mapper">æŒ‡å®šçš„ IMapper å®ä¾‹</param>
+        /// <param name="custom">å¯é€‰çš„å›è°ƒå‡½æ•°ï¼Œç”¨äºå¯¹æ˜ å°„ç»“æœè¿›è¡Œç‰¹æ®Šå¤„ç†ã€‚å‚æ•°ä¸º (destination, source)</param>
+        /// <returns>æ˜ å°„åçš„ç›®æ ‡å¯¹è±¡</returns>
         /// <remarks>
-        /// <para>´Ë·½·¨Ê¹ÓÃÖ¸¶¨µÄ IMapper ÊµÀı½øĞĞÓ³Éä£¬²¢Ö§³ÖÔÚÓ³ÉäÍê³ÉºóÍ¨¹ıÄäÃûº¯Êı½øĞĞ¶îÍâ´¦Àí¡£</para>
-        /// <para>ÓëÎŞ²ÎÊı°æ±¾µÄÇø±ğÊÇ¿ÉÒÔÖ¸¶¨ÌØ¶¨µÄ Mapper ÊµÀı£¬ÊÊÓÃÓÚĞèÒªÊ¹ÓÃ·ÇÈ«¾Ö Mapper µÄ³¡¾°¡£</para>
-        /// <para>Èç¹ûÓ³Éä½á¹ûÎª null ÇÒÄ¿±êÀàĞÍ²»ÊÇÖµÀàĞÍ£¬½«³¢ÊÔ´´½¨Ä¿±êÀàĞÍµÄÊµÀı¡£</para>
-        /// <para>Èç¹ûÊµÀı»¯Ê§°Ü£¨ÀıÈçÃ»ÓĞÎŞ²Î¹¹Ôìº¯Êı£©£¬½«Å×³öÒì³£¡£</para>
+        /// <para>æ­¤æ–¹æ³•ä½¿ç”¨æŒ‡å®šçš„ IMapper å®ä¾‹è¿›è¡Œæ˜ å°„ï¼Œå¹¶æ”¯æŒåœ¨æ˜ å°„å®Œæˆåé€šè¿‡åŒ¿åå‡½æ•°è¿›è¡Œé¢å¤–å¤„ç†ã€‚</para>
+        /// <para>ä¸æ— å‚æ•°ç‰ˆæœ¬çš„åŒºåˆ«æ˜¯å¯ä»¥æŒ‡å®šç‰¹å®šçš„ Mapper å®ä¾‹ï¼Œé€‚ç”¨äºéœ€è¦ä½¿ç”¨éå…¨å±€ Mapper çš„åœºæ™¯ã€‚</para>
+        /// <para>å¦‚æœæ˜ å°„ç»“æœä¸º null ä¸”ç›®æ ‡ç±»å‹ä¸æ˜¯å€¼ç±»å‹ï¼Œå°†å°è¯•åˆ›å»ºç›®æ ‡ç±»å‹çš„å®ä¾‹ã€‚</para>
+        /// <para>å¦‚æœå®ä¾‹åŒ–å¤±è´¥ï¼ˆä¾‹å¦‚æ²¡æœ‰æ— å‚æ„é€ å‡½æ•°ï¼‰ï¼Œå°†æŠ›å‡ºå¼‚å¸¸ã€‚</para>
         /// <example>
-        /// Ê¾Àı£ºÖ¸¶¨ÌØ¶¨µÄ Mapper ÊµÀı
+        /// ç¤ºä¾‹ï¼šæŒ‡å®šç‰¹å®šçš„ Mapper å®ä¾‹
         /// <code>
         /// var customMapper = new MapperConfiguration().CreateMapper();
         /// var result = sourceData
         ///     .Adapt&lt;TargetDto&gt;(customMapper, (res, dis) =>
         ///     {
-        ///         // ¶Ô½á¹û½øĞĞÌØÊâ´¦Àí
+        ///         // å¯¹ç»“æœè¿›è¡Œç‰¹æ®Šå¤„ç†
         ///         res.CalculatedField = res.Value * 2;
         ///         
-        ///         // Ñ­»·´¦Àí¼¯ºÏ
+        ///         // å¾ªç¯å¤„ç†é›†åˆ
         ///         if (res.Items != null)
         ///         {
         ///             for (int i = 0; i &lt; res.Items.Count; i++)
@@ -380,8 +399,8 @@ namespace Ling.Mapper
         /// </code>
         /// </example>
         /// </remarks>
-        /// <exception cref="System.MissingMethodException">Ä¿±êÀàĞÍÃ»ÓĞÎŞ²Î¹¹Ôìº¯Êı</exception>
-        /// <exception cref="System.MemberAccessException">Ä¿±êÀàĞÍµÄ¹¹Ôìº¯Êı²»¿É·ÃÎÊ</exception>
+        /// <exception cref="System.MissingMethodException">ç›®æ ‡ç±»å‹æ²¡æœ‰æ— å‚æ„é€ å‡½æ•°</exception>
+        /// <exception cref="System.MemberAccessException">ç›®æ ‡ç±»å‹çš„æ„é€ å‡½æ•°ä¸å¯è®¿é—®</exception>
         public static TDestination? Adapt<TDestination>(
             this object source, IMapper mapper, System.Action<TDestination?, object>? custom = null)
         {
@@ -399,24 +418,24 @@ namespace Ling.Mapper
         }
 
         /// <summary>
-        /// ½« List ¼¯ºÏÓ³ÉäÎªÄ¿±êÀàĞÍµÄ List ¼¯ºÏ£¬Ö§³Ö¶ÔÃ¿¸öÔªËØ½øĞĞ×Ô¶¨Òå´¦Àí
+        /// å°† List é›†åˆæ˜ å°„ä¸ºç›®æ ‡ç±»å‹çš„ List é›†åˆï¼Œæ”¯æŒå¯¹æ¯ä¸ªå…ƒç´ è¿›è¡Œè‡ªå®šä¹‰å¤„ç†
         /// </summary>
-        /// <typeparam name="TDestination">Ä¿±êÔªËØÀàĞÍ</typeparam>
-        /// <typeparam name="TSource">Ô´ÔªËØÀàĞÍ</typeparam>
-        /// <param name="source">Ô´ List ¼¯ºÏ</param>
-        /// <param name="custom">¿ÉÑ¡µÄ»Øµ÷º¯Êı£¬¶ÔÃ¿¸öÓ³ÉäºóµÄÔªËØ½øĞĞ´¦Àí¡£²ÎÊıÎª (destination, source, index)</param>
-        /// <returns>Ó³ÉäºóµÄÄ¿±ê List ¼¯ºÏ</returns>
+        /// <typeparam name="TDestination">ç›®æ ‡å…ƒç´ ç±»å‹</typeparam>
+        /// <typeparam name="TSource">æºå…ƒç´ ç±»å‹</typeparam>
+        /// <param name="source">æº List é›†åˆ</param>
+        /// <param name="custom">å¯é€‰çš„å›è°ƒå‡½æ•°ï¼Œå¯¹æ¯ä¸ªæ˜ å°„åçš„å…ƒç´ è¿›è¡Œå¤„ç†ã€‚å‚æ•°ä¸º (destination, source, index)</param>
+        /// <returns>æ˜ å°„åçš„ç›®æ ‡ List é›†åˆ</returns>
         /// <remarks>
-        /// <para>´Ë·½·¨Ê¹ÓÃÈ«¾Ö Mapper ½« List ¼¯ºÏÖĞµÄÃ¿¸öÔªËØÓ³ÉäÎªÄ¿±êÀàĞÍ£¬²¢Ö§³Ö¶ÔÃ¿¸öÔªËØ½øĞĞ¶îÍâ´¦Àí¡£</para>
+        /// <para>æ­¤æ–¹æ³•ä½¿ç”¨å…¨å±€ Mapper å°† List é›†åˆä¸­çš„æ¯ä¸ªå…ƒç´ æ˜ å°„ä¸ºç›®æ ‡ç±»å‹ï¼Œå¹¶æ”¯æŒå¯¹æ¯ä¸ªå…ƒç´ è¿›è¡Œé¢å¤–å¤„ç†ã€‚</para>
         /// <example>
-        /// Ê¾Àı 1£º»ù±¾ List ×ª»»
+        /// ç¤ºä¾‹ 1ï¼šåŸºæœ¬ List è½¬æ¢
         /// <code>
         /// var sourceList = new List&lt;SourceDto&gt; { ... };
         /// var targetList = sourceList.AdaptList&lt;TargetDto, SourceDto&gt;();
         /// </code>
         /// </example>
         /// <example>
-        /// Ê¾Àı 2£º×ª»»Ê±¶ÔÃ¿¸öÔªËØ½øĞĞ´¦Àí
+        /// ç¤ºä¾‹ 2ï¼šè½¬æ¢æ—¶å¯¹æ¯ä¸ªå…ƒç´ è¿›è¡Œå¤„ç†
         /// <code>
         /// var targetList = sourceList.AdaptList&lt;TargetDto, SourceDto&gt;((target, source, index) =>
         /// {
@@ -426,11 +445,11 @@ namespace Ling.Mapper
         /// </code>
         /// </example>
         /// <example>
-        /// Ê¾Àı 3£ºÇ¶Ì×¶ÔÏóµÄ List ×ª»»
+        /// ç¤ºä¾‹ 3ï¼šåµŒå¥—å¯¹è±¡çš„ List è½¬æ¢
         /// <code>
         /// var orders = sourceOrders.AdaptList&lt;OrderDto, OrderEntity&gt;((order, source, index) =>
         /// {
-        ///     // ¶©µ¥ÏîÒ²»á×Ô¶¯Ó³Éä
+        ///     // è®¢å•é¡¹ä¹Ÿä¼šè‡ªåŠ¨æ˜ å°„
         ///     if (order.Items != null)
         ///     {
         ///         foreach (var item in order.Items)
@@ -442,14 +461,14 @@ namespace Ling.Mapper
         /// </code>
         /// </example>
         /// </remarks>
-        /// <exception cref="System.InvalidOperationException">Î´×¢²áÈ«¾Ö Mapper</exception>
+        /// <exception cref="System.InvalidOperationException">æœªæ³¨å†Œå…¨å±€ Mapper</exception>
         public static List<TDestination>? AdaptList<TDestination, TSource>(
             this IEnumerable<TSource>? source,
             System.Action<TDestination?, TSource, int>? custom = null)
         {
             if (source == null) return null;
 
-            var mapper = MapperProvider.Current ?? throw new System.InvalidOperationException("Ã»ÓĞ×¢²áÄ¬ÈÏµÄ mapper£¬ÇëÏÈµ÷ MapperProvider.SetCurrent(mapper) »òÊ¹ÓÃ´ø IMapper ²ÎÊıµÄÖØÔØ¡£");
+            var mapper = MapperProvider.Current ?? throw new System.InvalidOperationException("æ²¡æœ‰æ³¨å†Œé»˜è®¤çš„ mapperï¼Œè¯·å…ˆè°ƒ MapperProvider.SetCurrent(mapper) æˆ–ä½¿ç”¨å¸¦ IMapper å‚æ•°çš„é‡è½½ã€‚");
             
             var result = new List<TDestination>();
             int index = 0;
@@ -469,14 +488,14 @@ namespace Ling.Mapper
         }
 
         /// <summary>
-        /// ´ø IMapper ²ÎÊıµÄ List Ó³Éä·½·¨£¬Ö§³Ö¶ÔÃ¿¸öÔªËØ½øĞĞ×Ô¶¨Òå´¦Àí
+        /// å¸¦ IMapper å‚æ•°çš„ List æ˜ å°„æ–¹æ³•ï¼Œæ”¯æŒå¯¹æ¯ä¸ªå…ƒç´ è¿›è¡Œè‡ªå®šä¹‰å¤„ç†
         /// </summary>
-        /// <typeparam name="TDestination">Ä¿±êÔªËØÀàĞÍ</typeparam>
-        /// <typeparam name="TSource">Ô´ÔªËØÀàĞÍ</typeparam>
-        /// <param name="source">Ô´ List ¼¯ºÏ</param>
-        /// <param name="mapper">Ö¸¶¨µÄ IMapper ÊµÀı</param>
-        /// <param name="custom">¿ÉÑ¡µÄ»Øµ÷º¯Êı£¬¶ÔÃ¿¸öÓ³ÉäºóµÄÔªËØ½øĞĞ´¦Àí¡£²ÎÊıÎª (destination, source, index)</param>
-        /// <returns>Ó³ÉäºóµÄÄ¿±ê List ¼¯ºÏ</returns>
+        /// <typeparam name="TDestination">ç›®æ ‡å…ƒç´ ç±»å‹</typeparam>
+        /// <typeparam name="TSource">æºå…ƒç´ ç±»å‹</typeparam>
+        /// <param name="source">æº List é›†åˆ</param>
+        /// <param name="mapper">æŒ‡å®šçš„ IMapper å®ä¾‹</param>
+        /// <param name="custom">å¯é€‰çš„å›è°ƒå‡½æ•°ï¼Œå¯¹æ¯ä¸ªæ˜ å°„åçš„å…ƒç´ è¿›è¡Œå¤„ç†ã€‚å‚æ•°ä¸º (destination, source, index)</param>
+        /// <returns>æ˜ å°„åçš„ç›®æ ‡ List é›†åˆ</returns>
         public static List<TDestination>? AdaptList<TDestination, TSource>(
             this IEnumerable<TSource>? source,
             IMapper mapper,
@@ -502,15 +521,15 @@ namespace Ling.Mapper
         }
 
         /// <summary>
-        /// ¼ò»¯µÄ List Ó³Éä·½·¨£¬×Ô¶¯ÍÆ¶ÏÔ´ÀàĞÍ
+        /// ç®€åŒ–çš„ List æ˜ å°„æ–¹æ³•ï¼Œè‡ªåŠ¨æ¨æ–­æºç±»å‹
         /// </summary>
-        /// <typeparam name="TDestination">Ä¿±êÔªËØÀàĞÍ</typeparam>
-        /// <param name="source">Ô´¼¯ºÏ</param>
-        /// <param name="custom">¿ÉÑ¡µÄ»Øµ÷º¯Êı£¬¶ÔÃ¿¸öÓ³ÉäºóµÄÔªËØ½øĞĞ´¦Àí¡£²ÎÊıÎª (destination, source, index)</param>
-        /// <returns>Ó³ÉäºóµÄÄ¿±ê List ¼¯ºÏ</returns>
+        /// <typeparam name="TDestination">ç›®æ ‡å…ƒç´ ç±»å‹</typeparam>
+        /// <param name="source">æºé›†åˆ</param>
+        /// <param name="custom">å¯é€‰çš„å›è°ƒå‡½æ•°ï¼Œå¯¹æ¯ä¸ªæ˜ å°„åçš„å…ƒç´ è¿›è¡Œå¤„ç†ã€‚å‚æ•°ä¸º (destination, source, index)</param>
+        /// <returns>æ˜ å°„åçš„ç›®æ ‡ List é›†åˆ</returns>
         /// <remarks>
         /// <example>
-        /// Ê¾Àı£º¼ò»¯µÄ List ×ª»»Ğ´·¨
+        /// ç¤ºä¾‹ï¼šç®€åŒ–çš„ List è½¬æ¢å†™æ³•
         /// <code>
         /// var targetList = sourceList.AdaptList&lt;TargetDto&gt;((target, source, index) =>
         /// {
@@ -519,14 +538,14 @@ namespace Ling.Mapper
         /// </code>
         /// </example>
         /// </remarks>
-        /// <exception cref="System.InvalidOperationException">Î´×¢²áÈ«¾Ö Mapper</exception>
+        /// <exception cref="System.InvalidOperationException">æœªæ³¨å†Œå…¨å±€ Mapper</exception>
         public static List<TDestination>? AdaptList<TDestination>(
             this System.Collections.IEnumerable? source,
             System.Action<TDestination?, object, int>? custom = null)
         {
             if (source == null) return null;
 
-            var mapper = MapperProvider.Current ?? throw new System.InvalidOperationException("Ã»ÓĞ×¢²áÄ¬ÈÏµÄ mapper£¬ÇëÏÈµ÷ MapperProvider.SetCurrent(mapper) »òÊ¹ÓÃ´ø IMapper ²ÎÊıµÄÖØÔØ¡£");
+            var mapper = MapperProvider.Current ?? throw new System.InvalidOperationException("æ²¡æœ‰æ³¨å†Œé»˜è®¤çš„ mapperï¼Œè¯·å…ˆè°ƒ MapperProvider.SetCurrent(mapper) æˆ–ä½¿ç”¨å¸¦ IMapper å‚æ•°çš„é‡è½½ã€‚");
             
             var result = new List<TDestination>();
             int index = 0;
@@ -546,16 +565,16 @@ namespace Ling.Mapper
         }
 
         /// <summary>
-        /// ´´½¨Ä¿±êÀàĞÍµÄÊµÀı£¬Ê§°ÜÊ±Å×³öÒì³£
+        /// åˆ›å»ºç›®æ ‡ç±»å‹çš„å®ä¾‹ï¼Œå¤±è´¥æ—¶æŠ›å‡ºå¼‚å¸¸
         /// </summary>
-        /// <typeparam name="T">Òª´´½¨µÄÀàĞÍ</typeparam>
-        /// <returns>´´½¨µÄÊµÀı</returns>
-        /// <exception cref="System.MissingMethodException">ÀàĞÍÃ»ÓĞÎŞ²Î¹¹Ôìº¯Êı</exception>
-        /// <exception cref="System.MemberAccessException">¹¹Ôìº¯Êı²»¿É·ÃÎÊ£¨ÀıÈçË½ÓĞ¹¹Ôìº¯Êı£©</exception>
-        /// <exception cref="System.Exception">ÊµÀı»¯¹ı³ÌÖĞ·¢ÉúÆäËûÒì³£</exception>
+        /// <typeparam name="T">è¦åˆ›å»ºçš„ç±»å‹</typeparam>
+        /// <returns>åˆ›å»ºçš„å®ä¾‹</returns>
+        /// <exception cref="System.MissingMethodException">ç±»å‹æ²¡æœ‰æ— å‚æ„é€ å‡½æ•°</exception>
+        /// <exception cref="System.MemberAccessException">æ„é€ å‡½æ•°ä¸å¯è®¿é—®ï¼ˆä¾‹å¦‚ç§æœ‰æ„é€ å‡½æ•°ï¼‰</exception>
+        /// <exception cref="System.Exception">å®ä¾‹åŒ–è¿‡ç¨‹ä¸­å‘ç”Ÿå…¶ä»–å¼‚å¸¸</exception>
         /// <remarks>
-        /// ´Ë·½·¨ÒªÇóÄ¿±êÀàĞÍ±ØĞëÓĞÒ»¸ö¿É·ÃÎÊµÄÎŞ²Î¹¹Ôìº¯Êı¡£
-        /// Èç¹ûÊµÀı»¯Ê§°Ü£¬½«Å×³öÃ÷È·µÄÒì³££¬°ïÖú¿ª·¢ÕßÔÚµ÷ÊÔÊ±¿ìËÙ¶¨Î»ÎÊÌâ¡£
+        /// æ­¤æ–¹æ³•è¦æ±‚ç›®æ ‡ç±»å‹å¿…é¡»æœ‰ä¸€ä¸ªå¯è®¿é—®çš„æ— å‚æ„é€ å‡½æ•°ã€‚
+        /// å¦‚æœå®ä¾‹åŒ–å¤±è´¥ï¼Œå°†æŠ›å‡ºæ˜ç¡®çš„å¼‚å¸¸ï¼Œå¸®åŠ©å¼€å‘è€…åœ¨è°ƒè¯•æ—¶å¿«é€Ÿå®šä½é—®é¢˜ã€‚
         /// </remarks>
         private static T CreateInstance<T>()
         {
@@ -566,52 +585,52 @@ namespace Ling.Mapper
             catch (System.MissingMethodException ex)
             {
                 throw new System.MissingMethodException(
-                    $"ÎŞ·¨´´½¨ÀàĞÍ '{typeof(T).FullName}' µÄÊµÀı£º¸ÃÀàĞÍÃ»ÓĞÎŞ²Î¹¹Ôìº¯Êı¡£" +
-                    $"ÇëÎª DTO ÀàĞÍÌí¼ÓÎŞ²Î¹¹Ôìº¯Êı£¬»òÈ·±£ Mapper ÅäÖÃÕıÈ··µ»Ø·Ç null ÊµÀı¡£", ex);
+                    $"æ— æ³•åˆ›å»ºç±»å‹ '{typeof(T).FullName}' çš„å®ä¾‹ï¼šè¯¥ç±»å‹æ²¡æœ‰æ— å‚æ„é€ å‡½æ•°ã€‚" +
+                    $"è¯·ä¸º DTO ç±»å‹æ·»åŠ æ— å‚æ„é€ å‡½æ•°ï¼Œæˆ–ç¡®ä¿ Mapper é…ç½®æ­£ç¡®è¿”å›é null å®ä¾‹ã€‚", ex);
             }
             catch (System.MemberAccessException ex)
             {
                 throw new System.MemberAccessException(
-                    $"ÎŞ·¨´´½¨ÀàĞÍ '{typeof(T).FullName}' µÄÊµÀı£º¹¹Ôìº¯Êı²»¿É·ÃÎÊ£¨¿ÉÄÜÊÇË½ÓĞ»òÊÜ±£»¤µÄ£©¡£" +
-                    $"ÇëÈ·±£Ä¿±êÀàĞÍÓĞÒ»¸ö¹«¹²µÄÎŞ²Î¹¹Ôìº¯Êı¡£", ex);
+                    $"æ— æ³•åˆ›å»ºç±»å‹ '{typeof(T).FullName}' çš„å®ä¾‹ï¼šæ„é€ å‡½æ•°ä¸å¯è®¿é—®ï¼ˆå¯èƒ½æ˜¯ç§æœ‰æˆ–å—ä¿æŠ¤çš„ï¼‰ã€‚" +
+                    $"è¯·ç¡®ä¿ç›®æ ‡ç±»å‹æœ‰ä¸€ä¸ªå…¬å…±çš„æ— å‚æ„é€ å‡½æ•°ã€‚", ex);
             }
             catch (System.Exception ex)
             {
                 throw new System.InvalidOperationException(
-                    $"´´½¨ÀàĞÍ '{typeof(T).FullName}' µÄÊµÀıÊ±·¢ÉúÒì³££º{ex.Message}" +
-                    $"Çë¼ì²é¹¹Ôìº¯ÊıÊÇ·ñÅ×³öÁËÒì³££¬»òÄ¿±êÀàĞÍÊÇ·ñ¿ÉÒÔÕı³£ÊµÀı»¯¡£", ex);
+                    $"åˆ›å»ºç±»å‹ '{typeof(T).FullName}' çš„å®ä¾‹æ—¶å‘ç”Ÿå¼‚å¸¸ï¼š{ex.Message}" +
+                    $"è¯·æ£€æŸ¥æ„é€ å‡½æ•°æ˜¯å¦æŠ›å‡ºäº†å¼‚å¸¸ï¼Œæˆ–ç›®æ ‡ç±»å‹æ˜¯å¦å¯ä»¥æ­£å¸¸å®ä¾‹åŒ–ã€‚", ex);
             }
         }
 
-        #region ´ø AdaptOptions µÄ Adapt À©Õ¹·½·¨
+        #region å¸¦ AdaptOptions çš„ Adapt æ‰©å±•æ–¹æ³•
 
         /// <summary>
-        /// Ê¹ÓÃÓ³Éä¹æÔòÑ¡Ïî½øĞĞÓ³Éä£¨´ø mapper ²ÎÊı£©
+        /// ä½¿ç”¨æ˜ å°„è§„åˆ™é€‰é¡¹è¿›è¡Œæ˜ å°„ï¼ˆå¸¦ mapper å‚æ•°ï¼‰
         /// </summary>
-        /// <typeparam name="TDestination">Ä¿±êÀàĞÍ</typeparam>
-        /// <typeparam name="TSource">Ô´ÀàĞÍ</typeparam>
-        /// <param name="source">Ô´¶ÔÏó</param>
-        /// <param name="mapper">IMapper ÊµÀı</param>
-        /// <param name="options">Ó³Éä¹æÔòÑ¡Ïî</param>
-        /// <param name="custom">¿ÉÑ¡µÄ»Øµ÷º¯Êı</param>
-        /// <returns>Ó³ÉäºóµÄÄ¿±ê¶ÔÏó</returns>
+        /// <typeparam name="TDestination">ç›®æ ‡ç±»å‹</typeparam>
+        /// <typeparam name="TSource">æºç±»å‹</typeparam>
+        /// <param name="source">æºå¯¹è±¡</param>
+        /// <param name="mapper">IMapper å®ä¾‹</param>
+        /// <param name="options">æ˜ å°„è§„åˆ™é€‰é¡¹</param>
+        /// <param name="custom">å¯é€‰çš„å›è°ƒå‡½æ•°</param>
+        /// <returns>æ˜ å°„åçš„ç›®æ ‡å¯¹è±¡</returns>
         /// <remarks>
-        /// <para>´Ë·½·¨Ö§³ÖÔÚÔËĞĞÊ±Ö¸¶¨Ó³Éä¹æÔò£¬°üÀ¨£º</para>
+        /// <para>æ­¤æ–¹æ³•æ”¯æŒåœ¨è¿è¡Œæ—¶æŒ‡å®šæ˜ å°„è§„åˆ™ï¼ŒåŒ…æ‹¬ï¼š</para>
         /// <list type="bullet">
-        /// <item><description>IgnoreCase: ºöÂÔÊôĞÔÃû³Æ´óĞ¡Ğ´</description></item>
-        /// <item><description>IgnoreUnderscore: ºöÂÔÊôĞÔÃû³ÆÖĞµÄÏÂ»®Ïß</description></item>
-        /// <item><description>IgnoreProperties: ºöÂÔÖ¸¶¨µÄÊôĞÔ</description></item>
-        /// <item><description>IgnoreNullValues: ºöÂÔ null ÖµÊôĞÔ</description></item>
+        /// <item><description>IgnoreCase: å¿½ç•¥å±æ€§åç§°å¤§å°å†™</description></item>
+        /// <item><description>IgnoreUnderscore: å¿½ç•¥å±æ€§åç§°ä¸­çš„ä¸‹åˆ’çº¿</description></item>
+        /// <item><description>IgnoreProperties: å¿½ç•¥æŒ‡å®šçš„å±æ€§</description></item>
+        /// <item><description>IgnoreNullValues: å¿½ç•¥ null å€¼å±æ€§</description></item>
         /// </list>
         /// <example>
-        /// Ê¾Àı 1£ººöÂÔ´óĞ¡Ğ´Æ¥Åä
+        /// ç¤ºä¾‹ 1ï¼šå¿½ç•¥å¤§å°å†™åŒ¹é…
         /// <code>
         /// var target = source.Adapt&lt;TargetDto, SourceDto&gt;(mapper, 
         ///     AdaptOptions.IgnoreCaseOption);
         /// </code>
         /// </example>
         /// <example>
-        /// Ê¾Àı 2£º×Ô¶¨Òå¹æÔò
+        /// ç¤ºä¾‹ 2ï¼šè‡ªå®šä¹‰è§„åˆ™
         /// <code>
         /// var target = source.Adapt&lt;TargetDto, SourceDto&gt;(mapper, 
         ///     new AdaptOptions 
@@ -623,7 +642,7 @@ namespace Ling.Mapper
         /// </code>
         /// </example>
         /// <example>
-        /// Ê¾Àı 3£ºÅäºÏ»Øµ÷º¯Êı
+        /// ç¤ºä¾‹ 3ï¼šé…åˆå›è°ƒå‡½æ•°
         /// <code>
         /// var target = source.Adapt&lt;TargetDto, SourceDto&gt;(mapper, 
         ///     AdaptOptions.FlexibleOption,
@@ -640,7 +659,7 @@ namespace Ling.Mapper
             if (source == null) return default;
             if (options == null) options = AdaptOptions.Default;
 
-            // 1. ÏÈÖ´ĞĞ»ù´¡Ó³Éä
+            // 1. å…ˆæ‰§è¡ŒåŸºç¡€æ˜ å°„
             var dest = mapper.Map<TDestination>(source);
 
             if (dest == null && !typeof(TDestination).IsValueType)
@@ -650,10 +669,10 @@ namespace Ling.Mapper
 
             if (dest == null) return default;
 
-            // 2. Ó¦ÓÃÓ³Éä¹æÔò
+            // 2. åº”ç”¨æ˜ å°„è§„åˆ™
             ApplyAdaptOptions(source, dest, options);
 
-            // 3. Ö´ĞĞ×Ô¶¨Òå»Øµ÷
+            // 3. æ‰§è¡Œè‡ªå®šä¹‰å›è°ƒ
             if (dest != null)
                 custom?.Invoke(dest, source);
 
@@ -661,33 +680,33 @@ namespace Ling.Mapper
         }
 
         /// <summary>
-        /// Ê¹ÓÃÓ³Éä¹æÔòÑ¡Ïî½øĞĞÓ³Éä£¨Ê¹ÓÃÈ«¾Ö Mapper£©
+        /// ä½¿ç”¨æ˜ å°„è§„åˆ™é€‰é¡¹è¿›è¡Œæ˜ å°„ï¼ˆä½¿ç”¨å…¨å±€ Mapperï¼‰
         /// </summary>
-        /// <typeparam name="TDestination">Ä¿±êÀàĞÍ</typeparam>
-        /// <typeparam name="TSource">Ô´ÀàĞÍ</typeparam>
-        /// <param name="source">Ô´¶ÔÏó</param>
-        /// <param name="options">Ó³Éä¹æÔòÑ¡Ïî</param>
-        /// <param name="custom">¿ÉÑ¡µÄ»Øµ÷º¯Êı</param>
-        /// <returns>Ó³ÉäºóµÄÄ¿±ê¶ÔÏó</returns>
-        /// <exception cref="System.InvalidOperationException">Î´×¢²áÈ«¾Ö Mapper</exception>
+        /// <typeparam name="TDestination">ç›®æ ‡ç±»å‹</typeparam>
+        /// <typeparam name="TSource">æºç±»å‹</typeparam>
+        /// <param name="source">æºå¯¹è±¡</param>
+        /// <param name="options">æ˜ å°„è§„åˆ™é€‰é¡¹</param>
+        /// <param name="custom">å¯é€‰çš„å›è°ƒå‡½æ•°</param>
+        /// <returns>æ˜ å°„åçš„ç›®æ ‡å¯¹è±¡</returns>
+        /// <exception cref="System.InvalidOperationException">æœªæ³¨å†Œå…¨å±€ Mapper</exception>
         public static TDestination? Adapt<TDestination, TSource>(
             this TSource source,
             AdaptOptions options,
             System.Action<TDestination?, TSource>? custom = null)
         {
-            var mapper = MapperProvider.Current ?? throw new System.InvalidOperationException("Ã»ÓĞ×¢²áÄ¬ÈÏµÄ mapper¡£Çëµ÷ÓÃ MapperProvider.SetCurrent(mapper) »òÊ¹ÓÃ´ø IMapper ²ÎÊıµÄÖØÔØ.");
+            var mapper = MapperProvider.Current ?? throw new System.InvalidOperationException("æ²¡æœ‰æ³¨å†Œé»˜è®¤çš„ mapperã€‚è¯·è°ƒç”¨ MapperProvider.SetCurrent(mapper) æˆ–ä½¿ç”¨å¸¦ IMapper å‚æ•°çš„é‡è½½.");
             return source.Adapt<TDestination, TSource>(mapper, options, custom);
         }
 
         /// <summary>
-        /// Ê¹ÓÃÓ³Éä¹æÔòÑ¡Ïî½øĞĞÓ³Éä£¨¼ò»¯°æ±¾£¬×Ô¶¯ÍÆ¶ÏÔ´ÀàĞÍ£©
+        /// ä½¿ç”¨æ˜ å°„è§„åˆ™é€‰é¡¹è¿›è¡Œæ˜ å°„ï¼ˆç®€åŒ–ç‰ˆæœ¬ï¼Œè‡ªåŠ¨æ¨æ–­æºç±»å‹ï¼‰
         /// </summary>
-        /// <typeparam name="TDestination">Ä¿±êÀàĞÍ</typeparam>
-        /// <param name="source">Ô´¶ÔÏó</param>
-        /// <param name="mapper">IMapper ÊµÀı</param>
-        /// <param name="options">Ó³Éä¹æÔòÑ¡Ïî</param>
-        /// <param name="custom">¿ÉÑ¡µÄ»Øµ÷º¯Êı</param>
-        /// <returns>Ó³ÉäºóµÄÄ¿±ê¶ÔÏó</returns>
+        /// <typeparam name="TDestination">ç›®æ ‡ç±»å‹</typeparam>
+        /// <param name="source">æºå¯¹è±¡</param>
+        /// <param name="mapper">IMapper å®ä¾‹</param>
+        /// <param name="options">æ˜ å°„è§„åˆ™é€‰é¡¹</param>
+        /// <param name="custom">å¯é€‰çš„å›è°ƒå‡½æ•°</param>
+        /// <returns>æ˜ å°„åçš„ç›®æ ‡å¯¹è±¡</returns>
         public static TDestination? Adapt<TDestination>(
             this object source,
             IMapper mapper,
@@ -697,7 +716,7 @@ namespace Ling.Mapper
             if (source == null) return default;
             if (options == null) options = AdaptOptions.Default;
 
-            // 1. ÏÈÖ´ĞĞ»ù´¡Ó³Éä
+            // 1. å…ˆæ‰§è¡ŒåŸºç¡€æ˜ å°„
             var dest = mapper.Map<TDestination>(source);
 
             if (dest == null && !typeof(TDestination).IsValueType)
@@ -707,10 +726,10 @@ namespace Ling.Mapper
 
             if (dest == null) return default;
 
-            // 2. Ó¦ÓÃÓ³Éä¹æÔò
+            // 2. åº”ç”¨æ˜ å°„è§„åˆ™
             ApplyAdaptOptions(source, dest, options);
 
-            // 3. Ö´ĞĞ×Ô¶¨Òå»Øµ÷
+            // 3. æ‰§è¡Œè‡ªå®šä¹‰å›è°ƒ
             if (dest != null)
                 custom?.Invoke(dest, source);
 
@@ -718,25 +737,25 @@ namespace Ling.Mapper
         }
 
         /// <summary>
-        /// Ê¹ÓÃÓ³Éä¹æÔòÑ¡Ïî½øĞĞÓ³Éä£¨¼ò»¯°æ±¾£¬Ê¹ÓÃÈ«¾Ö Mapper£©
+        /// ä½¿ç”¨æ˜ å°„è§„åˆ™é€‰é¡¹è¿›è¡Œæ˜ å°„ï¼ˆç®€åŒ–ç‰ˆæœ¬ï¼Œä½¿ç”¨å…¨å±€ Mapperï¼‰
         /// </summary>
-        /// <typeparam name="TDestination">Ä¿±êÀàĞÍ</typeparam>
-        /// <param name="source">Ô´¶ÔÏó</param>
-        /// <param name="options">Ó³Éä¹æÔòÑ¡Ïî</param>
-        /// <param name="custom">¿ÉÑ¡µÄ»Øµ÷º¯Êı</param>
-        /// <returns>Ó³ÉäºóµÄÄ¿±ê¶ÔÏó</returns>
-        /// <exception cref="System.InvalidOperationException">Î´×¢²áÈ«¾Ö Mapper</exception>
+        /// <typeparam name="TDestination">ç›®æ ‡ç±»å‹</typeparam>
+        /// <param name="source">æºå¯¹è±¡</param>
+        /// <param name="options">æ˜ å°„è§„åˆ™é€‰é¡¹</param>
+        /// <param name="custom">å¯é€‰çš„å›è°ƒå‡½æ•°</param>
+        /// <returns>æ˜ å°„åçš„ç›®æ ‡å¯¹è±¡</returns>
+        /// <exception cref="System.InvalidOperationException">æœªæ³¨å†Œå…¨å±€ Mapper</exception>
         public static TDestination? Adapt<TDestination>(
             this object source,
             AdaptOptions options,
             System.Action<TDestination?, object>? custom = null)
         {
-            var mapper = MapperProvider.Current ?? throw new System.InvalidOperationException("Ã»ÓĞ×¢²áÄ¬ÈÏµÄ mapper¡£Çëµ÷ÓÃ MapperProvider.SetCurrent(mapper) »òÊ¹ÓÃ´ø IMapper ²ÎÊıµÄÖØÔØ.");
+            var mapper = MapperProvider.Current ?? throw new System.InvalidOperationException("æ²¡æœ‰æ³¨å†Œé»˜è®¤çš„ mapperã€‚è¯·è°ƒç”¨ MapperProvider.SetCurrent(mapper) æˆ–ä½¿ç”¨å¸¦ IMapper å‚æ•°çš„é‡è½½.");
             return source.Adapt<TDestination>(mapper, options, custom);
         }
 
         /// <summary>
-        /// Ó¦ÓÃ AdaptOptions ¹æÔòµ½Ó³Éä½á¹û
+        /// åº”ç”¨ AdaptOptions è§„åˆ™åˆ°æ˜ å°„ç»“æœ
         /// </summary>
         private static void ApplyAdaptOptions<TDestination, TSource>(
             TSource source,
@@ -756,7 +775,7 @@ namespace Ling.Mapper
             {
                 if (!destProp.CanWrite) continue;
 
-                // 1. ´¦ÀíºöÂÔÊôĞÔ
+                // 1. å¤„ç†å¿½ç•¥å±æ€§
                 if (options.IgnoreProperties != null && 
                     options.IgnoreProperties.Contains(destProp.Name, System.StringComparer.OrdinalIgnoreCase))
                 {
@@ -767,7 +786,7 @@ namespace Ling.Mapper
                     continue;
                 }
 
-                // 2. ²éÕÒÆ¥ÅäµÄÔ´ÊôĞÔ£¨Ö§³Ö IgnoreCase ºÍ IgnoreUnderscore£©
+                // 2. æŸ¥æ‰¾åŒ¹é…çš„æºå±æ€§ï¼ˆæ”¯æŒ IgnoreCase å’Œ IgnoreUnderscoreï¼‰
                 System.Reflection.PropertyInfo? srcProp = null;
                 string destPropName = destProp.Name;
 
@@ -797,7 +816,7 @@ namespace Ling.Mapper
 
                 if (srcProp == null || !srcProp.CanRead) continue;
 
-                // 3. ´¦Àí IgnoreNullValues
+                // 3. å¤„ç† IgnoreNullValues
                 var srcValue = srcProp.GetValue(source);
                 if (options.IgnoreNullValues && srcValue == null)
                 {
@@ -808,12 +827,12 @@ namespace Ling.Mapper
                     continue;
                 }
 
-                // 4. Èç¹ûÆôÓÃÁËÌØÊâÆ¥Åä¹æÔò£¬ĞèÒªÊÖ¶¯¸³Öµ£¨ÒòÎª mapper ¿ÉÄÜÃ»ÓĞÆ¥Åä£©
+                // 4. å¦‚æœå¯ç”¨äº†ç‰¹æ®ŠåŒ¹é…è§„åˆ™ï¼Œéœ€è¦æ‰‹åŠ¨èµ‹å€¼ï¼ˆå› ä¸º mapper å¯èƒ½æ²¡æœ‰åŒ¹é…ï¼‰
                 if ((options.IgnoreCase || options.IgnoreUnderscore) && srcValue != null)
                 {
                     try
                     {
-                        // ³¢ÊÔÀàĞÍ×ª»»
+                        // å°è¯•ç±»å‹è½¬æ¢
                         if (destProp.PropertyType.IsAssignableFrom(srcProp.PropertyType))
                         {
                             destProp.SetValue(dest, srcValue);
@@ -825,7 +844,7 @@ namespace Ling.Mapper
                     }
                     catch
                     {
-                        // ÀàĞÍ²»¼æÈİ£¬Ìø¹ı
+                        // ç±»å‹ä¸å…¼å®¹ï¼Œè·³è¿‡
                     }
                 }
             }
