@@ -1,35 +1,36 @@
 using Ling.Mapper;
+using Ling.Mapper.Extensions;
 
 namespace TestConsole;
 
 /// <summary>
-/// ²âÊÔÒì³£´¦ÀíĞĞÎª
+/// æµ‹è¯•å¼‚å¸¸å¤„ç†è¡Œä¸º
 /// </summary>
 public static class ExceptionHandlingTest
 {
     public static void Run()
     {
-        Console.WriteLine("\n=== Òì³£´¦Àí²âÊÔ ===\n");
+        Console.WriteLine("\n=== å¼‚å¸¸å¤„ç†æµ‹è¯• ===\n");
 
-        // ²âÊÔ 1£ºÕı³£Çé¿ö - DTO ÓĞÎŞ²Î¹¹Ôìº¯Êı
+        // æµ‹è¯• 1ï¼šæ­£å¸¸æƒ…å†µ - DTO æœ‰æ— å‚æ„é€ å‡½æ•°
         Test1_NormalCase();
 
-        // ²âÊÔ 2£ºDTO Ã»ÓĞÎŞ²Î¹¹Ôìº¯Êı
+        // æµ‹è¯• 2ï¼šDTO æ²¡æœ‰æ— å‚æ„é€ å‡½æ•°
         Test2_NoParameterlessConstructor();
 
-        // ²âÊÔ 3£ºÊôĞÔ²¿·ÖÆ¥Åä
+        // æµ‹è¯• 3ï¼šå±æ€§éƒ¨åˆ†åŒ¹é…
         Test3_PartialPropertyMatch();
 
-        // ²âÊÔ 4£ºÊôĞÔÍêÈ«²»Æ¥Åä
+        // æµ‹è¯• 4ï¼šå±æ€§å®Œå…¨ä¸åŒ¹é…
         Test4_NoPropertyMatch();
     }
 
     /// <summary>
-    /// ²âÊÔ 1£ºÕı³£Çé¿ö - DTO ÓĞÎŞ²Î¹¹Ôìº¯Êı
+    /// æµ‹è¯• 1ï¼šæ­£å¸¸æƒ…å†µ - DTO æœ‰æ— å‚æ„é€ å‡½æ•°
     /// </summary>
     private static void Test1_NormalCase()
     {
-        Console.WriteLine("¡¾²âÊÔ 1¡¿Õı³£Çé¿ö - DTO ÓĞÎŞ²Î¹¹Ôìº¯Êı");
+        Console.WriteLine("ã€æµ‹è¯• 1ã€‘æ­£å¸¸æƒ…å†µ - DTO æœ‰æ— å‚æ„é€ å‡½æ•°");
 
         var source = new SourceDto1
         {
@@ -40,24 +41,24 @@ public static class ExceptionHandlingTest
         try
         {
             var mapper = new MapperConfiguration().CreateMapper();
-            var result = source.Adapt<DestDto1>(mapper);
+            var result = source.Adapt<DestDto1>();
 
-            Console.WriteLine($"? ³É¹¦£ºId={result?.Id}, Name={result?.Name}");
+            Console.WriteLine($"? æˆåŠŸï¼šId={result?.Id}, Name={result?.Name}");
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"? Ê§°Ü£º{ex.Message}");
+            Console.WriteLine($"? å¤±è´¥ï¼š{ex.Message}");
         }
 
         Console.WriteLine();
     }
 
     /// <summary>
-    /// ²âÊÔ 2£ºDTO Ã»ÓĞÎŞ²Î¹¹Ôìº¯Êı
+    /// æµ‹è¯• 2ï¼šDTO æ²¡æœ‰æ— å‚æ„é€ å‡½æ•°
     /// </summary>
     private static void Test2_NoParameterlessConstructor()
     {
-        Console.WriteLine("¡¾²âÊÔ 2¡¿DTO Ã»ÓĞÎŞ²Î¹¹Ôìº¯Êı£¨Ó¦¸ÃÔÚ Mapper ÄÚ²¿¾ÍÅ×³öÒì³££©");
+        Console.WriteLine("ã€æµ‹è¯• 2ã€‘DTO æ²¡æœ‰æ— å‚æ„é€ å‡½æ•°ï¼ˆåº”è¯¥åœ¨ Mapper å†…éƒ¨å°±æŠ›å‡ºå¼‚å¸¸ï¼‰");
 
         var source = new SourceDto1
         {
@@ -67,58 +68,57 @@ public static class ExceptionHandlingTest
 
         try
         {
-            var mapper = new MapperConfiguration().CreateMapper();
-            var result = source.Adapt<DestDtoNoConstructor>(mapper);
+            var result = source.Adapt<DestDtoNoConstructor>();
 
-            Console.WriteLine($"? ³É¹¦£ºId={result?.Id}, Name={result?.Name}");
+            Console.WriteLine($"? æˆåŠŸï¼šId={result?.Id}, Name={result?.Name}");
         }
         catch (System.MissingMethodException ex)
         {
-            Console.WriteLine($"?? Å×³ö MissingMethodException£º{ex.Message}");
+            Console.WriteLine($"?? æŠ›å‡º MissingMethodExceptionï¼š{ex.Message}");
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"?? Å×³öÒì³££º{ex.GetType().Name} - {ex.Message}");
+            Console.WriteLine($"?? æŠ›å‡ºå¼‚å¸¸ï¼š{ex.GetType().Name} - {ex.Message}");
         }
 
         Console.WriteLine();
     }
 
     /// <summary>
-    /// ²âÊÔ 3£ºÊôĞÔ²¿·ÖÆ¥Åä
+    /// æµ‹è¯• 3ï¼šå±æ€§éƒ¨åˆ†åŒ¹é…
     /// </summary>
     private static void Test3_PartialPropertyMatch()
     {
-        Console.WriteLine("¡¾²âÊÔ 3¡¿ÊôĞÔ²¿·ÖÆ¥Åä£¨Ö»ÓĞ Id Æ¥Åä£¬Name ²»Æ¥Åä£©");
+        Console.WriteLine("ã€æµ‹è¯• 3ã€‘å±æ€§éƒ¨åˆ†åŒ¹é…ï¼ˆåªæœ‰ Id åŒ¹é…ï¼ŒName ä¸åŒ¹é…ï¼‰");
 
         var source = new SourceDto2
         {
             Id = 3,
-            FullName = "Partial Match"  // ×¢Òâ£ºÕâÀïÊÇ FullName£¬²»ÊÇ Name
+            FullName = "Partial Match"  // æ³¨æ„ï¼šè¿™é‡Œæ˜¯ FullNameï¼Œä¸æ˜¯ Name
         };
 
         try
         {
             var mapper = new MapperConfiguration().CreateMapper();
-            var result = source.Adapt<DestDto1>(mapper);
+            var result = source.Adapt<DestDto1>();
 
-            Console.WriteLine($"? ³É¹¦£ºId={result?.Id}, Name={result?.Name ?? "(null)"}");
-            Console.WriteLine("   ËµÃ÷£ºÖ»×ª»»ÁËÆ¥ÅäµÄÊôĞÔ (Id)£¬²»Æ¥ÅäµÄÊôĞÔ (Name) ±£³ÖÄ¬ÈÏÖµ");
+            Console.WriteLine($"? æˆåŠŸï¼šId={result?.Id}, Name={result?.Name ?? "(null)"}");
+            Console.WriteLine("   è¯´æ˜ï¼šåªè½¬æ¢äº†åŒ¹é…çš„å±æ€§ (Id)ï¼Œä¸åŒ¹é…çš„å±æ€§ (Name) ä¿æŒé»˜è®¤å€¼");
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"? Ê§°Ü£º{ex.Message}");
+            Console.WriteLine($"? å¤±è´¥ï¼š{ex.Message}");
         }
 
         Console.WriteLine();
     }
 
     /// <summary>
-    /// ²âÊÔ 4£ºÊôĞÔÍêÈ«²»Æ¥Åä
+    /// æµ‹è¯• 4ï¼šå±æ€§å®Œå…¨ä¸åŒ¹é…
     /// </summary>
     private static void Test4_NoPropertyMatch()
     {
-        Console.WriteLine("¡¾²âÊÔ 4¡¿ÊôĞÔÍêÈ«²»Æ¥Åä£¨ËùÓĞÊôĞÔÃû¶¼²»Ò»Ñù£©");
+        Console.WriteLine("ã€æµ‹è¯• 4ã€‘å±æ€§å®Œå…¨ä¸åŒ¹é…ï¼ˆæ‰€æœ‰å±æ€§åéƒ½ä¸ä¸€æ ·ï¼‰");
 
         var source = new SourceDto3
         {
@@ -129,21 +129,21 @@ public static class ExceptionHandlingTest
         try
         {
             var mapper = new MapperConfiguration().CreateMapper();
-            var result = source.Adapt<DestDto1>(mapper);
+            var result = source.Adapt<DestDto1>();
 
-            Console.WriteLine($"? ³É¹¦£ºId={result?.Id}, Name={result?.Name ?? "(null)"}");
-            Console.WriteLine("   ËµÃ÷£ºËäÈ»ÊôĞÔÍêÈ«²»Æ¥Åä£¬µ«ÈÔÈ»´´½¨ÁËÊµÀı£¨ËùÓĞÊôĞÔÎªÄ¬ÈÏÖµ£©");
+            Console.WriteLine($"? æˆåŠŸï¼šId={result?.Id}, Name={result?.Name ?? "(null)"}");
+            Console.WriteLine("   è¯´æ˜ï¼šè™½ç„¶å±æ€§å®Œå…¨ä¸åŒ¹é…ï¼Œä½†ä»ç„¶åˆ›å»ºäº†å®ä¾‹ï¼ˆæ‰€æœ‰å±æ€§ä¸ºé»˜è®¤å€¼ï¼‰");
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"? Ê§°Ü£º{ex.Message}");
+            Console.WriteLine($"? å¤±è´¥ï¼š{ex.Message}");
         }
 
         Console.WriteLine();
     }
 }
 
-// ²âÊÔÓÃµÄ DTO Àà
+// æµ‹è¯•ç”¨çš„ DTO ç±»
 
 public class SourceDto1
 {
@@ -154,7 +154,7 @@ public class SourceDto1
 public class SourceDto2
 {
     public int Id { get; set; }
-    public string? FullName { get; set; }  // ²»Í¬µÄÊôĞÔÃû
+    public string? FullName { get; set; }  // ä¸åŒçš„å±æ€§å
 }
 
 public class SourceDto3
@@ -169,7 +169,7 @@ public class DestDto1
     public string? Name { get; set; }
 }
 
-// Ã»ÓĞÎŞ²Î¹¹Ôìº¯ÊıµÄ DTO
+// æ²¡æœ‰æ— å‚æ„é€ å‡½æ•°çš„ DTO
 public class DestDtoNoConstructor
 {
     public DestDtoNoConstructor(int id, string name)

@@ -1,6 +1,7 @@
 using Ling.Mapper;
 using System;
 using System.Collections.Generic;
+using Ling.Mapper.Extensions;
 
 namespace TestConsole;
 
@@ -21,45 +22,11 @@ public static class AdaptListDemo
             new CustomerEntity { Id = 3, FirstName = "Wang", LastName = "Wu", Age = 28, Email = "wangwu@example.com" }
         };
 
-        // 方式 1：使用 AdaptToList<TDest, TSource>() - 简洁语法 ?
-        Console.WriteLine("方式 1: 使用 AdaptToList<TDest, TSource>() 直接转换");
-        var customerDtos1 = sourceCustomers.AdaptToList<CustomerDto, CustomerEntity>();
-        PrintCustomers(customerDtos1);
-
-        // 方式 2：使用 AdaptToList<TDest, TSource>() 并在回调中处理整个列表
-        Console.WriteLine("\n方式 2: 使用 AdaptToList<TDest, TSource>() 并处理整个列表");
-        var customerDtos2 = sourceCustomers.AdaptToList<CustomerDto, CustomerEntity>((list, source) =>
-        {
-            if (list == null) return;
-            
-            for (int i = 0; i < list.Count; i++)
-            {
-                list[i].RowNumber = i + 1;
-                list[i].DisplayName = $"{list[i].FirstName} {list[i].LastName}";
-                list[i].IsFirst = i == 0;
-                list[i].IsLast = i == list.Count - 1;
-            }
-        });
-        PrintCustomers(customerDtos2);
+        
 
         // 方式 3：使用 Adapt<List<T>>() 对每个元素单独处理
         Console.WriteLine("\n方式 3: 使用 Adapt<List<T>>() 逐个处理元素");
-        var customerDtos3 = sourceCustomers.Adapt<List<CustomerDto>>((dtoList, srcList) =>
-        {
-            if (dtoList == null) return;
-            var entities = srcList as List<CustomerEntity>;
-            
-            for (int index = 0; index < dtoList.Count; index++)
-            {
-                var dto = dtoList[index];
-                var entity = entities?[index];
-                if (dto == null || entity == null) continue;
-                
-                dto.RowNumber = index + 1;
-                dto.DisplayName = $"{entity.FirstName} {entity.LastName}";
-                dto.AgeGroup = entity.Age < 30 ? "青年" : "中年";
-            }
-        });
+        var customerDtos3 = sourceCustomers.Adapt<List<CustomerDto>>();
         PrintCustomers(customerDtos3);
 
         // 方式 4：模拟分页场景 - page.Data.AdaptToList<TDto, TEntity>()
@@ -72,34 +39,21 @@ public static class AdaptListDemo
             Data = sourceCustomers
         };
 
-        // 这是推荐的语法！
-        var customerDtos4 = pageResult.Data.AdaptToList<CustomerDto, CustomerEntity>((list, src) =>
-        {
-            if (list == null) return;
-            
-            for (int i = 0; i < list.Count; i++)
-            {
-                list[i].RowNumber = i + 1;
-                list[i].DisplayName = FormatCustomerName(list[i]);
-            }
-        });
         
-        Console.WriteLine($"分页信息: Page={pageResult.Page}, Size={pageResult.Size}, Total={pageResult.Total}");
-        PrintCustomers(customerDtos4);
 
-        // 方式 5：简化写法（使用 Adapt 自动识别集合）
-        Console.WriteLine("\n方式 5: 使用 Adapt<List<T>>() 自动识别集合");
-        var customerDtos5 = sourceCustomers.Adapt<List<CustomerDto>>((dtoList, srcList) =>
-        {
-            if (dtoList == null) return;
+        //// 方式 5：简化写法（使用 Adapt 自动识别集合）
+        //Console.WriteLine("\n方式 5: 使用 Adapt<List<T>>() 自动识别集合");
+        //var customerDtos5 = sourceCustomers.Adapt<List<CustomerDto>>((dtoList, srcList) =>
+        //{
+        //    if (dtoList == null) return;
             
-            for (int index = 0; index < dtoList.Count; index++)
-            {
-                dtoList[index].RowNumber = index + 1;
-                dtoList[index].DisplayName = $"Customer #{index + 1}";
-            }
-        });
-        PrintCustomers(customerDtos5);
+        //    for (int index = 0; index < dtoList.Count; index++)
+        //    {
+        //        dtoList[index].RowNumber = index + 1;
+        //        dtoList[index].DisplayName = $"Customer #{index + 1}";
+        //    }
+        //});
+        //PrintCustomers(customerDtos5);
     }
 
     private static string FormatCustomerName(CustomerDto customer)

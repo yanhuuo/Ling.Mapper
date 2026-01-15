@@ -1,66 +1,45 @@
-using System;
+using Ling.Mapper.Extensions;
 
-namespace Ling.Mapper
+namespace Ling.Mapper.Models;
+/// <summary>
+/// Adapt 映射语义选项（位标志）
+/// </summary>
+[Flags]
+public enum AdaptOptions
 {
     /// <summary>
-    /// 映射时的属性匹配规则选项
+    /// 不启用任何特殊规则（严格匹配）
     /// </summary>
-    public class AdaptOptions
-    {
-        /// <summary>
-        /// 获取或设置是否忽略属性名称的大小写匹配。默认值：false
-        /// </summary>
-        /// <remarks>
-        /// 当设置为 true 时，源属性 "userName" 可以匹配目标属性 "UserName"
-        /// </remarks>
-        public bool IgnoreCase { get; set; }
+    Strict = 0,
 
-        /// <summary>
-        /// 获取或设置是否忽略属性名称中的下划线字符。默认值：false
-        /// </summary>
-        /// <remarks>
-        /// 当设置为 true 时，源属性 "user_name" 可以匹配目标属性 "UserName" 或 "username"
-        /// </remarks>
-        public bool IgnoreUnderscore { get; set; }
+    /// <summary>
+    /// 忽略大小写
+    /// </summary>
+    IgnoreCase = 1 << 0,
 
-        /// <summary>
-        /// 获取或设置要忽略映射的属性名称集合
-        /// </summary>
-        /// <remarks>
-        /// 这些属性在映射后会被重置为默认值
-        /// </remarks>
-        public string[]? IgnoreProperties { get; set; }
+    /// <summary>
+    /// 忽略下划线（user_name → UserName）
+    /// </summary>
+    IgnoreUnderscore = 1 << 1,
 
-        /// <summary>
-        /// 获取或设置是否忽略 null 值属性的映射。默认值：false
-        /// </summary>
-        /// <remarks>
-        /// 当设置为 true 时，源对象中值为 null 的属性不会覆盖目标对象
-        /// </remarks>
-        public bool IgnoreNullValues { get; set; }
+    /// <summary>
+    /// 忽略源对象中的 null 值
+    /// </summary>
+    IgnoreNullValues = 1 << 2,
 
-        /// <summary>
-        /// 创建默认的映射选项（不启用任何特殊规则）
-        /// </summary>
-        public static AdaptOptions Default => new AdaptOptions();
+    /// <summary>
+    /// 默认选项：
+    /// 忽略大小写 + 忽略下划线
+    /// </summary>
+    Default = IgnoreCase | IgnoreUnderscore,
 
-        /// <summary>
-        /// 创建启用忽略大小写的映射选项
-        /// </summary>
-        public static AdaptOptions IgnoreCaseOption => new AdaptOptions { IgnoreCase = true };
+    /// <summary>
+    /// 兼容旧命名：仅忽略下划线
+    /// </summary>
+    IgnoreUnderscoreOption = IgnoreUnderscore,
 
-        /// <summary>
-        /// 创建启用忽略下划线的映射选项
-        /// </summary>
-        public static AdaptOptions IgnoreUnderscoreOption => new AdaptOptions { IgnoreUnderscore = true };
-
-        /// <summary>
-        /// 创建启用忽略大小写和下划线的映射选项
-        /// </summary>
-        public static AdaptOptions FlexibleOption => new AdaptOptions 
-        { 
-            IgnoreCase = true, 
-            IgnoreUnderscore = true 
-        };
-    }
+    /// <summary>
+    /// 兼容旧命名：组合选项（IgnoreCase + IgnoreUnderscore）
+    /// </summary>
+    FlexibleOption = IgnoreCase | IgnoreUnderscore
 }

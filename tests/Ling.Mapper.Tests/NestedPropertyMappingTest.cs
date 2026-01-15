@@ -1,5 +1,6 @@
 using System;
 using Ling.Mapper;
+using Ling.Mapper.Extensions;
 
 namespace Ling.Mapper.Tests
 {

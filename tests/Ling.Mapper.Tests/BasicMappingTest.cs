@@ -1,16 +1,17 @@
 using System;
 using Ling.Mapper;
+using Ling.Mapper.Extensions;
 
 namespace TestConsole;
 
 /// <summary>
-/// »ù´¡Ó³Éä²âÊÔ - ÑéÖ¤ºËĞÄÓ³Éä¹¦ÄÜ
+/// åŸºç¡€æ˜ å°„æµ‹è¯• - éªŒè¯æ ¸å¿ƒæ˜ å°„åŠŸèƒ½
 /// </summary>
 public static class BasicMappingTest
 {
     public static void Run()
     {
-        Console.WriteLine("--- »ù´¡Ó³Éä²âÊÔ ---\n");
+        Console.WriteLine("--- åŸºç¡€æ˜ å°„æµ‹è¯• ---\n");
         
         TestSimpleMapping();
         TestProfileMapping();
@@ -23,7 +24,7 @@ public static class BasicMappingTest
     
     private static void TestSimpleMapping()
     {
-        Console.WriteLine("1. ¼òµ¥¶ÔÏóÓ³Éä");
+        Console.WriteLine("1. ç®€å•å¯¹è±¡æ˜ å°„");
         
         var dto = new ActivityDto
         {
@@ -56,7 +57,7 @@ public static class BasicMappingTest
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"  ? ²âÊÔÊ§°Ü: {ex.Message}");
+            Console.WriteLine($"  ? æµ‹è¯•å¤±è´¥: {ex.Message}");
         }
         
         Console.WriteLine();
@@ -64,7 +65,7 @@ public static class BasicMappingTest
     
     private static void TestProfileMapping()
     {
-        Console.WriteLine("2. Profile ÅäÖÃÓ³Éä");
+        Console.WriteLine("2. Profile é…ç½®æ˜ å°„");
         
         var dto = new ActivityDto
         {
@@ -77,30 +78,30 @@ public static class BasicMappingTest
         {
             var entity = dto.Adapt<MallActivityEntity>();
             
-            // Profile Ó¦¸ÃºÏ²¢ FirstName + LastName -> Name
+            // Profile åº”è¯¥åˆå¹¶ FirstName + LastName -> Name
             var expectedName = "John Doe";
             if (entity?.Name == expectedName)
             {
-                Console.WriteLine($"  ? ForMember ÅäÖÃ³É¹¦: Name = '{entity.Name}'");
+                Console.WriteLine($"  ? ForMember é…ç½®æˆåŠŸ: Name = '{entity.Name}'");
             }
             else
             {
-                Console.WriteLine($"  ? ForMember ÅäÖÃÊ§°Ü: ÆÚÍû '{expectedName}', Êµ¼Ê '{entity?.Name}'");
+                Console.WriteLine($"  ? ForMember é…ç½®å¤±è´¥: æœŸæœ› '{expectedName}', å®é™… '{entity?.Name}'");
             }
             
             // Rename: Uid -> UserId
             if (entity?.UserId == 2001)
             {
-                Console.WriteLine($"  ? Rename ÅäÖÃ³É¹¦: UserId = {entity.UserId}");
+                Console.WriteLine($"  ? Rename é…ç½®æˆåŠŸ: UserId = {entity.UserId}");
             }
             else
             {
-                Console.WriteLine($"  ? Rename ÅäÖÃÊ§°Ü");
+                Console.WriteLine($"  ? Rename é…ç½®å¤±è´¥");
             }
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"  ? ²âÊÔÊ§°Ü: {ex.Message}");
+            Console.WriteLine($"  ? æµ‹è¯•å¤±è´¥: {ex.Message}");
         }
         
         Console.WriteLine();
@@ -108,7 +109,7 @@ public static class BasicMappingTest
     
     private static void TestForMemberMapping()
     {
-        Console.WriteLine("3. ForMember ×Ô¶¨ÒåÓ³Éä");
+        Console.WriteLine("3. ForMember è‡ªå®šä¹‰æ˜ å°„");
         
         var dto = new ActivityDto
         {
@@ -123,22 +124,22 @@ public static class BasicMappingTest
             {
                 if (dest != null)
                 {
-                    dest.Name = $"{src.FirstName} {src.LastName} - Custom";
+                    src.Name = $"{dest.FirstName} {dest.LastName} - Custom";
                 }
             });
             
             if (entity?.Name?.Contains("Custom") == true)
             {
-                Console.WriteLine($"  ? ×Ô¶¨ÒåÓ³Éä³É¹¦: Name = '{entity.Name}'");
+                Console.WriteLine($"  ? è‡ªå®šä¹‰æ˜ å°„æˆåŠŸ: Name = '{entity.Name}'");
             }
             else
             {
-                Console.WriteLine($"  ? ×Ô¶¨ÒåÓ³ÉäÊ§°Ü");
+                Console.WriteLine($"  ? è‡ªå®šä¹‰æ˜ å°„å¤±è´¥");
             }
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"  ? ²âÊÔÊ§°Ü: {ex.Message}");
+            Console.WriteLine($"  ? æµ‹è¯•å¤±è´¥: {ex.Message}");
         }
         
         Console.WriteLine();
@@ -146,7 +147,7 @@ public static class BasicMappingTest
     
     private static void TestIgnoreMapping()
     {
-        Console.WriteLine("4. Ignore ÊôĞÔÓ³Éä");
+        Console.WriteLine("4. Ignore å±æ€§æ˜ å°„");
         
         var dto = new ActivityDto
         {
@@ -159,19 +160,19 @@ public static class BasicMappingTest
         {
             var entity = dto.Adapt<MallActivityEntity>();
             
-            // InternalCode Ó¦¸Ã±»ºöÂÔ£¨Profile ÖĞÅäÖÃ£©
+            // InternalCode åº”è¯¥è¢«å¿½ç•¥ï¼ˆProfile ä¸­é…ç½®ï¼‰
             if (entity?.InternalCode == null)
             {
-                Console.WriteLine($"  ? Ignore ÅäÖÃ³É¹¦: InternalCode = null");
+                Console.WriteLine($"  ? Ignore é…ç½®æˆåŠŸ: InternalCode = null");
             }
             else
             {
-                Console.WriteLine($"  ? Ignore ÅäÖÃÊ§°Ü: InternalCode = '{entity.InternalCode}'");
+                Console.WriteLine($"  ? Ignore é…ç½®å¤±è´¥: InternalCode = '{entity.InternalCode}'");
             }
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"  ? ²âÊÔÊ§°Ü: {ex.Message}");
+            Console.WriteLine($"  ? æµ‹è¯•å¤±è´¥: {ex.Message}");
         }
         
         Console.WriteLine();
@@ -179,7 +180,7 @@ public static class BasicMappingTest
     
     private static void TestRenameMapping()
     {
-        Console.WriteLine("5. Rename ÊôĞÔÓ³Éä");
+        Console.WriteLine("5. Rename å±æ€§æ˜ å°„");
         
         var dto = new ActivityDto
         {
@@ -192,19 +193,19 @@ public static class BasicMappingTest
         {
             var entity = dto.Adapt<MallActivityEntity>();
             
-            // Uid -> UserId (Profile ÖĞÅäÖÃ)
+            // Uid -> UserId (Profile ä¸­é…ç½®)
             if (entity?.UserId == 5001)
             {
-                Console.WriteLine($"  ? Rename Ó³Éä³É¹¦: Uid -> UserId = {entity.UserId}");
+                Console.WriteLine($"  ? Rename æ˜ å°„æˆåŠŸ: Uid -> UserId = {entity.UserId}");
             }
             else
             {
-                Console.WriteLine($"  ? Rename Ó³ÉäÊ§°Ü");
+                Console.WriteLine($"  ? Rename æ˜ å°„å¤±è´¥");
             }
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"  ? ²âÊÔÊ§°Ü: {ex.Message}");
+            Console.WriteLine($"  ? æµ‹è¯•å¤±è´¥: {ex.Message}");
         }
         
         Console.WriteLine();

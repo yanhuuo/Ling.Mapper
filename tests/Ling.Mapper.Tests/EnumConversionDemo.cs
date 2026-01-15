@@ -1,235 +1,236 @@
 using System;
 using Ling.Mapper;
+using Ling.Mapper.Extensions;
 
 namespace TestConsole;
 
 /// <summary>
-/// ÑİÊ¾Ã¶¾Ù×ª»»³¡¾°
+/// æ¼”ç¤ºæšä¸¾è½¬æ¢åœºæ™¯
 /// </summary>
 public static class EnumConversionDemo
 {
     public static void Run()
     {
-        Console.WriteLine("\n=== Ã¶¾Ù×ª»»²âÊÔ ===");
+        Console.WriteLine("\n=== æšä¸¾è½¬æ¢æµ‹è¯• ===");
 
-        // ³¡¾° 1: enum -> int
+        // åœºæ™¯ 1: enum -> int
         TestEnumToInt();
 
-        // ³¡¾° 2: int -> enum
+        // åœºæ™¯ 2: int -> enum
         TestIntToEnum();
 
-        // ³¡¾° 3: enum -> string
+        // åœºæ™¯ 3: enum -> string
         TestEnumToString();
 
-        // ³¡¾° 4: string -> enum
+        // åœºæ™¯ 4: string -> enum
         TestStringToEnum();
 
-        // ³¡¾° 5: enum -> enum (ÏàÍ¬ÀàĞÍ)
+        // åœºæ™¯ 5: enum -> enum (ç›¸åŒç±»å‹)
         TestEnumToSameEnum();
 
-        // ³¡¾° 6: enum -> enum (²»Í¬ÀàĞÍµ«ÖµÏàÍ¬)
+        // åœºæ™¯ 6: enum -> enum (ä¸åŒç±»å‹ä½†å€¼ç›¸åŒ)
         TestEnumToDifferentEnum();
 
-        // ³¡¾° 7: nullable enum -> int
+        // åœºæ™¯ 7: nullable enum -> int
         TestNullableEnumToInt();
 
-        // ³¡¾° 8: int -> nullable enum
+        // åœºæ™¯ 8: int -> nullable enum
         TestIntToNullableEnum();
 
-        // ³¡¾° 9: nullable enum -> nullable int
+        // åœºæ™¯ 9: nullable enum -> nullable int
         TestNullableEnumToNullableInt();
 
-        Console.WriteLine("=== Ã¶¾Ù×ª»»²âÊÔÍê³É ===\n");
+        Console.WriteLine("=== æšä¸¾è½¬æ¢æµ‹è¯•å®Œæˆ ===\n");
     }
 
-    #region ²âÊÔ³¡¾°
+    #region æµ‹è¯•åœºæ™¯
 
     private static void TestEnumToInt()
     {
-        Console.WriteLine("\n--- ³¡¾° 1: enum -> int ---");
+        Console.WriteLine("\n--- åœºæ™¯ 1: enum -> int ---");
         var source = new EnumToIntSource { Status = UserStatus.Active };
         
         try
         {
             var result = source.Adapt<EnumToIntTarget>();
-            Console.WriteLine($"Status: {result?.Status ?? 0} (ÆÚÍû: {(int)UserStatus.Active})");
-            Console.WriteLine((result?.Status ?? 0) == (int)UserStatus.Active ? "? ×ª»»³É¹¦" : "? ×ª»»Ê§°Ü");
+            Console.WriteLine($"Status: {result?.Status ?? 0} (æœŸæœ›: {(int)UserStatus.Active})");
+            Console.WriteLine((result?.Status ?? 0) == (int)UserStatus.Active ? "? è½¬æ¢æˆåŠŸ" : "? è½¬æ¢å¤±è´¥");
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"? Òì³£: {ex.Message}");
+            Console.WriteLine($"? å¼‚å¸¸: {ex.Message}");
         }
     }
 
     private static void TestIntToEnum()
     {
-        Console.WriteLine("\n--- ³¡¾° 2: int -> enum ---");
+        Console.WriteLine("\n--- åœºæ™¯ 2: int -> enum ---");
         var source = new IntToEnumSource { Status = 1 };
         
         try
         {
             var result = source.Adapt<IntToEnumTarget>();
-            Console.WriteLine($"Status: {result?.Status ?? UserStatus.Inactive} (ÆÚÍû: {UserStatus.Active})");
-            Console.WriteLine((result?.Status ?? UserStatus.Inactive) == UserStatus.Active ? "? ×ª»»³É¹¦" : "? ×ª»»Ê§°Ü");
+            Console.WriteLine($"Status: {result?.Status ?? UserStatus.Inactive} (æœŸæœ›: {UserStatus.Active})");
+            Console.WriteLine((result?.Status ?? UserStatus.Inactive) == UserStatus.Active ? "? è½¬æ¢æˆåŠŸ" : "? è½¬æ¢å¤±è´¥");
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"? Òì³£: {ex.Message}");
+            Console.WriteLine($"? å¼‚å¸¸: {ex.Message}");
         }
     }
 
     private static void TestEnumToString()
     {
-        Console.WriteLine("\n--- ³¡¾° 3: enum -> string ---");
+        Console.WriteLine("\n--- åœºæ™¯ 3: enum -> string ---");
         var source = new EnumToStringSource { Status = UserStatus.Inactive };
         
         try
         {
             var result = source.Adapt<EnumToStringTarget>();
-            Console.WriteLine($"Status: {result?.Status ?? "null"} (ÆÚÍû: \"Inactive\" »ò \"0\")");
-            Console.WriteLine(!string.IsNullOrEmpty(result?.Status) ? "? ×ª»»³É¹¦" : "? ×ª»»Ê§°Ü");
+            Console.WriteLine($"Status: {result?.Status ?? "null"} (æœŸæœ›: \"Inactive\" æˆ– \"0\")");
+            Console.WriteLine(!string.IsNullOrEmpty(result?.Status) ? "? è½¬æ¢æˆåŠŸ" : "? è½¬æ¢å¤±è´¥");
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"? Òì³£: {ex.Message}");
+            Console.WriteLine($"? å¼‚å¸¸: {ex.Message}");
         }
     }
 
     private static void TestStringToEnum()
     {
-        Console.WriteLine("\n--- ³¡¾° 4: string -> enum ---");
+        Console.WriteLine("\n--- åœºæ™¯ 4: string -> enum ---");
         var source = new StringToEnumSource { Status = "Active" };
         
         try
         {
             var result = source.Adapt<StringToEnumTarget>();
-            Console.WriteLine($"Status: {result?.Status ?? UserStatus.Inactive} (ÆÚÍû: {UserStatus.Active})");
-            Console.WriteLine((result?.Status ?? UserStatus.Inactive) == UserStatus.Active ? "? ×ª»»³É¹¦" : "? ×ª»»Ê§°Ü");
+            Console.WriteLine($"Status: {result?.Status ?? UserStatus.Inactive} (æœŸæœ›: {UserStatus.Active})");
+            Console.WriteLine((result?.Status ?? UserStatus.Inactive) == UserStatus.Active ? "? è½¬æ¢æˆåŠŸ" : "? è½¬æ¢å¤±è´¥");
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"? Òì³£: {ex.Message}");
+            Console.WriteLine($"? å¼‚å¸¸: {ex.Message}");
         }
     }
 
     private static void TestEnumToSameEnum()
     {
-        Console.WriteLine("\n--- ³¡¾° 5: enum -> enum (ÏàÍ¬ÀàĞÍ) ---");
+        Console.WriteLine("\n--- åœºæ™¯ 5: enum -> enum (ç›¸åŒç±»å‹) ---");
         var source = new EnumToSameEnumSource { Status = UserStatus.Pending };
         
         try
         {
             var result = source.Adapt<EnumToSameEnumTarget>();
-            Console.WriteLine($"Status: {result?.Status ?? UserStatus.Inactive} (ÆÚÍû: {UserStatus.Pending})");
-            Console.WriteLine((result?.Status ?? UserStatus.Inactive) == UserStatus.Pending ? "? ×ª»»³É¹¦" : "? ×ª»»Ê§°Ü");
+            Console.WriteLine($"Status: {result?.Status ?? UserStatus.Inactive} (æœŸæœ›: {UserStatus.Pending})");
+            Console.WriteLine((result?.Status ?? UserStatus.Inactive) == UserStatus.Pending ? "? è½¬æ¢æˆåŠŸ" : "? è½¬æ¢å¤±è´¥");
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"? Òì³£: {ex.Message}");
+            Console.WriteLine($"? å¼‚å¸¸: {ex.Message}");
         }
     }
 
     private static void TestEnumToDifferentEnum()
     {
-        Console.WriteLine("\n--- ³¡¾° 6: enum -> enum (²»Í¬ÀàĞÍ) ---");
+        Console.WriteLine("\n--- åœºæ™¯ 6: enum -> enum (ä¸åŒç±»å‹) ---");
         var source = new EnumToDifferentEnumSource { Status = UserStatus.Active };
         
         try
         {
             var result = source.Adapt<EnumToDifferentEnumTarget>();
-            Console.WriteLine($"Status: {result?.Status ?? OrderStatus.Pending} (ÆÚÍû: {OrderStatus.Completed})");
-            Console.WriteLine("? ×ª»»³¢ÊÔÍê³É");
+            Console.WriteLine($"Status: {result?.Status ?? OrderStatus.Pending} (æœŸæœ›: {OrderStatus.Completed})");
+            Console.WriteLine("? è½¬æ¢å°è¯•å®Œæˆ");
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"? Òì³£: {ex.Message}");
+            Console.WriteLine($"? å¼‚å¸¸: {ex.Message}");
         }
     }
 
     private static void TestNullableEnumToInt()
     {
-        Console.WriteLine("\n--- ³¡¾° 7: nullable enum -> int ---");
+        Console.WriteLine("\n--- åœºæ™¯ 7: nullable enum -> int ---");
         
-        // ÓĞÖµµÄÇé¿ö
+        // æœ‰å€¼çš„æƒ…å†µ
         var source1 = new NullableEnumToIntSource { Status = UserStatus.Active };
         try
         {
             var result1 = source1.Adapt<NullableEnumToIntTarget>();
-            Console.WriteLine($"ÓĞÖµ: Status = {result1?.Status ?? -1} (ÆÚÍû: {(int)UserStatus.Active})");
-            Console.WriteLine((result1?.Status ?? -1) == (int)UserStatus.Active ? "? ×ª»»³É¹¦" : "? ×ª»»Ê§°Ü");
+            Console.WriteLine($"æœ‰å€¼: Status = {result1?.Status ?? -1} (æœŸæœ›: {(int)UserStatus.Active})");
+            Console.WriteLine((result1?.Status ?? -1) == (int)UserStatus.Active ? "? è½¬æ¢æˆåŠŸ" : "? è½¬æ¢å¤±è´¥");
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"? Òì³£: {ex.Message}");
+            Console.WriteLine($"? å¼‚å¸¸: {ex.Message}");
         }
 
-        // null µÄÇé¿ö
+        // null çš„æƒ…å†µ
         var source2 = new NullableEnumToIntSource { Status = null };
         try
         {
             var result2 = source2.Adapt<NullableEnumToIntTarget>();
-            Console.WriteLine($"null: Status = {result2?.Status ?? -1} (ÆÚÍû: 0)");
-            Console.WriteLine((result2?.Status ?? -1) == 0 ? "? ×ª»»³É¹¦" : "? ×ª»»Ê§°Ü");
+            Console.WriteLine($"null: Status = {result2?.Status ?? -1} (æœŸæœ›: 0)");
+            Console.WriteLine((result2?.Status ?? -1) == 0 ? "? è½¬æ¢æˆåŠŸ" : "? è½¬æ¢å¤±è´¥");
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"? Òì³£: {ex.Message}");
+            Console.WriteLine($"? å¼‚å¸¸: {ex.Message}");
         }
     }
 
     private static void TestIntToNullableEnum()
     {
-        Console.WriteLine("\n--- ³¡¾° 8: int -> nullable enum ---");
+        Console.WriteLine("\n--- åœºæ™¯ 8: int -> nullable enum ---");
         var source = new IntToNullableEnumSource { Status = 1 };
         
         try
         {
             var result = source.Adapt<IntToNullableEnumTarget>();
-            Console.WriteLine($"Status: {result?.Status?.ToString() ?? "null"} (ÆÚÍû: {UserStatus.Active})");
-            Console.WriteLine((result?.Status ?? UserStatus.Inactive) == UserStatus.Active ? "? ×ª»»³É¹¦" : "? ×ª»»Ê§°Ü");
+            Console.WriteLine($"Status: {result?.Status?.ToString() ?? "null"} (æœŸæœ›: {UserStatus.Active})");
+            Console.WriteLine((result?.Status ?? UserStatus.Inactive) == UserStatus.Active ? "? è½¬æ¢æˆåŠŸ" : "? è½¬æ¢å¤±è´¥");
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"? Òì³£: {ex.Message}");
+            Console.WriteLine($"? å¼‚å¸¸: {ex.Message}");
         }
     }
 
     private static void TestNullableEnumToNullableInt()
     {
-        Console.WriteLine("\n--- ³¡¾° 9: nullable enum -> nullable int ---");
+        Console.WriteLine("\n--- åœºæ™¯ 9: nullable enum -> nullable int ---");
         
-        // ÓĞÖµµÄÇé¿ö
+        // æœ‰å€¼çš„æƒ…å†µ
         var source1 = new NullableEnumToNullableIntSource { Status = UserStatus.Inactive };
         try
         {
             var result1 = source1.Adapt<NullableEnumToNullableIntTarget>();
-            Console.WriteLine($"ÓĞÖµ: Status = {result1?.Status?.ToString() ?? "null"} (ÆÚÍû: {(int)UserStatus.Inactive})");
-            Console.WriteLine((result1?.Status ?? -1) == (int)UserStatus.Inactive ? "? ×ª»»³É¹¦" : "? ×ª»»Ê§°Ü");
+            Console.WriteLine($"æœ‰å€¼: Status = {result1?.Status?.ToString() ?? "null"} (æœŸæœ›: {(int)UserStatus.Inactive})");
+            Console.WriteLine((result1?.Status ?? -1) == (int)UserStatus.Inactive ? "? è½¬æ¢æˆåŠŸ" : "? è½¬æ¢å¤±è´¥");
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"? Òì³£: {ex.Message}");
+            Console.WriteLine($"? å¼‚å¸¸: {ex.Message}");
         }
 
-        // null µÄÇé¿ö
+        // null çš„æƒ…å†µ
         var source2 = new NullableEnumToNullableIntSource { Status = null };
         try
         {
             var result2 = source2.Adapt<NullableEnumToNullableIntTarget>();
-            Console.WriteLine($"null: Status = {result2?.Status?.ToString() ?? "null"} (ÆÚÍû: null)");
-            Console.WriteLine((result2?.Status == null) ? "? ×ª»»³É¹¦" : "? ×ª»»Ê§°Ü");
+            Console.WriteLine($"null: Status = {result2?.Status?.ToString() ?? "null"} (æœŸæœ›: null)");
+            Console.WriteLine((result2?.Status == null) ? "? è½¬æ¢æˆåŠŸ" : "? è½¬æ¢å¤±è´¥");
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"? Òì³£: {ex.Message}");
+            Console.WriteLine($"? å¼‚å¸¸: {ex.Message}");
         }
     }
 
     #endregion
 
-    #region ²âÊÔÄ£ĞÍ
+    #region æµ‹è¯•æ¨¡å‹
 
-    // Ã¶¾Ù¶¨Òå
+    // æšä¸¾å®šä¹‰
     public enum UserStatus
     {
         Inactive = 0,
@@ -244,7 +245,7 @@ public static class EnumConversionDemo
         Cancelled = 2
     }
 
-    // ³¡¾° 1: enum -> int
+    // åœºæ™¯ 1: enum -> int
     public class EnumToIntSource
     {
         public UserStatus Status { get; set; }
@@ -255,7 +256,7 @@ public static class EnumConversionDemo
         public int Status { get; set; }
     }
 
-    // ³¡¾° 2: int -> enum
+    // åœºæ™¯ 2: int -> enum
     public class IntToEnumSource
     {
         public int Status { get; set; }
@@ -266,7 +267,7 @@ public static class EnumConversionDemo
         public UserStatus Status { get; set; }
     }
 
-    // ³¡¾° 3: enum -> string
+    // åœºæ™¯ 3: enum -> string
     public class EnumToStringSource
     {
         public UserStatus Status { get; set; }
@@ -277,7 +278,7 @@ public static class EnumConversionDemo
         public string? Status { get; set; }
     }
 
-    // ³¡¾° 4: string -> enum
+    // åœºæ™¯ 4: string -> enum
     public class StringToEnumSource
     {
         public string? Status { get; set; }
@@ -288,7 +289,7 @@ public static class EnumConversionDemo
         public UserStatus Status { get; set; }
     }
 
-    // ³¡¾° 5: enum -> enum (ÏàÍ¬ÀàĞÍ)
+    // åœºæ™¯ 5: enum -> enum (ç›¸åŒç±»å‹)
     public class EnumToSameEnumSource
     {
         public UserStatus Status { get; set; }
@@ -299,7 +300,7 @@ public static class EnumConversionDemo
         public UserStatus Status { get; set; }
     }
 
-    // ³¡¾° 6: enum -> enum (²»Í¬ÀàĞÍ)
+    // åœºæ™¯ 6: enum -> enum (ä¸åŒç±»å‹)
     public class EnumToDifferentEnumSource
     {
         public UserStatus Status { get; set; }
@@ -310,7 +311,7 @@ public static class EnumConversionDemo
         public OrderStatus Status { get; set; }
     }
 
-    // ³¡¾° 7: nullable enum -> int
+    // åœºæ™¯ 7: nullable enum -> int
     public class NullableEnumToIntSource
     {
         public UserStatus? Status { get; set; }
@@ -321,7 +322,7 @@ public static class EnumConversionDemo
         public int Status { get; set; }
     }
 
-    // ³¡¾° 8: int -> nullable enum
+    // åœºæ™¯ 8: int -> nullable enum
     public class IntToNullableEnumSource
     {
         public int Status { get; set; }
@@ -332,7 +333,7 @@ public static class EnumConversionDemo
         public UserStatus? Status { get; set; }
     }
 
-    // ³¡¾° 9: nullable enum -> nullable int
+    // åœºæ™¯ 9: nullable enum -> nullable int
     public class NullableEnumToNullableIntSource
     {
         public UserStatus? Status { get; set; }

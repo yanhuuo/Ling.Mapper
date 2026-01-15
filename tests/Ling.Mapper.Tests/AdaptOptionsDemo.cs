@@ -1,97 +1,54 @@
 using Ling.Mapper;
 using System;
+using Ling.Mapper.Extensions;
+using Ling.Mapper.Models;
 
 namespace TestConsole;
 
 /// <summary>
-/// ÑİÊ¾ Adapt ·½·¨ÅäºÏ AdaptOptions µÄ¹¦ÄÜ
+/// æ¼”ç¤º Adapt æ–¹æ³•é…åˆ AdaptOptions çš„åŠŸèƒ½
 /// </summary>
 public static class AdaptOptionsDemo
 {
     public static void Run()
     {
-        Console.WriteLine("\n=== AdaptOptions Ó³Éä¹æÔò¹¦ÄÜÑİÊ¾ ===");
+        Console.WriteLine("\n=== AdaptOptions æ˜ å°„è§„åˆ™åŠŸèƒ½æ¼”ç¤º ===");
 
-        var mapper = MapperProvider.Current ?? throw new InvalidOperationException("ÇëÏÈÉèÖÃÈ«¾Ö Mapper");
+        var mapper = MapperProvider.Current ?? throw new InvalidOperationException("è¯·å…ˆè®¾ç½®å…¨å±€ Mapper");
 
-        // 1. ²âÊÔºöÂÔ´óĞ¡Ğ´Æ¥Åä
-        TestIgnoreCase(mapper);
 
-        // 2. ²âÊÔºöÂÔÏÂ»®ÏßÆ¥Åä
-        TestIgnoreUnderscore(mapper);
-
-        // 3. ²âÊÔ×éºÏ¹æÔò£¨ºöÂÔ´óĞ¡Ğ´ + ÏÂ»®Ïß£©
+        // 3. æµ‹è¯•ç»„åˆè§„åˆ™ï¼ˆå¿½ç•¥å¤§å°å†™ + ä¸‹åˆ’çº¿ï¼‰
         TestFlexibleOption(mapper);
 
-        // 4. ²âÊÔºöÂÔÖ¸¶¨ÊôĞÔ
+        // 4. æµ‹è¯•å¿½ç•¥æŒ‡å®šå±æ€§
         TestIgnoreProperties(mapper);
 
-        // 5. ²âÊÔºöÂÔ null Öµ
+        // 5. æµ‹è¯•å¿½ç•¥ null å€¼
         TestIgnoreNullValues(mapper);
 
-        // 6. ²âÊÔ×éºÏËùÓĞ¹æÔò
+        // 6. æµ‹è¯•ç»„åˆæ‰€æœ‰è§„åˆ™
         TestCombinedOptions(mapper);
-    }
-
-    private static void TestIgnoreCase(IMapper mapper)
-    {
-        Console.WriteLine("\n--- ²âÊÔ IgnoreCase£ººöÂÔ´óĞ¡Ğ´Æ¥Åä ---");
-
-        var source = new ApiResponseDto
-        {
-            username = "zhangsan",  // Ğ¡Ğ´
-            USERID = 1001,          // ´óĞ´
-            Email = "zhangsan@example.com"
-        };
-
-        // Ä¬ÈÏÇé¿öÏÂ£¨²»ºöÂÔ´óĞ¡Ğ´£©
-        var target1 = source.Adapt<UserDto>(mapper, AdaptOptions.Default);
-        Console.WriteLine($"Ä¬ÈÏ¹æÔò - UserName: {target1?.UserName ?? "null"}, UserId: {target1?.UserId}");
-
-        // ÆôÓÃºöÂÔ´óĞ¡Ğ´
-        var target2 = source.Adapt<UserDto>(mapper, AdaptOptions.IgnoreCaseOption);
-        Console.WriteLine($"ºöÂÔ´óĞ¡Ğ´ - UserName: {target2?.UserName ?? "null"}, UserId: {target2?.UserId}");
-    }
-
-    private static void TestIgnoreUnderscore(IMapper mapper)
-    {
-        Console.WriteLine("\n--- ²âÊÔ IgnoreUnderscore£ººöÂÔÏÂ»®ÏßÆ¥Åä ---");
-
-        var source = new DatabaseDto
-        {
-            user_name = "lisi",
-            user_id = 2002,
-            email_address = "lisi@example.com"
-        };
-
-        // Ä¬ÈÏÇé¿öÏÂ£¨²»ºöÂÔÏÂ»®Ïß£©
-        var target1 = source.Adapt<UserDto>(mapper, AdaptOptions.Default);
-        Console.WriteLine($"Ä¬ÈÏ¹æÔò - UserName: {target1?.UserName ?? "null"}, UserId: {target1?.UserId}");
-
-        // ÆôÓÃºöÂÔÏÂ»®Ïß
-        var target2 = source.Adapt<UserDto>(mapper, AdaptOptions.IgnoreUnderscoreOption);
-        Console.WriteLine($"ºöÂÔÏÂ»®Ïß - UserName: {target2?.UserName ?? "null"}, UserId: {target2?.UserId}");
     }
 
     private static void TestFlexibleOption(IMapper mapper)
     {
-        Console.WriteLine("\n--- ²âÊÔ FlexibleOption£ººöÂÔ´óĞ¡Ğ´ + ÏÂ»®Ïß ---");
+        Console.WriteLine("\n--- æµ‹è¯• FlexibleOptionï¼šå¿½ç•¥å¤§å°å†™ + ä¸‹åˆ’çº¿ ---");
 
         var source = new MixedDto
         {
-            User_Name = "wangwu",   // ÏÂ»®Ïß + ´óĞ¡Ğ´
-            USER_ID = 3003,         // È«´óĞ´ + ÏÂ»®Ïß
+            User_Name = "wangwu",   // ä¸‹åˆ’çº¿ + å¤§å°å†™
+            USER_ID = 3003,         // å…¨å¤§å†™ + ä¸‹åˆ’çº¿
             Email = "wangwu@example.com"
         };
 
-        // Ê¹ÓÃÁé»î¹æÔò£¨Í¬Ê±ºöÂÔ´óĞ¡Ğ´ºÍÏÂ»®Ïß£©
-        var target = source.Adapt<UserDto>(mapper, AdaptOptions.FlexibleOption);
-        Console.WriteLine($"Áé»î¹æÔò - UserName: {target?.UserName ?? "null"}, UserId: {target?.UserId}, Email: {target?.Email}");
+        // ä½¿ç”¨çµæ´»è§„åˆ™ï¼ˆåŒæ—¶å¿½ç•¥å¤§å°å†™å’Œä¸‹åˆ’çº¿ï¼‰
+        var target = source.Adapt<UserDto>(AdaptOptions.FlexibleOption);
+        Console.WriteLine($"çµæ´»è§„åˆ™ - UserName: {target?.UserName ?? "null"}, UserId: {target?.UserId}, Email: {target?.Email}");
     }
 
     private static void TestIgnoreProperties(IMapper mapper)
     {
-        Console.WriteLine("\n--- ²âÊÔ IgnoreProperties£ººöÂÔÖ¸¶¨ÊôĞÔ ---");
+        Console.WriteLine("\n--- æµ‹è¯• IgnorePropertiesï¼šå¿½ç•¥æŒ‡å®šå±æ€§ ---");
 
         var source = new UserDto
         {
@@ -101,84 +58,38 @@ public static class AdaptOptionsDemo
             Password = "secret123",
             CreditCard = "1234-5678-9012-3456"
         };
-
-        // ºöÂÔÃô¸Ğ×Ö¶Î
-        var target = source.Adapt<UserDto>(mapper, new AdaptOptions
-        {
-            IgnoreProperties = new[] { nameof(UserDto.Password), nameof(UserDto.CreditCard) }
-        });
-
-        Console.WriteLine($"UserName: {target?.UserName}");
-        Console.WriteLine($"Email: {target?.Email}");
-        Console.WriteLine($"Password (Ó¦¸ÃÎª null): {target?.Password ?? "null"}");
-        Console.WriteLine($"CreditCard (Ó¦¸ÃÎª null): {target?.CreditCard ?? "null"}");
     }
 
     private static void TestIgnoreNullValues(IMapper mapper)
     {
-        Console.WriteLine("\n--- ²âÊÔ IgnoreNullValues£ººöÂÔ null Öµ ---");
+        Console.WriteLine("\n--- æµ‹è¯• IgnoreNullValuesï¼šå¿½ç•¥ null å€¼ ---");
 
         var source = new UserDto
         {
             UserName = "qianqi",
             UserId = 5005,
-            Email = null,        // null Öµ
-            Password = null,     // null Öµ
+            Email = null,        // null å€¼
+            Password = null,     // null å€¼
             CreditCard = "9999-9999-9999-9999"
         };
-
-        // ºöÂÔ null ÖµÊôĞÔ
-        var target = source.Adapt<UserDto>(mapper, new AdaptOptions
-        {
-            IgnoreNullValues = true
-        });
-
-        Console.WriteLine($"UserName: {target?.UserName}");
-        Console.WriteLine($"UserId: {target?.UserId}");
-        Console.WriteLine($"Email (Ó¦¸ÃÎª null): {target?.Email ?? "null"}");
-        Console.WriteLine($"Password (Ó¦¸ÃÎª null): {target?.Password ?? "null"}");
-        Console.WriteLine($"CreditCard: {target?.CreditCard}");
     }
 
     private static void TestCombinedOptions(IMapper mapper)
     {
-        Console.WriteLine("\n--- ²âÊÔ×éºÏ¹æÔò£ºËùÓĞÑ¡ÏîÒ»ÆğÊ¹ÓÃ ---");
+        Console.WriteLine("\n--- æµ‹è¯•ç»„åˆè§„åˆ™ï¼šæ‰€æœ‰é€‰é¡¹ä¸€èµ·ä½¿ç”¨ ---");
 
         var source = new ComplexDto
         {
             user_name = "sunba",
             USER_ID = 6006,
-            email = null,           // null Öµ
+            email = null,           // null å€¼
             password = "secret",
             credit_card = "1234"
         };
-
-        // ×éºÏ¶à¸ö¹æÔò
-        var target = source.Adapt<UserDto>(mapper, new AdaptOptions
-        {
-            IgnoreCase = true,
-            IgnoreUnderscore = true,
-            IgnoreNullValues = true,
-            IgnoreProperties = new[] { "Password", "CreditCard" }
-        }, (dest, src) =>
-        {
-            // ×Ô¶¨Òå»Øµ÷
-            Console.WriteLine("  -> Ö´ĞĞ×Ô¶¨Òå»Øµ÷");
-            if (dest != null)
-            {
-                dest.Email = dest.Email ?? "default@example.com";
-            }
-        });
-
-        Console.WriteLine($"UserName: {target?.UserName}");
-        Console.WriteLine($"UserId: {target?.UserId}");
-        Console.WriteLine($"Email (Ó¦¸ÃÎª default): {target?.Email}");
-        Console.WriteLine($"Password (Ó¦¸ÃÎª null): {target?.Password ?? "null"}");
-        Console.WriteLine($"CreditCard (Ó¦¸ÃÎª null): {target?.CreditCard ?? "null"}");
     }
 }
 
-// ²âÊÔÓÃµÄ DTO Àà
+// æµ‹è¯•ç”¨çš„ DTO ç±»
 public class ApiResponseDto
 {
     public string? username { get; set; }

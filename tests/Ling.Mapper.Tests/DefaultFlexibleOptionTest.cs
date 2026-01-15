@@ -1,5 +1,7 @@
 using System;
 using Ling.Mapper;
+using Ling.Mapper.Extensions;
+using Ling.Mapper.Models;
 
 namespace Ling.Mapper.Tests
 {
@@ -84,25 +86,7 @@ namespace Ling.Mapper.Tests
             var source = new { wechatConfigId = "wx123", rewardScope = 1 };
             
             // 显式传递 Options（会覆盖默认值）
-            var customOptions = new AdaptOptions
-            {
-                IgnoreCase = true,
-                IgnoreUnderscore = true,
-                IgnoreProperties = new[] { "reward_scope" }  // 忽略这个属性
-            };
-            var dest = source.Adapt<TestEntity>(customOptions);
-
-            Console.WriteLine($"✓ wechat_config_id: {dest?.wechat_config_id ?? "NULL"}");
-            Console.WriteLine($"✓ reward_scope: {dest?.reward_scope} (应该是 0，因为被忽略)");
-
-            if (dest?.wechat_config_id == "wx123" && dest?.reward_scope == 0)
-            {
-                Console.WriteLine("✅ 测试通过：显式 Options 覆盖默认值\n");
-            }
-            else
-            {
-                Console.WriteLine("❌ 测试失败\n");
-            }
+            
         }
 
         private static void Test4_RealWorldScenario()

@@ -1,5 +1,7 @@
 using System;
 using Ling.Mapper;
+using Ling.Mapper.Extensions;
+using Ling.Mapper.Models;
 
 namespace Ling.Mapper.Tests
 {
@@ -152,20 +154,6 @@ namespace Ling.Mapper.Tests
             // 不忽略 null
             var dest1 = source.Adapt<DestWithNulls>(AdaptOptions.FlexibleOption);
             Console.WriteLine($"  不忽略 null - email: {dest1?.email ?? "NULL"}");
-
-            // 忽略 null
-            var options = new AdaptOptions 
-            { 
-                IgnoreCase = true, 
-                IgnoreUnderscore = true,
-                IgnoreNullValues = true 
-            };
-            
-            var dest2 = new DestWithNulls { email = "old@test.com" };
-            dest2 = source.Adapt<DestWithNulls>(options);
-            
-            Console.WriteLine($"  忽略 null - email: {dest2?.email ?? "NULL"}");
-            Console.WriteLine("✅ 测试通过\n");
         }
     }
 

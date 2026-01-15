@@ -1,96 +1,97 @@
 using Ling.Mapper;
 using System;
+using Ling.Mapper.Extensions;
 
 namespace TestConsole;
 
 /// <summary>
-/// ÑİÊ¾¿É¿ÕÀàĞÍÓ³Éä¹¦ÄÜ
+/// æ¼”ç¤ºå¯ç©ºç±»å‹æ˜ å°„åŠŸèƒ½
 /// </summary>
 public static class NullableTypeDemo
 {
     public static void Run()
     {
-        Console.WriteLine("\n=== ¿É¿ÕÀàĞÍÓ³Éä¹¦ÄÜÑİÊ¾ ===");
+        Console.WriteLine("\n=== å¯ç©ºç±»å‹æ˜ å°„åŠŸèƒ½æ¼”ç¤º ===");
 
-        var mapper = MapperProvider.Current ?? throw new InvalidOperationException("ÇëÏÈÉèÖÃÈ«¾Ö Mapper");
+        var mapper = MapperProvider.Current ?? throw new InvalidOperationException("è¯·å…ˆè®¾ç½®å…¨å±€ Mapper");
 
-        // 1. ²âÊÔ int? ¡ú int ×ª»»
+        // 1. æµ‹è¯• int? â†’ int è½¬æ¢
         TestNullableToNonNullable();
 
-        // 2. ²âÊÔ int ¡ú int? ×ª»»
+        // 2. æµ‹è¯• int â†’ int? è½¬æ¢
         TestNonNullableToNullable();
 
-        // 3. ²âÊÔ int? ¡ú int? ×ª»»
+        // 3. æµ‹è¯• int? â†’ int? è½¬æ¢
         TestNullableToNullable();
 
-        // 4. ²âÊÔ string? ×ª»»
+        // 4. æµ‹è¯• string? è½¬æ¢
         TestNullableString();
 
-        // 5. ²âÊÔ»ìºÏ³¡¾°
+        // 5. æµ‹è¯•æ··åˆåœºæ™¯
         TestMixedScenario();
     }
 
     private static void TestNullableToNonNullable()
     {
-        Console.WriteLine("\n--- ²âÊÔ int? ¡ú int ×ª»» ---");
+        Console.WriteLine("\n--- æµ‹è¯• int? â†’ int è½¬æ¢ ---");
 
         var mapper = MapperProvider.Current!;
 
-        // ÓĞÖµµÄÇé¿ö
+        // æœ‰å€¼çš„æƒ…å†µ
         var source1 = new NullableSource { NullableId = 100, Name = "Test" };
-        var target1 = source1.Adapt<NonNullableTarget>(mapper);
-        Console.WriteLine($"ÓĞÖµ: NullableId = {source1.NullableId} ¡ú Id = {target1?.Id}");
+        var target1 = source1.Adapt<NonNullableTarget>();
+        Console.WriteLine($"æœ‰å€¼: NullableId = {source1.NullableId} â†’ Id = {target1?.Id}");
 
-        // null µÄÇé¿ö£¨Ó¦¸Ã×ª»»ÎªÄ¬ÈÏÖµ 0£©
+        // null çš„æƒ…å†µï¼ˆåº”è¯¥è½¬æ¢ä¸ºé»˜è®¤å€¼ 0ï¼‰
         var source2 = new NullableSource { NullableId = null, Name = "Test" };
-        var target2 = source2.Adapt<NonNullableTarget>(mapper);
-        Console.WriteLine($"null: NullableId = {source2.NullableId} ¡ú Id = {target2?.Id} (ÆÚÍû 0)");
+        var target2 = source2.Adapt<NonNullableTarget>();
+        Console.WriteLine($"null: NullableId = {source2.NullableId} â†’ Id = {target2?.Id} (æœŸæœ› 0)");
     }
 
     private static void TestNonNullableToNullable()
     {
-        Console.WriteLine("\n--- ²âÊÔ int ¡ú int? ×ª»» ---");
+        Console.WriteLine("\n--- æµ‹è¯• int â†’ int? è½¬æ¢ ---");
 
         var mapper = MapperProvider.Current!;
 
         var source = new NonNullableSource { Id = 200, Name = "Test" };
-        var target = source.Adapt<NullableTarget>(mapper);
-        Console.WriteLine($"Id = {source.Id} ¡ú NullableId = {target?.NullableId}");
+        var target = source.Adapt<NullableTarget>();
+        Console.WriteLine($"Id = {source.Id} â†’ NullableId = {target?.NullableId}");
     }
 
     private static void TestNullableToNullable()
     {
-        Console.WriteLine("\n--- ²âÊÔ int? ¡ú int? ×ª»» ---");
+        Console.WriteLine("\n--- æµ‹è¯• int? â†’ int? è½¬æ¢ ---");
 
         var mapper = MapperProvider.Current!;
 
-        // ÓĞÖµµÄÇé¿ö
+        // æœ‰å€¼çš„æƒ…å†µ
         var source1 = new NullableSource { NullableId = 300, Name = "Test" };
-        var target1 = source1.Adapt<NullableTarget>(mapper);
-        Console.WriteLine($"ÓĞÖµ: NullableId = {source1.NullableId} ¡ú NullableId = {target1?.NullableId}");
+        var target1 = source1.Adapt<NullableTarget>();
+        Console.WriteLine($"æœ‰å€¼: NullableId = {source1.NullableId} â†’ NullableId = {target1?.NullableId}");
 
-        // null µÄÇé¿ö
+        // null çš„æƒ…å†µ
         var source2 = new NullableSource { NullableId = null, Name = "Test" };
-        var target2 = source2.Adapt<NullableTarget>(mapper);
-        Console.WriteLine($"null: NullableId = {source2.NullableId} ¡ú NullableId = {target2?.NullableId}");
+        var target2 = source2.Adapt<NullableTarget>();
+        Console.WriteLine($"null: NullableId = {source2.NullableId} â†’ NullableId = {target2?.NullableId}");
     }
 
     private static void TestNullableString()
     {
-        Console.WriteLine("\n--- ²âÊÔ string? ×ª»» ---");
+        Console.WriteLine("\n--- æµ‹è¯• string? è½¬æ¢ ---");
 
         var mapper = MapperProvider.Current!;
 
-        // string? ¡ú string?
+        // string? â†’ string?
         var source1 = new StringSource { Name = "Hello", Description = null };
-        var target1 = source1.Adapt<StringTarget>(mapper);
-        Console.WriteLine($"Name = '{source1.Name}' ¡ú Name = '{target1?.Name}'");
-        Console.WriteLine($"Description = {(source1.Description == null ? "null" : $"'{source1.Description}'")} ¡ú Description = {(target1?.Description == null ? "null" : $"'{target1.Description}'")}");
+        var target1 = source1.Adapt<StringTarget>();
+        Console.WriteLine($"Name = '{source1.Name}' â†’ Name = '{target1?.Name}'");
+        Console.WriteLine($"Description = {(source1.Description == null ? "null" : $"'{source1.Description}'")} â†’ Description = {(target1?.Description == null ? "null" : $"'{target1.Description}'")}");
     }
 
     private static void TestMixedScenario()
     {
-        Console.WriteLine("\n--- ²âÊÔ»ìºÏ³¡¾° ---");
+        Console.WriteLine("\n--- æµ‹è¯•æ··åˆåœºæ™¯ ---");
 
         var mapper = MapperProvider.Current!;
 
@@ -104,18 +105,18 @@ public static class NullableTypeDemo
             NullableDecimalValue = null
         };
 
-        var target = source.Adapt<MixedTarget>(mapper);
+        var target = source.Adapt<MixedTarget>();
         
-        Console.WriteLine($"IntValue = {source.IntValue} ¡ú NullableIntValue = {target?.NullableIntValue}");
-        Console.WriteLine($"NullableIntValue = {source.NullableIntValue} ¡ú IntValue = {target?.IntValue}");
-        Console.WriteLine($"StringValue = '{source.StringValue}' ¡ú NullableStringValue = '{target?.NullableStringValue}'");
-        Console.WriteLine($"NullableStringValue = {(source.NullableStringValue == null ? "null" : $"'{source.NullableStringValue}'")} ¡ú StringValue = '{target?.StringValue}'");
-        Console.WriteLine($"DecimalValue = {source.DecimalValue} ¡ú NullableDecimalValue = {target?.NullableDecimalValue}");
-        Console.WriteLine($"NullableDecimalValue = {(source.NullableDecimalValue?.ToString() ?? "null")} ¡ú DecimalValue = {target?.DecimalValue}");
+        Console.WriteLine($"IntValue = {source.IntValue} â†’ NullableIntValue = {target?.NullableIntValue}");
+        Console.WriteLine($"NullableIntValue = {source.NullableIntValue} â†’ IntValue = {target?.IntValue}");
+        Console.WriteLine($"StringValue = '{source.StringValue}' â†’ NullableStringValue = '{target?.NullableStringValue}'");
+        Console.WriteLine($"NullableStringValue = {(source.NullableStringValue == null ? "null" : $"'{source.NullableStringValue}'")} â†’ StringValue = '{target?.StringValue}'");
+        Console.WriteLine($"DecimalValue = {source.DecimalValue} â†’ NullableDecimalValue = {target?.NullableDecimalValue}");
+        Console.WriteLine($"NullableDecimalValue = {(source.NullableDecimalValue?.ToString() ?? "null")} â†’ DecimalValue = {target?.DecimalValue}");
     }
 }
 
-// ²âÊÔÓÃµÄ DTO Àà
+// æµ‹è¯•ç”¨çš„ DTO ç±»
 public class NullableSource
 {
     public int? NullableId { get; set; }

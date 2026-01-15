@@ -1,17 +1,18 @@
 using System;
 using System.Collections.Generic;
 using Ling.Mapper;
+using Ling.Mapper.Extensions;
 
 namespace TestConsole;
 
 /// <summary>
-/// Ñ­»·ÒıÓÃ²âÊÔ - ²âÊÔ¶ÔÏóÖ®¼äµÄÑ­»·ÒıÓÃ³¡¾°
+/// å¾ªç¯å¼•ç”¨æµ‹è¯• - æµ‹è¯•å¯¹è±¡ä¹‹é—´çš„å¾ªç¯å¼•ç”¨åœºæ™¯
 /// </summary>
 public static class CircularReferenceTest
 {
     public static void Run()
     {
-        Console.WriteLine("--- Ñ­»·ÒıÓÃ²âÊÔ ---\n");
+        Console.WriteLine("--- å¾ªç¯å¼•ç”¨æµ‹è¯• ---\n");
         
         TestSimpleCircularReference();
         TestCollectionCircularReference();
@@ -21,14 +22,14 @@ public static class CircularReferenceTest
     
     private static void TestSimpleCircularReference()
     {
-        Console.WriteLine("1. ¼òµ¥Ñ­»·ÒıÓÃ (A -> B -> A) - ÔËĞĞÊ±");
+        Console.WriteLine("1. ç®€å•å¾ªç¯å¼•ç”¨ (A -> B -> A) - è¿è¡Œæ—¶");
         
         var nodeA = new NodeSource { Id = 1, Name = "Node A" };
         var nodeB = new NodeSource { Id = 2, Name = "Node B" };
         
-        // ´´½¨ÔËĞĞÊ±Ñ­»·ÒıÓÃ
+        // åˆ›å»ºè¿è¡Œæ—¶å¾ªç¯å¼•ç”¨
         nodeA.RelatedNode = nodeB;
-        nodeB.RelatedNode = nodeA;  // Ñ­»·£¡
+        nodeB.RelatedNode = nodeA;  // å¾ªç¯ï¼
         
         try
         {
@@ -36,36 +37,36 @@ public static class CircularReferenceTest
             
             if (target != null)
             {
-                Console.WriteLine($"  ? Node A Ó³Éä³É¹¦: {target.Name}");
+                Console.WriteLine($"  ? Node A æ˜ å°„æˆåŠŸ: {target.Name}");
                 Console.WriteLine($"  ? Related Node: {target.RelatedNode?.Name}");
                 
-                // v2.1.3: Ñ­»·ÒıÓÃÓ¦¸Ã±»¼ì²âµ½²¢´òÆÆ
+                // v2.1.3: å¾ªç¯å¼•ç”¨åº”è¯¥è¢«æ£€æµ‹åˆ°å¹¶æ‰“ç ´
                 if (target.RelatedNode?.RelatedNode != null)
                 {
                     if (ReferenceEquals(target, target.RelatedNode.RelatedNode))
                     {
-                        Console.WriteLine($"  ? Ñ­»·ÒıÓÃÒÑÕıÈ·´¦Àí£¨ÒıÓÃÏàÍ¬¶ÔÏó£©");
+                        Console.WriteLine($"  ? å¾ªç¯å¼•ç”¨å·²æ­£ç¡®å¤„ç†ï¼ˆå¼•ç”¨ç›¸åŒå¯¹è±¡ï¼‰");
                     }
                     else
                     {
-                        Console.WriteLine($"  ? Ñ­»·ÒıÓÃ´¦ÀíÒì³££¨²»Í¬¶ÔÏó£©");
+                        Console.WriteLine($"  ? å¾ªç¯å¼•ç”¨å¤„ç†å¼‚å¸¸ï¼ˆä¸åŒå¯¹è±¡ï¼‰");
                     }
                 }
                 else
                 {
-                    Console.WriteLine($"  ? Ñ­»·ÒıÓÃÒÑ±»´òÆÆ£¨RelatedNode.RelatedNode = null£©");
+                    Console.WriteLine($"  ? å¾ªç¯å¼•ç”¨å·²è¢«æ‰“ç ´ï¼ˆRelatedNode.RelatedNode = nullï¼‰");
                 }
                 
-                Console.WriteLine($"  ? ÔËĞĞÊ±Ñ­»·ÒıÓÃ±£»¤ÉúĞ§");
+                Console.WriteLine($"  ? è¿è¡Œæ—¶å¾ªç¯å¼•ç”¨ä¿æŠ¤ç”Ÿæ•ˆ");
             }
         }
         catch (StackOverflowException)
         {
-            Console.WriteLine($"  ? StackOverflow£ºÔËĞĞÊ±Ñ­»·ÒıÓÃ±£»¤Ê§Ğ§£¡");
+            Console.WriteLine($"  ? StackOverflowï¼šè¿è¡Œæ—¶å¾ªç¯å¼•ç”¨ä¿æŠ¤å¤±æ•ˆï¼");
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"  ? Òì³£: {ex.Message}");
+            Console.WriteLine($"  ? å¼‚å¸¸: {ex.Message}");
         }
         
         Console.WriteLine();
@@ -73,7 +74,7 @@ public static class CircularReferenceTest
     
     private static void TestCollectionCircularReference()
     {
-        Console.WriteLine("2. ¼¯ºÏÖĞµÄÑ­»·ÒıÓÃ");
+        Console.WriteLine("2. é›†åˆä¸­çš„å¾ªç¯å¼•ç”¨");
         
         var parent = new ParentSource { Id = 1, Name = "Parent" };
         var child1 = new ChildSource { Id = 2, Name = "Child 1", Parent = parent };
@@ -87,7 +88,7 @@ public static class CircularReferenceTest
             
             if (target != null)
             {
-                Console.WriteLine($"  ? Parent Ó³Éä³É¹¦: {target.Name}");
+                Console.WriteLine($"  ? Parent æ˜ å°„æˆåŠŸ: {target.Name}");
                 Console.WriteLine($"  ? Children Count: {target.Children?.Count}");
                 
                 if (target.Children != null)
@@ -96,7 +97,7 @@ public static class CircularReferenceTest
                     {
                         Console.WriteLine($"    ? Child: {child.Name}");
                         
-                        // ¼ì²éÊÇ·ñ±£ÁôÁË¸¸ÒıÓÃ
+                        // æ£€æŸ¥æ˜¯å¦ä¿ç•™äº†çˆ¶å¼•ç”¨
                         if (child.Parent != null)
                         {
                             Console.WriteLine($"      ? Parent Reference: {child.Parent.Name}");
@@ -107,11 +108,11 @@ public static class CircularReferenceTest
         }
         catch (StackOverflowException)
         {
-            Console.WriteLine($"  ? StackOverflow£ºÑ­»·ÒıÓÃ±£»¤Ê§Ğ§");
+            Console.WriteLine($"  ? StackOverflowï¼šå¾ªç¯å¼•ç”¨ä¿æŠ¤å¤±æ•ˆ");
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"  ? Òì³£: {ex.Message}");
+            Console.WriteLine($"  ? å¼‚å¸¸: {ex.Message}");
         }
         
         Console.WriteLine();
@@ -167,13 +168,13 @@ public static class CircularReferenceTest
 }
 
 /// <summary>
-/// Éî¶ÈÇ¶Ì×²âÊÔ - ²âÊÔ¼«ÉîµÄ¶ÔÏóÇ¶Ì×
+/// æ·±åº¦åµŒå¥—æµ‹è¯• - æµ‹è¯•ææ·±çš„å¯¹è±¡åµŒå¥—
 /// </summary>
 public static class DeepNestingTest
 {
     public static void Run()
     {
-        Console.WriteLine("--- Éî¶ÈÇ¶Ì×²âÊÔ ---\n");
+        Console.WriteLine("--- æ·±åº¦åµŒå¥—æµ‹è¯• ---\n");
         
         Test10LevelNesting();
         Test20LevelNesting();
@@ -183,7 +184,7 @@ public static class DeepNestingTest
     
     private static void Test10LevelNesting()
     {
-        Console.WriteLine("1. 10²ãÉî¶ÈÇ¶Ì×");
+        Console.WriteLine("1. 10å±‚æ·±åº¦åµŒå¥—");
         
         var source = CreateDeepNesting(10);
         
@@ -194,22 +195,22 @@ public static class DeepNestingTest
             sw.Stop();
             
             var depth = GetDepth(target);
-            Console.WriteLine($"  ? Ó³Éä³É¹¦");
-            Console.WriteLine($"  ? Êµ¼ÊÉî¶È: {depth}");
-            Console.WriteLine($"  ? ºÄÊ±: {sw.ElapsedMilliseconds} ms");
+            Console.WriteLine($"  ? æ˜ å°„æˆåŠŸ");
+            Console.WriteLine($"  ? å®é™…æ·±åº¦: {depth}");
+            Console.WriteLine($"  ? è€—æ—¶: {sw.ElapsedMilliseconds} ms");
             
             if (depth == 10)
             {
-                Console.WriteLine($"  ? Éî¶ÈÑéÖ¤Í¨¹ı");
+                Console.WriteLine($"  ? æ·±åº¦éªŒè¯é€šè¿‡");
             }
             else
             {
-                Console.WriteLine($"  ? Éî¶ÈÑéÖ¤Ê§°Ü (ÆÚÍû: 10, Êµ¼Ê: {depth})");
+                Console.WriteLine($"  ? æ·±åº¦éªŒè¯å¤±è´¥ (æœŸæœ›: 10, å®é™…: {depth})");
             }
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"  ? ²âÊÔÊ§°Ü: {ex.Message}");
+            Console.WriteLine($"  ? æµ‹è¯•å¤±è´¥: {ex.Message}");
         }
         
         Console.WriteLine();
@@ -217,7 +218,7 @@ public static class DeepNestingTest
     
     private static void Test20LevelNesting()
     {
-        Console.WriteLine("2. 20²ãÉî¶ÈÇ¶Ì×£¨Ñ¹Á¦²âÊÔ£©");
+        Console.WriteLine("2. 20å±‚æ·±åº¦åµŒå¥—ï¼ˆå‹åŠ›æµ‹è¯•ï¼‰");
         
         var source = CreateDeepNesting(20);
         
@@ -228,26 +229,26 @@ public static class DeepNestingTest
             sw.Stop();
             
             var depth = GetDepth(target);
-            Console.WriteLine($"  ? Ó³Éä³É¹¦");
-            Console.WriteLine($"  ? Êµ¼ÊÉî¶È: {depth}");
-            Console.WriteLine($"  ? ºÄÊ±: {sw.ElapsedMilliseconds} ms");
+            Console.WriteLine($"  ? æ˜ å°„æˆåŠŸ");
+            Console.WriteLine($"  ? å®é™…æ·±åº¦: {depth}");
+            Console.WriteLine($"  ? è€—æ—¶: {sw.ElapsedMilliseconds} ms");
             
             if (sw.ElapsedMilliseconds < 100)
             {
-                Console.WriteLine($"  ? ĞÔÄÜ²âÊÔÍ¨¹ı (< 100ms)");
+                Console.WriteLine($"  ? æ€§èƒ½æµ‹è¯•é€šè¿‡ (< 100ms)");
             }
             else
             {
-                Console.WriteLine($"  ? ĞÔÄÜ¾¯¸æ: {sw.ElapsedMilliseconds} ms");
+                Console.WriteLine($"  ? æ€§èƒ½è­¦å‘Š: {sw.ElapsedMilliseconds} ms");
             }
         }
         catch (StackOverflowException)
         {
-            Console.WriteLine($"  ? StackOverflow£ºÉî¶ÈÇ¶Ì×µ¼ÖÂ¶ÑÕ»Òç³ö");
+            Console.WriteLine($"  ? StackOverflowï¼šæ·±åº¦åµŒå¥—å¯¼è‡´å †æ ˆæº¢å‡º");
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"  ? ²âÊÔÊ§°Ü: {ex.Message}");
+            Console.WriteLine($"  ? æµ‹è¯•å¤±è´¥: {ex.Message}");
         }
         
         Console.WriteLine();

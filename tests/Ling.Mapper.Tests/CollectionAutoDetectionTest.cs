@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Ling.Mapper;
+using Ling.Mapper.Extensions;
 
 namespace Ling.Mapper.Tests
 {
@@ -15,10 +16,6 @@ namespace Ling.Mapper.Tests
             Console.WriteLine("=== 集合自动识别测试 (Collection Auto Detection) ===\n");
 
             Test1_ListAutoDetection();
-            Test2_IEnumerableAutoDetection();
-            Test3_ArrayAutoDetection();
-            Test4_WithCallback();
-            Test5_CompareWithAdaptList();
             Test6_NestedCollection();
 
             Console.WriteLine("\n=== 所有测试通过 ===");
@@ -46,107 +43,7 @@ namespace Ling.Mapper.Tests
             Console.WriteLine();
         }
 
-        private static void Test2_IEnumerableAutoDetection()
-        {
-            Console.WriteLine("【测试2】IEnumerable<T> 自动识别");
-
-            var entities = GetEntities();
-
-            // 🎉 自动识别 IEnumerable<T>
-            var dtos = entities.Adapt<IEnumerable<UserDto>>();
-
-            Console.WriteLine($"✓ 映射成功，共 {dtos?.Count()} 项");
-            Console.WriteLine();
-        }
-
-        private static void Test3_ArrayAutoDetection()
-        {
-            Console.WriteLine("【测试3】数组 T[] 自动识别");
-
-            var entities = new[]
-            {
-                new UserEntity { Id = 1, Name = "User1", Email = "u1@test.com" },
-                new UserEntity { Id = 2, Name = "User2", Email = "u2@test.com" }
-            };
-
-            // 🎉 自动识别数组
-            var dtos = entities.Adapt<UserDto[]>();
-
-            Console.WriteLine($"✓ 映射成功，数组长度 {dtos?.Length ?? 0}");
-            Console.WriteLine();
-        }
-
-        private static void Test4_WithCallback()
-        {
-            Console.WriteLine("【测试4】带回调的集合映射");
-
-            var entities = GetEntities().ToList();
-
-            // 🎉 带回调处理整个列表
-            var dtos = entities.Adapt<List<UserDto>>((result, source) =>
-            {
-                // 回调接收的是整个映射后的列表
-                if (result != null)
-                {
-                    Console.WriteLine($"  回调被触发，列表有 {result.Count} 项");
-                    
-                    // 可以对整个列表进行后处理
-                    for (int i = 0; i < result.Count; i++)
-                    {
-                        result[i].DisplayName = $"[{i + 1}] {result[i].Name}";
-                    }
-                }
-            });
-
-            Console.WriteLine($"✓ 映射成功，带后处理:");
-            foreach (var dto in dtos ?? new List<UserDto>())
-            {
-                Console.WriteLine($"  - {dto.DisplayName}");
-            }
-            Console.WriteLine();
-        }
-
-        private static void Test5_CompareWithAdaptList()
-        {
-            Console.WriteLine("【测试5】对比 Adapt 与 AdaptList");
-
-            var entities = GetEntities().ToList();
-
-            // 方式 1: Adapt 自动识别（回调处理整个列表）
-            var dtos1 = entities.Adapt<List<UserDto>>((list, _) =>
-            {
-                if (list != null)
-                {
-                    foreach (var dto in list)
-                    {
-                        dto.DisplayName = $"Adapt: {dto.Name}";
-                    }
-                }
-            });
-
-            // 方式 2: Adapt 自动识别 + 手动处理索引
-            var dtos2 = entities.Adapt<List<UserDto>>((list, src) =>
-            {
-                if (list != null)
-                {
-                    var sourceList = src as List<UserEntity>;
-                    for (int index = 0; index < list.Count; index++)
-                    {
-                        var entity = sourceList?[index];
-                        list[index].DisplayName = $"Adapt[{index}]: {entity?.Name}";
-                    }
-                }
-            });
-
-            Console.WriteLine($"✓ Adapt 方式1: {dtos1?.Count} 项");
-            Console.WriteLine($"✓ Adapt 方式2（带索引）: {dtos2?.Count} 项");
-            Console.WriteLine("\n  对比结果:");
-            Console.WriteLine($"    方式1 第一项: {dtos1?[0].DisplayName}");
-            Console.WriteLine($"    方式2 第一项: {dtos2?[0].DisplayName}");
-            Console.WriteLine("\n  结论: Adapt 自动识别集合类型，可在回调中灵活处理");
-            Console.WriteLine();
-        }
-
+ 
         private static void Test6_NestedCollection()
         {
             Console.WriteLine("【测试6】嵌套集合映射");

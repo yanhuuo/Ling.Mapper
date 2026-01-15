@@ -1,17 +1,18 @@
 using System;
 using System.Collections.Generic;
 using Ling.Mapper;
+using Ling.Mapper.Extensions;
 
 namespace TestConsole;
 
 /// <summary>
-/// ¸´ÔÓ¶ÔÏóÓ³Éä²âÊÔ - ²âÊÔÉî²ãÇ¶Ì×¡¢¶à²ã¼Ì³ĞµÈ¸´ÔÓ³¡¾°
+/// å¤æ‚å¯¹è±¡æ˜ å°„æµ‹è¯• - æµ‹è¯•æ·±å±‚åµŒå¥—ã€å¤šå±‚ç»§æ‰¿ç­‰å¤æ‚åœºæ™¯
 /// </summary>
 public static class ComplexObjectMappingTest
 {
     public static void Run()
     {
-        Console.WriteLine("--- ¸´ÔÓ¶ÔÏóÓ³Éä²âÊÔ ---\n");
+        Console.WriteLine("--- å¤æ‚å¯¹è±¡æ˜ å°„æµ‹è¯• ---\n");
         
         TestNestedObjectMapping();
         TestMultiLevelNesting();
@@ -23,7 +24,7 @@ public static class ComplexObjectMappingTest
     
     private static void TestNestedObjectMapping()
     {
-        Console.WriteLine("1. Ç¶Ì×¶ÔÏóÓ³Éä");
+        Console.WriteLine("1. åµŒå¥—å¯¹è±¡æ˜ å°„");
         
         var source = new OrderSource
         {
@@ -66,13 +67,13 @@ public static class ComplexObjectMappingTest
                     {
                         totalAmount += item.Quantity * item.Price;
                     }
-                    Console.WriteLine($"  ? ×Ü½ğ¶î: ${totalAmount}");
+                    Console.WriteLine($"  ? æ€»é‡‘é¢: ${totalAmount}");
                 }
             }
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"  ? ²âÊÔÊ§°Ü: {ex.Message}");
+            Console.WriteLine($"  ? æµ‹è¯•å¤±è´¥: {ex.Message}");
         }
         
         Console.WriteLine();
@@ -80,7 +81,7 @@ public static class ComplexObjectMappingTest
     
     private static void TestMultiLevelNesting()
     {
-        Console.WriteLine("2. ¶à²ãÇ¶Ì×Ó³Éä (5²ãÉî¶È)");
+        Console.WriteLine("2. å¤šå±‚åµŒå¥—æ˜ å°„ (5å±‚æ·±åº¦)");
         
         var source = new Level1
         {
@@ -115,17 +116,17 @@ public static class ComplexObjectMappingTest
             
             if (target?.Level2?.Level3?.Level4?.Level5?.Value == "Deep Value")
             {
-                Console.WriteLine($"  ? 5²ãÇ¶Ì×Ó³Éä³É¹¦");
+                Console.WriteLine($"  ? 5å±‚åµŒå¥—æ˜ å°„æˆåŠŸ");
                 Console.WriteLine($"  ? Level 5 Value: {target.Level2.Level3.Level4.Level5.Value}");
             }
             else
             {
-                Console.WriteLine($"  ? 5²ãÇ¶Ì×Ó³ÉäÊ§°Ü");
+                Console.WriteLine($"  ? 5å±‚åµŒå¥—æ˜ å°„å¤±è´¥");
             }
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"  ? ²âÊÔÊ§°Ü: {ex.Message}");
+            Console.WriteLine($"  ? æµ‹è¯•å¤±è´¥: {ex.Message}");
         }
         
         Console.WriteLine();
@@ -133,7 +134,7 @@ public static class ComplexObjectMappingTest
     
     private static void TestCollectionInObject()
     {
-        Console.WriteLine("3. ¶ÔÏóÖĞ°üº¬¼¯ºÏ");
+        Console.WriteLine("3. å¯¹è±¡ä¸­åŒ…å«é›†åˆ");
         
         var source = new DepartmentSource
         {
@@ -170,13 +171,13 @@ public static class ComplexObjectMappingTest
                     {
                         totalSalary += emp.Salary;
                     }
-                    Console.WriteLine($"  ? ×Ü¹¤×Ê: ${totalSalary}");
+                    Console.WriteLine($"  ? æ€»å·¥èµ„: ${totalSalary}");
                 }
             }
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"  ? ²âÊÔÊ§°Ü: {ex.Message}");
+            Console.WriteLine($"  ? æµ‹è¯•å¤±è´¥: {ex.Message}");
         }
         
         Console.WriteLine();
@@ -184,7 +185,7 @@ public static class ComplexObjectMappingTest
     
     private static void TestObjectInCollection()
     {
-        Console.WriteLine("4. ¼¯ºÏÖĞ°üº¬¸´ÔÓ¶ÔÏó");
+        Console.WriteLine("4. é›†åˆä¸­åŒ…å«å¤æ‚å¯¹è±¡");
         
         var source = new List<ProductWithCategorySource>
         {
@@ -217,7 +218,7 @@ public static class ComplexObjectMappingTest
             
             if (target != null && target.Count == 3)
             {
-                Console.WriteLine($"  ? ²úÆ·ÊıÁ¿: {target.Count}");
+                Console.WriteLine($"  ? äº§å“æ•°é‡: {target.Count}");
                 
                 foreach (var product in target)
                 {
@@ -226,12 +227,12 @@ public static class ComplexObjectMappingTest
             }
             else
             {
-                Console.WriteLine($"  ? ¼¯ºÏÓ³ÉäÊ§°Ü");
+                Console.WriteLine($"  ? é›†åˆæ˜ å°„å¤±è´¥");
             }
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"  ? ²âÊÔÊ§°Ü: {ex.Message}");
+            Console.WriteLine($"  ? æµ‹è¯•å¤±è´¥: {ex.Message}");
         }
         
         Console.WriteLine();

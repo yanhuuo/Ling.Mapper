@@ -1,74 +1,75 @@
 using System;
 using System.Collections.Generic;
 using Ling.Mapper;
+using Ling.Mapper.Extensions;
 
 namespace TestConsole;
 
 /// <summary>
-/// Mapper v2 ÑéÖ¤²âÊÔ - ÑéÖ¤ËùÓĞ¸Ä½øµã
+/// Mapper v2 éªŒè¯æµ‹è¯• - éªŒè¯æ‰€æœ‰æ”¹è¿›ç‚¹
 /// </summary>
 public static class MapperV2ValidationTests
 {
     public static void Run()
     {
-        Console.WriteLine("\n=== Mapper v2 ÑéÖ¤²âÊÔ ===\n");
+        Console.WriteLine("\n=== Mapper v2 éªŒè¯æµ‹è¯• ===\n");
 
-        // ²âÊÔ 1: ÎŞ²Î¹¹Ôìº¯Êı¼ì²â
+        // æµ‹è¯• 1: æ— å‚æ„é€ å‡½æ•°æ£€æµ‹
         TestNoParameterlessConstructor();
 
-        // ²âÊÔ 2: ¼¯ºÏÓ³ÉäÀàĞÍ×ª»»
+        // æµ‹è¯• 2: é›†åˆæ˜ å°„ç±»å‹è½¬æ¢
         TestCollectionTypeConversion();
 
-        // ²âÊÔ 3: ÖµÀàĞÍ + null Ô´¶ÔÏó
+        // æµ‹è¯• 3: å€¼ç±»å‹ + null æºå¯¹è±¡
         TestValueTypeWithNullSource();
 
-        // ²âÊÔ 4: Ñ­»·ÒıÓÃ±£»¤
+        // æµ‹è¯• 4: å¾ªç¯å¼•ç”¨ä¿æŠ¤
         TestCircularReferenceProtection();
 
-        // ²âÊÔ 5: Ã¶¾Ù×ª»»£¨´ÓÖ®Ç°µÄ²âÊÔ¼Ì³Ğ£©
+        // æµ‹è¯• 5: æšä¸¾è½¬æ¢ï¼ˆä»ä¹‹å‰çš„æµ‹è¯•ç»§æ‰¿ï¼‰
         TestEnumConversions();
 
-        // ²âÊÔ 6: ĞÔÄÜ»ù×¼£¨¼òµ¥ÑéÖ¤£©
+        // æµ‹è¯• 6: æ€§èƒ½åŸºå‡†ï¼ˆç®€å•éªŒè¯ï¼‰
         TestPerformanceBenchmark();
 
-        Console.WriteLine("\n=== Mapper v2 ÑéÖ¤²âÊÔÍê³É ===\n");
+        Console.WriteLine("\n=== Mapper v2 éªŒè¯æµ‹è¯•å®Œæˆ ===\n");
     }
 
-    #region Test 1: ÎŞ²Î¹¹Ôìº¯Êı¼ì²â
+    #region Test 1: æ— å‚æ„é€ å‡½æ•°æ£€æµ‹
 
     private static void TestNoParameterlessConstructor()
     {
-        Console.WriteLine("--- ²âÊÔ 1: ÎŞ²Î¹¹Ôìº¯Êı¼ì²â ---");
+        Console.WriteLine("--- æµ‹è¯• 1: æ— å‚æ„é€ å‡½æ•°æ£€æµ‹ ---");
 
-        // Çé¿ö 1: record ÀàĞÍ£¨ÓĞÎŞ²Î¹¹Ôì£©
+        // æƒ…å†µ 1: record ç±»å‹ï¼ˆæœ‰æ— å‚æ„é€ ï¼‰
         try
         {
             var source = new { Name = "Test" };
             var result = source.Adapt<RecordWithDefaultCtor>();
-            Console.WriteLine($"? Record Ó³Éä³É¹¦: {result?.Name}");
+            Console.WriteLine($"? Record æ˜ å°„æˆåŠŸ: {result?.Name}");
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"? Record Ó³ÉäÊ§°Ü: {ex.Message}");
+            Console.WriteLine($"? Record æ˜ å°„å¤±è´¥: {ex.Message}");
         }
 
-        // Çé¿ö 2: ½öÓĞ´ø²Î¹¹Ôìº¯ÊıµÄÀà£¨StrictMode = false Ó¦·µ»Ø null£©
+        // æƒ…å†µ 2: ä»…æœ‰å¸¦å‚æ„é€ å‡½æ•°çš„ç±»ï¼ˆStrictMode = false åº”è¿”å› nullï¼‰
         try
         {
-            // ¼ÙÉè StrictMode = false£¨Ä¬ÈÏ£©
+            // å‡è®¾ StrictMode = falseï¼ˆé»˜è®¤ï¼‰
             var source = new { Id = 1, Name = "Test" };
             
-            // ×¢Òâ£ºÕâ¸ö²âÊÔĞèÒªÔÚ StrictMode = false µÄÅäÖÃÏÂÔËĞĞ
-            // Èç¹ûÀàĞÍÎŞÎŞ²Î¹¹Ôìº¯Êı£¬Ó¦¸Ã·µ»Ø null ¶ø²»ÊÇÅ×Òì³£
-            Console.WriteLine($"? ÎŞ²Î¹¹Ôì¼ì²âÍ¨¹ı£¨ĞèÒªÅäÖÃ StrictMode = false£©");
+            // æ³¨æ„ï¼šè¿™ä¸ªæµ‹è¯•éœ€è¦åœ¨ StrictMode = false çš„é…ç½®ä¸‹è¿è¡Œ
+            // å¦‚æœç±»å‹æ— æ— å‚æ„é€ å‡½æ•°ï¼Œåº”è¯¥è¿”å› null è€Œä¸æ˜¯æŠ›å¼‚å¸¸
+            Console.WriteLine($"? æ— å‚æ„é€ æ£€æµ‹é€šè¿‡ï¼ˆéœ€è¦é…ç½® StrictMode = falseï¼‰");
         }
         catch (InvalidOperationException ex)
         {
-            Console.WriteLine($"? StrictMode = true ÕıÈ·Å×³öÒì³£: {ex.Message}");
+            Console.WriteLine($"? StrictMode = true æ­£ç¡®æŠ›å‡ºå¼‚å¸¸: {ex.Message}");
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"? ÒâÍâÒì³£: {ex.Message}");
+            Console.WriteLine($"? æ„å¤–å¼‚å¸¸: {ex.Message}");
         }
 
         Console.WriteLine();
@@ -81,13 +82,13 @@ public static class MapperV2ValidationTests
 
     #endregion
 
-    #region Test 2: ¼¯ºÏÓ³ÉäÀàĞÍ×ª»»
+    #region Test 2: é›†åˆæ˜ å°„ç±»å‹è½¬æ¢
 
     private static void TestCollectionTypeConversion()
     {
-        Console.WriteLine("--- ²âÊÔ 2: ¼¯ºÏÓ³ÉäÀàĞÍ×ª»» ---");
+        Console.WriteLine("--- æµ‹è¯• 2: é›†åˆæ˜ å°„ç±»å‹è½¬æ¢ ---");
 
-        // Çé¿ö 1: List<int> -> List<long>
+        // æƒ…å†µ 1: List<int> -> List<long>
         var intList = new List<int> { 1, 2, 3 };
         try
         {
@@ -96,19 +97,19 @@ public static class MapperV2ValidationTests
             
             if (result?.Numbers != null && result.Numbers.Count == 3)
             {
-                Console.WriteLine($"? List<int> -> List<long> ×ª»»³É¹¦: [{string.Join(", ", result.Numbers)}]");
+                Console.WriteLine($"? List<int> -> List<long> è½¬æ¢æˆåŠŸ: [{string.Join(", ", result.Numbers)}]");
             }
             else
             {
-                Console.WriteLine($"? List<int> -> List<long> ×ª»»Ê§°Ü");
+                Console.WriteLine($"? List<int> -> List<long> è½¬æ¢å¤±è´¥");
             }
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"? Òì³£: {ex.Message}");
+            Console.WriteLine($"? å¼‚å¸¸: {ex.Message}");
         }
 
-        // Çé¿ö 2: List<enum> -> List<int>
+        // æƒ…å†µ 2: List<enum> -> List<int>
         var enumList = new List<TestStatus> { TestStatus.Active, TestStatus.Inactive };
         try
         {
@@ -117,19 +118,19 @@ public static class MapperV2ValidationTests
             
             if (result?.Statuses != null && result.Statuses.Count == 2)
             {
-                Console.WriteLine($"? List<enum> -> List<int> ×ª»»³É¹¦: [{string.Join(", ", result.Statuses)}]");
+                Console.WriteLine($"? List<enum> -> List<int> è½¬æ¢æˆåŠŸ: [{string.Join(", ", result.Statuses)}]");
             }
             else
             {
-                Console.WriteLine($"? List<enum> -> List<int> ×ª»»Ê§°Ü");
+                Console.WriteLine($"? List<enum> -> List<int> è½¬æ¢å¤±è´¥");
             }
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"? Òì³£: {ex.Message}");
+            Console.WriteLine($"? å¼‚å¸¸: {ex.Message}");
         }
 
-        // Çé¿ö 3: List<string> -> List<enum>
+        // æƒ…å†µ 3: List<string> -> List<enum>
         var stringList = new List<string> { "Active", "Pending" };
         try
         {
@@ -138,16 +139,16 @@ public static class MapperV2ValidationTests
             
             if (result?.StatusNames != null && result.StatusNames.Count == 2)
             {
-                Console.WriteLine($"? List<string> -> List<enum> ×ª»»³É¹¦: [{string.Join(", ", result.StatusNames)}]");
+                Console.WriteLine($"? List<string> -> List<enum> è½¬æ¢æˆåŠŸ: [{string.Join(", ", result.StatusNames)}]");
             }
             else
             {
-                Console.WriteLine($"? List<string> -> List<enum> ×ª»»Ê§°Ü");
+                Console.WriteLine($"? List<string> -> List<enum> è½¬æ¢å¤±è´¥");
             }
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"? Òì³£: {ex.Message}");
+            Console.WriteLine($"? å¼‚å¸¸: {ex.Message}");
         }
 
         Console.WriteLine();
@@ -192,16 +193,16 @@ public static class MapperV2ValidationTests
 
     #endregion
 
-    #region Test 3: ÖµÀàĞÍ + null Ô´¶ÔÏó
+    #region Test 3: å€¼ç±»å‹ + null æºå¯¹è±¡
 
     private static void TestValueTypeWithNullSource()
     {
-        Console.WriteLine("--- ²âÊÔ 3: ÖµÀàĞÍ + null Ô´¶ÔÏó ---");
+        Console.WriteLine("--- æµ‹è¯• 3: å€¼ç±»å‹ + null æºå¯¹è±¡ ---");
 
         try
         {
-            // Ä£Äâ Map(null, typeof(SourceType), typeof(int))
-            // Ä¿±êÀàĞÍÊÇÖµÀàĞÍ£¨int£©£¬Ô´Îª null£¬Ó¦·µ»Ø default(int) = 0
+            // æ¨¡æ‹Ÿ Map(null, typeof(SourceType), typeof(int))
+            // ç›®æ ‡ç±»å‹æ˜¯å€¼ç±»å‹ï¼ˆintï¼‰ï¼Œæºä¸º nullï¼Œåº”è¿”å› default(int) = 0
             
             var mapper = MapperProvider.Current;
             if (mapper != null)
@@ -210,32 +211,32 @@ public static class MapperV2ValidationTests
                 
                 if (result is int intResult && intResult == 0)
                 {
-                    Console.WriteLine($"? null -> int ·µ»ØÄ¬ÈÏÖµ: {intResult}");
+                    Console.WriteLine($"? null -> int è¿”å›é»˜è®¤å€¼: {intResult}");
                 }
                 else
                 {
-                    Console.WriteLine($"? null -> int ĞĞÎªÒì³£: {result}");
+                    Console.WriteLine($"? null -> int è¡Œä¸ºå¼‚å¸¸: {result}");
                 }
 
-                // ²âÊÔ¿É¿ÕÖµÀàĞÍ
+                // æµ‹è¯•å¯ç©ºå€¼ç±»å‹
                 var result2 = mapper.Map(null, typeof(object), typeof(int?));
                 if (result2 == null)
                 {
-                    Console.WriteLine($"? null -> int? ·µ»Ø null");
+                    Console.WriteLine($"? null -> int? è¿”å› null");
                 }
                 else
                 {
-                    Console.WriteLine($"? null -> int? Ó¦·µ»Ø null£¬Êµ¼Ê: {result2}");
+                    Console.WriteLine($"? null -> int? åº”è¿”å› nullï¼Œå®é™…: {result2}");
                 }
             }
             else
             {
-                Console.WriteLine("? MapperProvider.Current Î´ÉèÖÃ£¬Ìø¹ı²âÊÔ");
+                Console.WriteLine("? MapperProvider.Current æœªè®¾ç½®ï¼Œè·³è¿‡æµ‹è¯•");
             }
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"? Òì³£: {ex.Message}");
+            Console.WriteLine($"? å¼‚å¸¸: {ex.Message}");
         }
 
         Console.WriteLine();
@@ -243,28 +244,28 @@ public static class MapperV2ValidationTests
 
     #endregion
 
-    #region Test 4: Ñ­»·ÒıÓÃ±£»¤
+    #region Test 4: å¾ªç¯å¼•ç”¨ä¿æŠ¤
 
     private static void TestCircularReferenceProtection()
     {
-        Console.WriteLine("--- ²âÊÔ 4: Ñ­»·ÒıÓÃ±£»¤ ---");
+        Console.WriteLine("--- æµ‹è¯• 4: å¾ªç¯å¼•ç”¨ä¿æŠ¤ ---");
 
         try
         {
-            // ×¢Òâ£ºCircularReferenceDetector ÊÇ internal Àà£¬½ö¹© Mapper ÄÚ²¿Ê¹ÓÃ
-            // ÕâÀïÍ¨¹ı¼ä½Ó²âÊÔÀ´ÑéÖ¤Ñ­»·ÒıÓÃ±£»¤
+            // æ³¨æ„ï¼šCircularReferenceDetector æ˜¯ internal ç±»ï¼Œä»…ä¾› Mapper å†…éƒ¨ä½¿ç”¨
+            // è¿™é‡Œé€šè¿‡é—´æ¥æµ‹è¯•æ¥éªŒè¯å¾ªç¯å¼•ç”¨ä¿æŠ¤
             
-            // Ä£ÄâÒ»¸ö¼òµ¥µÄÑ­»·ÒıÓÃ³¡¾°
-            // ÓÉÓÚ CircularReferenceDetector ÊÇÄÚ²¿Àà£¬ÎÒÃÇÖ»ÄÜÍ¨¹ıÊµ¼ÊÓ³ÉäÀ´²âÊÔ
-            Console.WriteLine($"? Ñ­»·ÒıÓÃ¼ì²âÆ÷ÒÑÔÚ Mapper ÄÚ²¿ÊµÏÖ");
-            Console.WriteLine($"  £¨CircularReferenceDetector ÊÇ internal Àà£¬¹© Mapper Ê¹ÓÃ£©");
+            // æ¨¡æ‹Ÿä¸€ä¸ªç®€å•çš„å¾ªç¯å¼•ç”¨åœºæ™¯
+            // ç”±äº CircularReferenceDetector æ˜¯å†…éƒ¨ç±»ï¼Œæˆ‘ä»¬åªèƒ½é€šè¿‡å®é™…æ˜ å°„æ¥æµ‹è¯•
+            Console.WriteLine($"? å¾ªç¯å¼•ç”¨æ£€æµ‹å™¨å·²åœ¨ Mapper å†…éƒ¨å®ç°");
+            Console.WriteLine($"  ï¼ˆCircularReferenceDetector æ˜¯ internal ç±»ï¼Œä¾› Mapper ä½¿ç”¨ï¼‰");
             
-            // Êµ¼ÊµÄÑ­»·ÒıÓÃ±£»¤»áÔÚ¸´ÔÓ¶ÔÏóÓ³ÉäÊ±×Ô¶¯ÆôÓÃ
-            // ÕâÀïÖ»×ö¸ÅÄîĞÔÑéÖ¤
+            // å®é™…çš„å¾ªç¯å¼•ç”¨ä¿æŠ¤ä¼šåœ¨å¤æ‚å¯¹è±¡æ˜ å°„æ—¶è‡ªåŠ¨å¯ç”¨
+            // è¿™é‡Œåªåšæ¦‚å¿µæ€§éªŒè¯
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"? Òì³£: {ex.Message}");
+            Console.WriteLine($"? å¼‚å¸¸: {ex.Message}");
         }
 
         Console.WriteLine();
@@ -272,22 +273,22 @@ public static class MapperV2ValidationTests
 
     #endregion
 
-    #region Test 5: Ã¶¾Ù×ª»»£¨¼ò»¯°æ£©
+    #region Test 5: æšä¸¾è½¬æ¢ï¼ˆç®€åŒ–ç‰ˆï¼‰
 
     private static void TestEnumConversions()
     {
-        Console.WriteLine("--- ²âÊÔ 5: Ã¶¾Ù×ª»»£¨¿ìËÙÑéÖ¤£© ---");
+        Console.WriteLine("--- æµ‹è¯• 5: æšä¸¾è½¬æ¢ï¼ˆå¿«é€ŸéªŒè¯ï¼‰ ---");
 
         // enum -> int
         try
         {
             var source = new { Status = TestStatus.Active };
             var result = source.Adapt<StatusIntTarget>();
-            Console.WriteLine($"? enum -> int: {result?.Status} (ÆÚÍû: 1)");
+            Console.WriteLine($"? enum -> int: {result?.Status} (æœŸæœ›: 1)");
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"? enum -> int Ê§°Ü: {ex.Message}");
+            Console.WriteLine($"? enum -> int å¤±è´¥: {ex.Message}");
         }
 
         // int -> enum
@@ -295,11 +296,11 @@ public static class MapperV2ValidationTests
         {
             var source = new { StatusCode = 2 };
             var result = source.Adapt<StatusEnumTarget>();
-            Console.WriteLine($"? int -> enum: {result?.StatusCode} (ÆÚÍû: Pending)");
+            Console.WriteLine($"? int -> enum: {result?.StatusCode} (æœŸæœ›: Pending)");
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"? int -> enum Ê§°Ü: {ex.Message}");
+            Console.WriteLine($"? int -> enum å¤±è´¥: {ex.Message}");
         }
 
         Console.WriteLine();
@@ -317,11 +318,11 @@ public static class MapperV2ValidationTests
 
     #endregion
 
-    #region Test 6: ĞÔÄÜ»ù×¼
+    #region Test 6: æ€§èƒ½åŸºå‡†
 
     private static void TestPerformanceBenchmark()
     {
-        Console.WriteLine("--- ²âÊÔ 6: ĞÔÄÜ»ù×¼£¨¼òµ¥ÑéÖ¤£© ---");
+        Console.WriteLine("--- æµ‹è¯• 6: æ€§èƒ½åŸºå‡†ï¼ˆç®€å•éªŒè¯ï¼‰ ---");
 
         try
         {
@@ -336,20 +337,20 @@ public static class MapperV2ValidationTests
             
             watch.Stop();
             
-            Console.WriteLine($"? 100,000 ´Î¼òµ¥Ó³ÉäºÄÊ±: {watch.ElapsedMilliseconds} ms");
+            Console.WriteLine($"? 100,000 æ¬¡ç®€å•æ˜ å°„è€—æ—¶: {watch.ElapsedMilliseconds} ms");
             
-            if (watch.ElapsedMilliseconds < 1000) // Ó¦¸ÃÔÚ 1 ÃëÄÚÍê³É
+            if (watch.ElapsedMilliseconds < 1000) // åº”è¯¥åœ¨ 1 ç§’å†…å®Œæˆ
             {
-                Console.WriteLine($"? ĞÔÄÜ²âÊÔÍ¨¹ı£¨< 1000ms£©");
+                Console.WriteLine($"? æ€§èƒ½æµ‹è¯•é€šè¿‡ï¼ˆ< 1000msï¼‰");
             }
             else
             {
-                Console.WriteLine($"? ĞÔÄÜ²âÊÔ¾¯¸æ£ººÄÊ±½Ï³¤ ({watch.ElapsedMilliseconds}ms)");
+                Console.WriteLine($"? æ€§èƒ½æµ‹è¯•è­¦å‘Šï¼šè€—æ—¶è¾ƒé•¿ ({watch.ElapsedMilliseconds}ms)");
             }
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"? Òì³£: {ex.Message}");
+            Console.WriteLine($"? å¼‚å¸¸: {ex.Message}");
         }
 
         Console.WriteLine();

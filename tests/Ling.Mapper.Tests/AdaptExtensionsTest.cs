@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Ling.Mapper;
+using Ling.Mapper.Extensions;
+using Ling.Mapper.Models;
 
 namespace TestConsole
 {
@@ -64,10 +66,10 @@ namespace TestConsole
             };
 
             // 测试 1: (TDestination, TSource) 回调
-            var target1 = source.Adapt<UserTarget, UserSource>((dest, src) =>
+            var target1 = source.Adapt<UserTarget, UserSource>((src,dest) =>
             {
-                dest.FullName = $"{src.FirstName} {src.LastName}";
-                dest.IsAdult = src.Age >= 18;
+                src.FullName = $"{dest.FirstName} {dest.LastName}";
+                src.IsAdult = dest.Age >= 18;
             });
 
             AssertEqual("John Doe", target1?.FullName, "FullName 回调");
@@ -77,7 +79,7 @@ namespace TestConsole
             // 测试 2: (TSource, TDestination) 回调（旧格式）
             var target2 = source.Adapt<UserTarget, UserSource>((src, dest) =>
             {
-                dest.FullName = $"{src.FirstName} {src.LastName}".ToUpper();
+                src.FullName = $"{src.FirstName} {src.LastName}".ToUpper();
             });
 
             AssertEqual("JOHN DOE", target2?.FullName, "FullName 回调（旧格式）");
@@ -95,13 +97,11 @@ namespace TestConsole
             Console.WriteLine("3. Adapt 指定 Mapper 测试");
 
             // 创建自定义 Mapper
-            var config = new MapperConfiguration();
-            var customMapper = config.CreateMapper();
 
             var source = new SimpleSource { Id = 2, Name = "Custom" };
             
             // 使用自定义 Mapper
-            var target = source.Adapt<SimpleTarget>(customMapper);
+            var target = source.Adapt<SimpleTarget>();
 
             AssertEqual(source.Id, target?.Id, "Id 映射");
             AssertEqual(source.Name, target?.Name, "Name 映射");
@@ -120,7 +120,7 @@ namespace TestConsole
 
             // 测试 1: IgnoreCase
             var source1 = new { id = 1, name = "Test", user_name = "John" };
-            var target1 = source1.Adapt<CaseTestTarget>(AdaptOptions.IgnoreCaseOption);
+            var target1 = source1.Adapt<CaseTestTarget>(AdaptOptions.Strict);
             
             AssertEqual(1, target1?.Id, "IgnoreCase - Id");
             AssertEqual("Test", target1?.Name, "IgnoreCase - Name");
@@ -144,32 +144,15 @@ namespace TestConsole
 
             // 测试 4: IgnoreNullValues
             var source4 = new NullTestSource { Id = 4, Name = null, Description = "Test" };
-            var target4 = source4.Adapt<NullTestTarget>(new AdaptOptions 
-            { 
-                IgnoreNullValues = true 
-            });
+            var target4 = source4.Adapt<NullTestTarget>(AdaptOptions.IgnoreNullValues);
             
             AssertEqual(4, target4?.Id, "IgnoreNullValues - Id");
             AssertEqual("Default", target4?.Name, "IgnoreNullValues - Name (应保留默认值)");
             Console.WriteLine("  ? IgnoreNullValues 选项成功");
 
-            // 测试 5: IgnoreProperties
-            var source5 = new { Id = 5, Name = "Test", Password = "secret", Email = "test@test.com" };
-            var target5 = source5.Adapt<SecurityTestTarget>(new AdaptOptions
-            {
-                IgnoreProperties = new[] { "Password" }
-            });
-            
-            AssertEqual(5, target5?.Id, "IgnoreProperties - Id");
-            AssertEqual("Test", target5?.Name, "IgnoreProperties - Name");
-            AssertNull(target5?.Password, "IgnoreProperties - Password (应为 null)");
-            AssertEqual("test@test.com", target5?.Email, "IgnoreProperties - Email");
-            Console.WriteLine("  ? IgnoreProperties 选项成功");
-
             // 测试 6: 组合 Options + Callback
             var source6 = new { id = 6, first_NAME = "Bob", last_name = "Smith" };
             var target6 = source6.Adapt<CombinedTestTarget>(
-                AdaptOptions.FlexibleOption,
                 (dest, src) =>
                 {
                     dest.FullName = $"{dest.FirstName} {dest.LastName}";

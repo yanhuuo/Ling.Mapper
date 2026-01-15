@@ -1,18 +1,19 @@
 using System;
 using System.Collections.Generic;
 using Ling.Mapper;
+using Ling.Mapper.Extensions;
 
 namespace TestConsole;
 
 /// <summary>
-/// StackOverflow ĞŞ¸´ÑéÖ¤²âÊÔ
-/// ²âÊÔÑ­»·ÒıÓÃºÍ×ÔÒıÓÃ³¡¾°£¬È·±£²»»áµ¼ÖÂ StackOverflowException
+/// StackOverflow ä¿®å¤éªŒè¯æµ‹è¯•
+/// æµ‹è¯•å¾ªç¯å¼•ç”¨å’Œè‡ªå¼•ç”¨åœºæ™¯ï¼Œç¡®ä¿ä¸ä¼šå¯¼è‡´ StackOverflowException
 /// </summary>
 public static class StackOverflowFixTest
 {
     public static void Run()
     {
-        Console.WriteLine("--- StackOverflow ĞŞ¸´ÑéÖ¤²âÊÔ ---\n");
+        Console.WriteLine("--- StackOverflow ä¿®å¤éªŒè¯æµ‹è¯• ---\n");
         
         TestSelfReferenceType();
         TestCircularReferenceCompilation();
@@ -24,7 +25,7 @@ public static class StackOverflowFixTest
     
     private static void TestSelfReferenceType()
     {
-        Console.WriteLine("1. ×ÔÒıÓÃÀàĞÍÓ³Éä£¨±àÒëÆÚµİ¹é±£»¤£©");
+        Console.WriteLine("1. è‡ªå¼•ç”¨ç±»å‹æ˜ å°„ï¼ˆç¼–è¯‘æœŸé€’å½’ä¿æŠ¤ï¼‰");
         
         try
         {
@@ -44,22 +45,22 @@ public static class StackOverflowFixTest
             
             if (result != null)
             {
-                Console.WriteLine($"  ? Ó³Éä³É¹¦: {result.Name}");
-                Console.WriteLine($"  ? Next ½Úµã: {result.Next?.Name}");
-                Console.WriteLine($"  ? ±àÒëÆÚµİ¹é±£»¤ÉúĞ§");
+                Console.WriteLine($"  ? æ˜ å°„æˆåŠŸ: {result.Name}");
+                Console.WriteLine($"  ? Next èŠ‚ç‚¹: {result.Next?.Name}");
+                Console.WriteLine($"  ? ç¼–è¯‘æœŸé€’å½’ä¿æŠ¤ç”Ÿæ•ˆ");
             }
             else
             {
-                Console.WriteLine($"  ? Ó³ÉäÊ§°Ü");
+                Console.WriteLine($"  ? æ˜ å°„å¤±è´¥");
             }
         }
         catch (StackOverflowException)
         {
-            Console.WriteLine($"  ? StackOverflow£ºµİ¹é±£»¤Ê§Ğ§£¡");
+            Console.WriteLine($"  ? StackOverflowï¼šé€’å½’ä¿æŠ¤å¤±æ•ˆï¼");
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"  ? Òì³£: {ex.Message}");
+            Console.WriteLine($"  ? å¼‚å¸¸: {ex.Message}");
         }
         
         Console.WriteLine();
@@ -67,11 +68,11 @@ public static class StackOverflowFixTest
     
     private static void TestCircularReferenceCompilation()
     {
-        Console.WriteLine("2. Ñ­»·ÒıÓÃÀàĞÍ±àÒë");
+        Console.WriteLine("2. å¾ªç¯å¼•ç”¨ç±»å‹ç¼–è¯‘");
         
         try
         {
-            // ¼´Ê¹²»´´½¨Êµ¼ÊµÄÑ­»·£¬±àÒëÓ³ÉäÊ±Ò²¿ÉÄÜµ¼ÖÂµİ¹é
+            // å³ä½¿ä¸åˆ›å»ºå®é™…çš„å¾ªç¯ï¼Œç¼–è¯‘æ˜ å°„æ—¶ä¹Ÿå¯èƒ½å¯¼è‡´é€’å½’
             var a = new NodeA { Id = 1, Name = "Node A" };
             var b = new NodeB { Id = 2, Name = "Node B" };
             
@@ -83,18 +84,18 @@ public static class StackOverflowFixTest
             
             if (resultA != null && resultB != null)
             {
-                Console.WriteLine($"  ? NodeA Ó³Éä³É¹¦: {resultA.Name}");
-                Console.WriteLine($"  ? NodeB Ó³Éä³É¹¦: {resultB.Name}");
-                Console.WriteLine($"  ? Ñ­»·ÒıÓÃÀàĞÍ±àÒë³É¹¦");
+                Console.WriteLine($"  ? NodeA æ˜ å°„æˆåŠŸ: {resultA.Name}");
+                Console.WriteLine($"  ? NodeB æ˜ å°„æˆåŠŸ: {resultB.Name}");
+                Console.WriteLine($"  ? å¾ªç¯å¼•ç”¨ç±»å‹ç¼–è¯‘æˆåŠŸ");
             }
         }
         catch (StackOverflowException)
         {
-            Console.WriteLine($"  ? StackOverflow£ºÑ­»·ÒıÓÃ±àÒëÊ§°Ü£¡");
+            Console.WriteLine($"  ? StackOverflowï¼šå¾ªç¯å¼•ç”¨ç¼–è¯‘å¤±è´¥ï¼");
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"  ? Òì³£: {ex.Message}");
+            Console.WriteLine($"  ? å¼‚å¸¸: {ex.Message}");
         }
         
         Console.WriteLine();
@@ -102,7 +103,7 @@ public static class StackOverflowFixTest
     
     private static void TestTreeStructureCompilation()
     {
-        Console.WriteLine("3. Ê÷ĞÎ½á¹¹±àÒë£¨µİ¹é¼¯ºÏ£©");
+        Console.WriteLine("3. æ ‘å½¢ç»“æ„ç¼–è¯‘ï¼ˆé€’å½’é›†åˆï¼‰");
         
         try
         {
@@ -129,18 +130,18 @@ public static class StackOverflowFixTest
             
             if (result != null)
             {
-                Console.WriteLine($"  ? Root Ó³Éä³É¹¦: {result.Name}");
-                Console.WriteLine($"  ? Children ÊıÁ¿: {result.Children?.Count}");
-                Console.WriteLine($"  ? Ê÷ĞÎ½á¹¹±àÒë³É¹¦");
+                Console.WriteLine($"  ? Root æ˜ å°„æˆåŠŸ: {result.Name}");
+                Console.WriteLine($"  ? Children æ•°é‡: {result.Children?.Count}");
+                Console.WriteLine($"  ? æ ‘å½¢ç»“æ„ç¼–è¯‘æˆåŠŸ");
             }
         }
         catch (StackOverflowException)
         {
-            Console.WriteLine($"  ? StackOverflow£ºÊ÷ĞÎ½á¹¹±àÒëÊ§°Ü£¡");
+            Console.WriteLine($"  ? StackOverflowï¼šæ ‘å½¢ç»“æ„ç¼–è¯‘å¤±è´¥ï¼");
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"  ? Òì³£: {ex.Message}");
+            Console.WriteLine($"  ? å¼‚å¸¸: {ex.Message}");
         }
         
         Console.WriteLine();
@@ -148,7 +149,7 @@ public static class StackOverflowFixTest
     
     private static void TestParentChildBidirectional()
     {
-        Console.WriteLine("4. ¸¸×ÓË«ÏòÒıÓÃ");
+        Console.WriteLine("4. çˆ¶å­åŒå‘å¼•ç”¨");
         
         try
         {
@@ -169,25 +170,25 @@ public static class StackOverflowFixTest
             
             if (result != null)
             {
-                Console.WriteLine($"  ? Parent Ó³Éä³É¹¦: {result.Name}");
-                Console.WriteLine($"  ? Children ÊıÁ¿: {result.Children?.Count}");
+                Console.WriteLine($"  ? Parent æ˜ å°„æˆåŠŸ: {result.Name}");
+                Console.WriteLine($"  ? Children æ•°é‡: {result.Children?.Count}");
                 
                 if (result.Children != null && result.Children.Count > 0)
                 {
-                    Console.WriteLine($"  ? Child[0] Ãû³Æ: {result.Children[0].Name}");
-                    Console.WriteLine($"  ? Child[0].Parent Ãû³Æ: {result.Children[0].Parent?.Name}");
+                    Console.WriteLine($"  ? Child[0] åç§°: {result.Children[0].Name}");
+                    Console.WriteLine($"  ? Child[0].Parent åç§°: {result.Children[0].Parent?.Name}");
                 }
                 
-                Console.WriteLine($"  ? ¸¸×ÓË«ÏòÒıÓÃ±àÒë³É¹¦");
+                Console.WriteLine($"  ? çˆ¶å­åŒå‘å¼•ç”¨ç¼–è¯‘æˆåŠŸ");
             }
         }
         catch (StackOverflowException)
         {
-            Console.WriteLine($"  ? StackOverflow£º¸¸×ÓË«ÏòÒıÓÃÊ§°Ü£¡");
+            Console.WriteLine($"  ? StackOverflowï¼šçˆ¶å­åŒå‘å¼•ç”¨å¤±è´¥ï¼");
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"  ? Òì³£: {ex.Message}");
+            Console.WriteLine($"  ? å¼‚å¸¸: {ex.Message}");
         }
         
         Console.WriteLine();
@@ -195,7 +196,7 @@ public static class StackOverflowFixTest
     
     #region Test Models
     
-    // ×ÔÒıÓÃ½Úµã
+    // è‡ªå¼•ç”¨èŠ‚ç‚¹
     public class SelfRefNode
     {
         public int Id { get; set; }
@@ -203,7 +204,7 @@ public static class StackOverflowFixTest
         public SelfRefNode? Next { get; set; }
     }
     
-    // Ñ­»·ÒıÓÃ A <-> B
+    // å¾ªç¯å¼•ç”¨ A <-> B
     public class NodeA
     {
         public int Id { get; set; }
@@ -218,7 +219,7 @@ public static class StackOverflowFixTest
         public NodeA? RelatedA { get; set; }
     }
     
-    // Ê÷ĞÎ½á¹¹
+    // æ ‘å½¢ç»“æ„
     public class TreeNode
     {
         public int Id { get; set; }
@@ -226,7 +227,7 @@ public static class StackOverflowFixTest
         public List<TreeNode>? Children { get; set; }
     }
     
-    // ¸¸×ÓË«ÏòÒıÓÃ
+    // çˆ¶å­åŒå‘å¼•ç”¨
     public class Parent
     {
         public int Id { get; set; }

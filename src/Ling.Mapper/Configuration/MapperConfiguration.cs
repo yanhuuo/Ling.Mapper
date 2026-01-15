@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Ling.Mapper.Models;
 
 namespace Ling.Mapper
 {
@@ -42,7 +43,7 @@ namespace Ling.Mapper
         /// config.DefaultAdaptOptions = null;  // 精确匹配
         /// </code>
         /// </remarks>
-        public AdaptOptions? DefaultAdaptOptions { get; set; } = AdaptOptions.FlexibleOption;
+        public AdaptOptions? DefaultAdaptOptions { get; set; } = AdaptOptions.Default;
 
         /// <summary>
         /// 所有注册的映射配置集合。
@@ -109,7 +110,7 @@ namespace Ling.Mapper
         public IMapper CreateMapper()
         {
             BuildGlobalConventions();
-            return new Mapper(this);
+            return new Mapper.Mapper(this);
         }
     }
 

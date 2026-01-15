@@ -1,17 +1,18 @@
 using System;
 using System.Collections.Generic;
 using Ling.Mapper;
+using Ling.Mapper.Extensions;
 
 namespace TestConsole;
 
 /// <summary>
-/// Ç¶Ì×¼¯ºÏ²âÊÔ - ²âÊÔ¼¯ºÏÖĞ°üº¬¼¯ºÏµÄ¸´ÔÓ³¡¾°
+/// åµŒå¥—é›†åˆæµ‹è¯• - æµ‹è¯•é›†åˆä¸­åŒ…å«é›†åˆçš„å¤æ‚åœºæ™¯
 /// </summary>
 public static class NestedCollectionTest
 {
     public static void Run()
     {
-        Console.WriteLine("--- Ç¶Ì×¼¯ºÏÓ³Éä²âÊÔ ---\n");
+        Console.WriteLine("--- åµŒå¥—é›†åˆæ˜ å°„æµ‹è¯• ---\n");
         
         TestListOfLists();
         TestCategoryWithProducts();
@@ -22,7 +23,7 @@ public static class NestedCollectionTest
     
     private static void TestListOfLists()
     {
-        Console.WriteLine("1. List<List<T>> Ó³Éä");
+        Console.WriteLine("1. List<List<T>> æ˜ å°„");
         
         var source = new MatrixSource
         {
@@ -51,12 +52,12 @@ public static class NestedCollectionTest
             }
             else
             {
-                Console.WriteLine($"  ? List<List<T>> Ó³ÉäÊ§°Ü");
+                Console.WriteLine($"  ? List<List<T>> æ˜ å°„å¤±è´¥");
             }
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"  ? ²âÊÔÊ§°Ü: {ex.Message}");
+            Console.WriteLine($"  ? æµ‹è¯•å¤±è´¥: {ex.Message}");
         }
         
         Console.WriteLine();
@@ -64,7 +65,7 @@ public static class NestedCollectionTest
     
     private static void TestCategoryWithProducts()
     {
-        Console.WriteLine("2. Àà±ğ -> ²úÆ· (1¶Ô¶àÇ¶Ì×)");
+        Console.WriteLine("2. ç±»åˆ« -> äº§å“ (1å¯¹å¤šåµŒå¥—)");
         
         var source = new List<CategoryWithProductsSource>
         {
@@ -97,11 +98,11 @@ public static class NestedCollectionTest
             
             if (target != null && target.Count == 2)
             {
-                Console.WriteLine($"  ? Àà±ğÊıÁ¿: {target.Count}");
+                Console.WriteLine($"  ? ç±»åˆ«æ•°é‡: {target.Count}");
                 
                 foreach (var category in target)
                 {
-                    Console.WriteLine($"  ? {category.CategoryName}: {category.Products?.Count} ¸ö²úÆ·");
+                    Console.WriteLine($"  ? {category.CategoryName}: {category.Products?.Count} ä¸ªäº§å“");
                     
                     if (category.Products != null)
                     {
@@ -114,12 +115,12 @@ public static class NestedCollectionTest
             }
             else
             {
-                Console.WriteLine($"  ? Ç¶Ì×¼¯ºÏÓ³ÉäÊ§°Ü");
+                Console.WriteLine($"  ? åµŒå¥—é›†åˆæ˜ å°„å¤±è´¥");
             }
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"  ? ²âÊÔÊ§°Ü: {ex.Message}");
+            Console.WriteLine($"  ? æµ‹è¯•å¤±è´¥: {ex.Message}");
         }
         
         Console.WriteLine();
@@ -127,7 +128,7 @@ public static class NestedCollectionTest
     
     private static void TestTreeStructure()
     {
-        Console.WriteLine("3. Ê÷ĞÎ½á¹¹ (µİ¹é¼¯ºÏ)");
+        Console.WriteLine("3. æ ‘å½¢ç»“æ„ (é€’å½’é›†åˆ)");
         
         var source = new TreeNodeSource
         {
@@ -170,7 +171,7 @@ public static class NestedCollectionTest
                 {
                     foreach (var child in target.Children)
                     {
-                        Console.WriteLine($"    ? {child.Name}: {child.Children?.Count ?? 0} ¸ö×Ó½Úµã");
+                        Console.WriteLine($"    ? {child.Name}: {child.Children?.Count ?? 0} ä¸ªå­èŠ‚ç‚¹");
                         
                         if (child.Children != null)
                         {
@@ -184,12 +185,12 @@ public static class NestedCollectionTest
             }
             else
             {
-                Console.WriteLine($"  ? Ê÷ĞÎ½á¹¹Ó³ÉäÊ§°Ü");
+                Console.WriteLine($"  ? æ ‘å½¢ç»“æ„æ˜ å°„å¤±è´¥");
             }
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"  ? ²âÊÔÊ§°Ü: {ex.Message}");
+            Console.WriteLine($"  ? æµ‹è¯•å¤±è´¥: {ex.Message}");
         }
         
         Console.WriteLine();

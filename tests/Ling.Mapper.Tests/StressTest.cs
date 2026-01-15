@@ -4,18 +4,19 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using Ling.Mapper;
+using Ling.Mapper.Extensions;
 
 namespace TestConsole;
 
 /// <summary>
-/// Ñ¹Á¦²âÊÔ - ²âÊÔ Mapper ÔÚ¼«¶Ë³¡¾°ÏÂµÄÎÈ¶¨ĞÔ
+/// å‹åŠ›æµ‹è¯• - æµ‹è¯• Mapper åœ¨æç«¯åœºæ™¯ä¸‹çš„ç¨³å®šæ€§
 /// </summary>
 public static class StressTest
 {
     public static void Run()
     {
-        Console.WriteLine("--- Ñ¹Á¦²âÊÔ (Stress Tests) ---\n");
-        Console.WriteLine("? ¾¯¸æ£ºÑ¹Á¦²âÊÔ¿ÉÄÜĞèÒª½Ï³¤Ê±¼ä\n");
+        Console.WriteLine("--- å‹åŠ›æµ‹è¯• (Stress Tests) ---\n");
+        Console.WriteLine("? è­¦å‘Šï¼šå‹åŠ›æµ‹è¯•å¯èƒ½éœ€è¦è¾ƒé•¿æ—¶é—´\n");
         
         TestHighVolumeMapping();
         TestLargeObjectMapping();
@@ -28,7 +29,7 @@ public static class StressTest
     
     private static void TestHighVolumeMapping()
     {
-        Console.WriteLine("1. ¸ßÈİÁ¿Ó³Éä²âÊÔ£¨10,000,000 ´Î£©");
+        Console.WriteLine("1. é«˜å®¹é‡æ˜ å°„æµ‹è¯•ï¼ˆ10,000,000 æ¬¡ï¼‰");
         
         var source = new SimpleData { Id = 1, Name = "Test", Value = 100 };
         
@@ -45,19 +46,19 @@ public static class StressTest
             sw.Stop();
             long finalAllocated = GC.GetTotalMemory(false);
             
-            Console.WriteLine($"  ? Íê³É: 10,000,000 ´ÎÓ³Éä");
-            Console.WriteLine($"  ? ×ÜºÄÊ±: {sw.ElapsedMilliseconds} ms");
-            Console.WriteLine($"  ? Æ½¾ùÃ¿Ãë: {10_000_000.0 / sw.Elapsed.TotalSeconds:N0} ops/sec");
-            Console.WriteLine($"  ? ÄÚ´æÔö³¤: {(finalAllocated - totalAllocated) / 1024.0 / 1024.0:F2} MB");
+            Console.WriteLine($"  ? å®Œæˆ: 10,000,000 æ¬¡æ˜ å°„");
+            Console.WriteLine($"  ? æ€»è€—æ—¶: {sw.ElapsedMilliseconds} ms");
+            Console.WriteLine($"  ? å¹³å‡æ¯ç§’: {10_000_000.0 / sw.Elapsed.TotalSeconds:N0} ops/sec");
+            Console.WriteLine($"  ? å†…å­˜å¢é•¿: {(finalAllocated - totalAllocated) / 1024.0 / 1024.0:F2} MB");
             
             if (sw.ElapsedMilliseconds < 10000)
             {
-                Console.WriteLine($"  ? ĞÔÄÜ²âÊÔÍ¨¹ı (< 10s)");
+                Console.WriteLine($"  ? æ€§èƒ½æµ‹è¯•é€šè¿‡ (< 10s)");
             }
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"  ? ²âÊÔÊ§°Ü: {ex.Message}");
+            Console.WriteLine($"  ? æµ‹è¯•å¤±è´¥: {ex.Message}");
         }
         
         Console.WriteLine();
@@ -65,7 +66,7 @@ public static class StressTest
     
     private static void TestLargeObjectMapping()
     {
-        Console.WriteLine("2. ´ó¶ÔÏóÓ³Éä²âÊÔ£¨100 ¸öÊôĞÔ x 100,000 ´Î£©");
+        Console.WriteLine("2. å¤§å¯¹è±¡æ˜ å°„æµ‹è¯•ï¼ˆ100 ä¸ªå±æ€§ x 100,000 æ¬¡ï¼‰");
         
         var source = new LargeObject
         {
@@ -87,7 +88,7 @@ public static class StressTest
         
         try
         {
-            // Ô¤ÈÈ
+            // é¢„çƒ­
             for (int i = 0; i < 100; i++)
             {
                 _ = source.Adapt<LargeObject>();
@@ -102,22 +103,22 @@ public static class StressTest
             
             sw.Stop();
             
-            Console.WriteLine($"  ? Íê³É: 100,000 ´Î´ó¶ÔÏóÓ³Éä");
-            Console.WriteLine($"  ? ×ÜºÄÊ±: {sw.ElapsedMilliseconds} ms");
-            Console.WriteLine($"  ? Æ½¾ùÃ¿´Î: {sw.Elapsed.TotalMilliseconds / 100_000:F6} ms");
+            Console.WriteLine($"  ? å®Œæˆ: 100,000 æ¬¡å¤§å¯¹è±¡æ˜ å°„");
+            Console.WriteLine($"  ? æ€»è€—æ—¶: {sw.ElapsedMilliseconds} ms");
+            Console.WriteLine($"  ? å¹³å‡æ¯æ¬¡: {sw.Elapsed.TotalMilliseconds / 100_000:F6} ms");
             
             if (sw.ElapsedMilliseconds < 2000)
             {
-                Console.WriteLine($"  ? ĞÔÄÜ²âÊÔÍ¨¹ı (< 2000ms)");
+                Console.WriteLine($"  ? æ€§èƒ½æµ‹è¯•é€šè¿‡ (< 2000ms)");
             }
             else
             {
-                Console.WriteLine($"  ? ĞÔÄÜ¾¯¸æ: {sw.ElapsedMilliseconds} ms");
+                Console.WriteLine($"  ? æ€§èƒ½è­¦å‘Š: {sw.ElapsedMilliseconds} ms");
             }
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"  ? ²âÊÔÊ§°Ü: {ex.Message}");
+            Console.WriteLine($"  ? æµ‹è¯•å¤±è´¥: {ex.Message}");
         }
         
         Console.WriteLine();
@@ -125,7 +126,7 @@ public static class StressTest
     
     private static void TestLargeCollectionMapping()
     {
-        Console.WriteLine("3. ´ó¼¯ºÏÓ³Éä²âÊÔ£¨10,000 ÔªËØ x 1,000 ´Î£©");
+        Console.WriteLine("3. å¤§é›†åˆæ˜ å°„æµ‹è¯•ï¼ˆ10,000 å…ƒç´  x 1,000 æ¬¡ï¼‰");
         
         var source = Enumerable.Range(1, 10_000)
             .Select(i => new SimpleData { Id = i, Name = $"Item {i}", Value = i * 10 })
@@ -133,7 +134,7 @@ public static class StressTest
         
         try
         {
-            // Ô¤ÈÈ
+            // é¢„çƒ­
             for (int i = 0; i < 10; i++)
             {
                 _ = source.Adapt<List<SimpleData>>();
@@ -150,22 +151,22 @@ public static class StressTest
             
             var totalElements = 10_000 * 1_000;
             
-            Console.WriteLine($"  ? Íê³É: {totalElements:N0} ¸öÔªËØÓ³Éä");
-            Console.WriteLine($"  ? ×ÜºÄÊ±: {sw.ElapsedMilliseconds} ms");
-            Console.WriteLine($"  ? ÍÌÍÂÁ¿: {totalElements / sw.Elapsed.TotalSeconds:N0} elements/sec");
+            Console.WriteLine($"  ? å®Œæˆ: {totalElements:N0} ä¸ªå…ƒç´ æ˜ å°„");
+            Console.WriteLine($"  ? æ€»è€—æ—¶: {sw.ElapsedMilliseconds} ms");
+            Console.WriteLine($"  ? ååé‡: {totalElements / sw.Elapsed.TotalSeconds:N0} elements/sec");
             
             if (sw.ElapsedMilliseconds < 5000)
             {
-                Console.WriteLine($"  ? ĞÔÄÜ²âÊÔÍ¨¹ı (< 5000ms)");
+                Console.WriteLine($"  ? æ€§èƒ½æµ‹è¯•é€šè¿‡ (< 5000ms)");
             }
             else
             {
-                Console.WriteLine($"  ? ĞÔÄÜ¾¯¸æ: {sw.ElapsedMilliseconds} ms");
+                Console.WriteLine($"  ? æ€§èƒ½è­¦å‘Š: {sw.ElapsedMilliseconds} ms");
             }
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"  ? ²âÊÔÊ§°Ü: {ex.Message}");
+            Console.WriteLine($"  ? æµ‹è¯•å¤±è´¥: {ex.Message}");
         }
         
         Console.WriteLine();
@@ -173,7 +174,7 @@ public static class StressTest
     
     private static void TestConcurrentMapping()
     {
-        Console.WriteLine("4. ²¢·¢Ó³Éä²âÊÔ£¨10 Ïß³Ì x 100,000 ´Î£©");
+        Console.WriteLine("4. å¹¶å‘æ˜ å°„æµ‹è¯•ï¼ˆ10 çº¿ç¨‹ x 100,000 æ¬¡ï¼‰");
         
         var source = new SimpleData { Id = 1, Name = "Test", Value = 100 };
         
@@ -193,22 +194,22 @@ public static class StressTest
             
             var totalOps = 10 * 100_000;
             
-            Console.WriteLine($"  ? Íê³É: {totalOps:N0} ´Î²¢·¢Ó³Éä");
-            Console.WriteLine($"  ? ×ÜºÄÊ±: {sw.ElapsedMilliseconds} ms");
-            Console.WriteLine($"  ? ÍÌÍÂÁ¿: {totalOps / sw.Elapsed.TotalSeconds:N0} ops/sec");
+            Console.WriteLine($"  ? å®Œæˆ: {totalOps:N0} æ¬¡å¹¶å‘æ˜ å°„");
+            Console.WriteLine($"  ? æ€»è€—æ—¶: {sw.ElapsedMilliseconds} ms");
+            Console.WriteLine($"  ? ååé‡: {totalOps / sw.Elapsed.TotalSeconds:N0} ops/sec");
             
             if (sw.ElapsedMilliseconds < 5000)
             {
-                Console.WriteLine($"  ? ²¢·¢²âÊÔÍ¨¹ı (< 5000ms)");
+                Console.WriteLine($"  ? å¹¶å‘æµ‹è¯•é€šè¿‡ (< 5000ms)");
             }
             else
             {
-                Console.WriteLine($"  ? ĞÔÄÜ¾¯¸æ: {sw.ElapsedMilliseconds} ms");
+                Console.WriteLine($"  ? æ€§èƒ½è­¦å‘Š: {sw.ElapsedMilliseconds} ms");
             }
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"  ? ²âÊÔÊ§°Ü: {ex.Message}");
+            Console.WriteLine($"  ? æµ‹è¯•å¤±è´¥: {ex.Message}");
         }
         
         Console.WriteLine();
@@ -216,7 +217,7 @@ public static class StressTest
     
     private static void TestMemoryStability()
     {
-        Console.WriteLine("5. ÄÚ´æÎÈ¶¨ĞÔ²âÊÔ£¨Á¬Ğø GC ¹Û²ì£©");
+        Console.WriteLine("5. å†…å­˜ç¨³å®šæ€§æµ‹è¯•ï¼ˆè¿ç»­ GC è§‚å¯Ÿï¼‰");
         
         var source = new ComplexData
         {
@@ -238,7 +239,7 @@ public static class StressTest
             var gen1Before = GC.CollectionCount(1);
             var gen2Before = GC.CollectionCount(2);
             
-            Console.WriteLine($"  ³õÊ¼ÄÚ´æ: {initialMemory / 1024.0 / 1024.0:F2} MB");
+            Console.WriteLine($"  åˆå§‹å†…å­˜: {initialMemory / 1024.0 / 1024.0:F2} MB");
             
             for (int iteration = 0; iteration < 5; iteration++)
             {
@@ -248,7 +249,7 @@ public static class StressTest
                 }
                 
                 var currentMemory = GC.GetTotalMemory(false);
-                Console.WriteLine($"  µü´ú {iteration + 1}: {currentMemory / 1024.0 / 1024.0:F2} MB");
+                Console.WriteLine($"  è¿­ä»£ {iteration + 1}: {currentMemory / 1024.0 / 1024.0:F2} MB");
             }
             
             GC.Collect();
@@ -260,25 +261,25 @@ public static class StressTest
             var gen1After = GC.CollectionCount(1);
             var gen2After = GC.CollectionCount(2);
             
-            Console.WriteLine($"  ×îÖÕÄÚ´æ: {finalMemory / 1024.0 / 1024.0:F2} MB");
-            Console.WriteLine($"  ÄÚ´æÔö³¤: {(finalMemory - initialMemory) / 1024.0 / 1024.0:F2} MB");
-            Console.WriteLine($"  GC Gen0: {gen0After - gen0Before} ´Î");
-            Console.WriteLine($"  GC Gen1: {gen1After - gen1Before} ´Î");
-            Console.WriteLine($"  GC Gen2: {gen2After - gen2Before} ´Î");
+            Console.WriteLine($"  æœ€ç»ˆå†…å­˜: {finalMemory / 1024.0 / 1024.0:F2} MB");
+            Console.WriteLine($"  å†…å­˜å¢é•¿: {(finalMemory - initialMemory) / 1024.0 / 1024.0:F2} MB");
+            Console.WriteLine($"  GC Gen0: {gen0After - gen0Before} æ¬¡");
+            Console.WriteLine($"  GC Gen1: {gen1After - gen1Before} æ¬¡");
+            Console.WriteLine($"  GC Gen2: {gen2After - gen2Before} æ¬¡");
             
             var memoryGrowth = (finalMemory - initialMemory) / 1024.0 / 1024.0;
             if (memoryGrowth < 50)
             {
-                Console.WriteLine($"  ? ÄÚ´æÎÈ¶¨ĞÔ²âÊÔÍ¨¹ı (Ôö³¤ < 50MB)");
+                Console.WriteLine($"  ? å†…å­˜ç¨³å®šæ€§æµ‹è¯•é€šè¿‡ (å¢é•¿ < 50MB)");
             }
             else
             {
-                Console.WriteLine($"  ? ÄÚ´æ¾¯¸æ: Ôö³¤ {memoryGrowth:F2} MB");
+                Console.WriteLine($"  ? å†…å­˜è­¦å‘Š: å¢é•¿ {memoryGrowth:F2} MB");
             }
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"  ? ²âÊÔÊ§°Ü: {ex.Message}");
+            Console.WriteLine($"  ? æµ‹è¯•å¤±è´¥: {ex.Message}");
         }
         
         Console.WriteLine();
@@ -300,7 +301,7 @@ public static class StressTest
         public List<SimpleData>? Items { get; set; }
     }
     
-    // 100 ¸öÊôĞÔµÄ´ó¶ÔÏó
+    // 100 ä¸ªå±æ€§çš„å¤§å¯¹è±¡
     public class LargeObject
     {
         public int P01 { get; set; }

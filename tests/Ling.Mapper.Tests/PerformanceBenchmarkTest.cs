@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using Ling.Mapper;
+using Ling.Mapper.Extensions;
 using TestConsole.Utils;
 
 namespace TestConsole;
