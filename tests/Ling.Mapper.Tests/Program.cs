@@ -1,5 +1,6 @@
-﻿// See https://aka.ms/new-console-template for more information
+// See https://aka.ms/new-console-template for more information
 using Ling.Mapper;
+using Ling.Mapper.Tests;
 using TestConsole;
 using System;
 using System.Diagnostics;
@@ -32,6 +33,12 @@ switch (choice)
         RunStressTests();
         break;
     case "5":
+        RunAutoInitializeTest();
+        break;
+    case "6":
+        RunCollectionAutoDetectionTest();
+        break;
+    case "7":
         RunAllTests();
         break;
     case "0":
@@ -78,9 +85,11 @@ void ShowTestMenu()
     Console.WriteLine("  2 - 高级功能测试 (Advanced Tests)");
     Console.WriteLine("  3 - 性能基准测试 (Performance Tests)");
     Console.WriteLine("  4 - 压力测试 (Stress Tests)");
-    Console.WriteLine("  5 - 运行所有测试 (Run All Tests)");
+    Console.WriteLine("  5 - 自动初始化测试 (Auto Initialize Test) 🆕");
+    Console.WriteLine("  6 - 集合自动识别测试 (Collection Auto Detection) 🆕");
+    Console.WriteLine("  7 - 运行所有测试 (Run All Tests)");
     Console.WriteLine("  0 - 退出 (Exit)");
-    Console.Write("\n选择 (1-5): ");
+    Console.Write("\n选择 (1-7): ");
 }
 
 // ============ 测试套件 ============
@@ -148,6 +157,36 @@ void RunAdvancedTests()
     Console.WriteLine($"\n✅ 高级测试完成，耗时: {sw.ElapsedMilliseconds} ms\n");
 }
 
+void RunAutoInitializeTest()
+{
+    Console.WriteLine("\n╔═══════════════════════════════════════╗");
+    Console.WriteLine("║   自动初始化测试 (Auto Initialize)     ║");
+    Console.WriteLine("╚═══════════════════════════════════════╝\n");
+    
+    var sw = Stopwatch.StartNew();
+    
+    AutoMapperProviderTest.Run();
+    
+    sw.Stop();
+    Console.WriteLine($"\n✅ 自动初始化测试完成，耗时: {sw.ElapsedMilliseconds} ms\n");
+}
+
+void RunCollectionAutoDetectionTest()
+{
+    Console.WriteLine("\n╔═══════════════════════════════════════════╗");
+    Console.WriteLine("║  集合自动识别测试 (Collection Auto Detect) ║");
+    Console.WriteLine("╚═══════════════════════════════════════════╝\n");
+    
+    var sw = Stopwatch.StartNew();
+    
+    CollectionAutoDetectionTest.Run();
+    
+    sw.Stop();
+    Console.WriteLine($"\n✅ 集合自动识别测试完成，耗时: {sw.ElapsedMilliseconds} ms\n");
+}
+
+
+
 void RunPerformanceTests()
 {
     Console.WriteLine("\n╔═══════════════════════════════════════╗");
@@ -176,8 +215,12 @@ void RunAllTests()
     
     RunBasicTests();
     RunAdvancedTests();
+    RunAutoInitializeTest();
+    RunCollectionAutoDetectionTest();
     RunPerformanceTests();
     RunStressTests();
+    
+    
     
     totalSw.Stop();
     

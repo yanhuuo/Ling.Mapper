@@ -141,7 +141,6 @@ namespace Ling.Mapper
         /// <param name="source">源对象</param>
         /// <param name="custom">自定义处理回调</param>
         /// <returns>映射后的目标对象</returns>
-        /// <exception cref="System.InvalidOperationException">未注册全局 Mapper</exception>
         /// <exception cref="System.MissingMethodException">目标类型没有无参构造函数</exception>
         /// <exception cref="System.MemberAccessException">目标类型的构造函数不可访问</exception>
         /// <remarks>
@@ -151,7 +150,7 @@ namespace Ling.Mapper
         public static TDestination? Adapt<TDestination, TSource>(
             this TSource source, System.Action<TSource, TDestination?>? custom)
         {
-            var mapper = MapperProvider.Current ?? throw new System.InvalidOperationException("没有注册默认的 mapper。请调用 MapperProvider.SetCurrent(mapper) 或使用带 IMapper 参数的重载.");
+            var mapper = MapperProvider.Current;
             var dest = mapper.Map<TDestination>(source);
 
             if (dest == null && !typeof(TDestination).IsValueType)
@@ -187,7 +186,6 @@ namespace Ling.Mapper
         /// <param name="source">源对象</param>
         /// <param name="custom">自定义处理回调，参数顺序为 (destination, source)</param>
         /// <returns>映射后的目标对象</returns>
-        /// <exception cref="System.InvalidOperationException">未注册全局 Mapper</exception>
         /// <exception cref="System.MissingMethodException">目标类型没有无参构造函数</exception>
         /// <exception cref="System.MemberAccessException">目标类型的构造函数不可访问</exception>
         /// <remarks>
@@ -197,7 +195,7 @@ namespace Ling.Mapper
         public static TDestination? Adapt<TDestination, TSource>(
             this TSource source, System.Action<TDestination?, TSource>? custom)
         {
-            var mapper = MapperProvider.Current ?? throw new System.InvalidOperationException("没有注册默认的 mapper。请调用 MapperProvider.SetCurrent(mapper) 或使用带 IMapper 参数的重载.");
+            var mapper = MapperProvider.Current;
             var dest = mapper.Map<TDestination>(source);
 
             if (dest == null && !typeof(TDestination).IsValueType)
@@ -282,6 +280,8 @@ namespace Ling.Mapper
         /// <para>此方法使用全局的 MapperProvider.Current 进行映射，并支持在映射完成后通过匿名函数进行额外处理。</para>
         /// <para>如果映射结果为 null 且目标类型不是值类型，将尝试创建目标类型的实例。</para>
         /// <para>如果实例化失败（例如没有无参构造函数），将抛出异常。</para>
+        /// <para><strong>🆕 v2.3 自动集合识别：</strong></para>
+        /// <para>现在支持自动识别集合类型（List&lt;T&gt;, IEnumerable&lt;T&gt;, IList&lt;T&gt; 等），无需显式调用 AdaptList。</para>
         /// <para>特别适用于需要对映射结果进行二次加工的场景，例如：</para>
         /// <list type="bullet">
         /// <item><description>循环处理分页结果中的列表项</description></item>
@@ -343,14 +343,37 @@ namespace Ling.Mapper
         ///     .Adapt&lt;PageResult&lt;CustomerDto&gt;&gt;();
         /// </code>
         /// </example>
+        /// <example>
+        /// 示例 4：🆕 自动集合映射
+        /// <code>
+        /// var entities = GetEntities(); // List&lt;UserEntity&gt;
+        /// 
+        /// // 自动识别为集合映射，无需调用 AdaptList
+        /// var dtos = entities.Adapt&lt;List&lt;UserDto&gt;&gt;();
+        /// 
+        /// // 也支持 IEnumerable, IList 等
+        /// var dtos = entities.Adapt&lt;IEnumerable&lt;UserDto&gt;&gt;();
+        /// </code>
+        /// </example>
         /// </remarks>
-        /// <exception cref="System.InvalidOperationException">未注册全局 Mapper 时抛出</exception>
         /// <exception cref="System.MissingMethodException">目标类型没有无参构造函数</exception>
         /// <exception cref="System.MemberAccessException">目标类型的构造函数不可访问</exception>
         public static TDestination? Adapt<TDestination>(
             this object source, System.Action<TDestination?, object>? custom = null)
         {
-            var mapper = MapperProvider.Current ?? throw new System.InvalidOperationException("没有注册默认的 mapper，请先调 MapperProvider.SetCurrent(mapper) 或使用带 IMapper 参数的重载。");
+            var mapper = MapperProvider.Current;
+            var destType = typeof(TDestination);
+            
+            // 🆕 v2.3: 自动检测集合类型
+            if (IsCollectionType(destType) && source is System.Collections.IEnumerable sourceEnumerable)
+            {
+                var result = AdaptCollectionInternal<TDestination>(sourceEnumerable, destType, mapper);
+                if (result != null)
+                    custom?.Invoke(result, source);
+                return result;
+            }
+            
+            // 原有的单对象映射逻辑
             var dest = mapper.Map<TDestination>(source);
 
             if (dest == null && !typeof(TDestination).IsValueType)
@@ -377,8 +400,10 @@ namespace Ling.Mapper
         /// <para>与无参数版本的区别是可以指定特定的 Mapper 实例，适用于需要使用非全局 Mapper 的场景。</para>
         /// <para>如果映射结果为 null 且目标类型不是值类型，将尝试创建目标类型的实例。</para>
         /// <para>如果实例化失败（例如没有无参构造函数），将抛出异常。</para>
+        /// <para><strong>🆕 v2.3 自动集合识别：</strong></para>
+        /// <para>支持自动识别集合类型（List&lt;T&gt;, IEnumerable&lt;T&gt;, IList&lt;T&gt; 等），无需显式调用 AdaptList。</para>
         /// <example>
-        /// 示例：指定特定的 Mapper 实例
+        /// 示例 1：指定特定的 Mapper 实例
         /// <code>
         /// var customMapper = new MapperConfiguration().CreateMapper();
         /// var result = sourceData
@@ -398,12 +423,34 @@ namespace Ling.Mapper
         ///     });
         /// </code>
         /// </example>
+        /// <example>
+        /// 示例 2：🆕 自动集合映射
+        /// <code>
+        /// var customMapper = new MapperConfiguration().CreateMapper();
+        /// var entities = GetEntities();
+        /// 
+        /// // 自动识别为集合映射
+        /// var dtos = entities.Adapt&lt;List&lt;UserDto&gt;&gt;(customMapper);
+        /// </code>
+        /// </example>
         /// </remarks>
         /// <exception cref="System.MissingMethodException">目标类型没有无参构造函数</exception>
         /// <exception cref="System.MemberAccessException">目标类型的构造函数不可访问</exception>
         public static TDestination? Adapt<TDestination>(
             this object source, IMapper mapper, System.Action<TDestination?, object>? custom = null)
         {
+            var destType = typeof(TDestination);
+            
+            // 🆕 v2.3: 自动检测集合类型
+            if (IsCollectionType(destType) && source is System.Collections.IEnumerable sourceEnumerable)
+            {
+                var result = AdaptCollectionInternal<TDestination>(sourceEnumerable, destType, mapper);
+                if (result != null)
+                    custom?.Invoke(result, source);
+                return result;
+            }
+            
+            // 原有的单对象映射逻辑
             var dest = mapper.Map<TDestination>(source);
             
             if (dest == null && !typeof(TDestination).IsValueType)
@@ -461,14 +508,13 @@ namespace Ling.Mapper
         /// </code>
         /// </example>
         /// </remarks>
-        /// <exception cref="System.InvalidOperationException">未注册全局 Mapper</exception>
         public static List<TDestination>? AdaptList<TDestination, TSource>(
             this IEnumerable<TSource>? source,
             System.Action<TDestination?, TSource, int>? custom = null)
         {
             if (source == null) return null;
 
-            var mapper = MapperProvider.Current ?? throw new System.InvalidOperationException("没有注册默认的 mapper，请先调 MapperProvider.SetCurrent(mapper) 或使用带 IMapper 参数的重载。");
+            var mapper = MapperProvider.Current;
             
             var result = new List<TDestination>();
             int index = 0;
@@ -538,14 +584,13 @@ namespace Ling.Mapper
         /// </code>
         /// </example>
         /// </remarks>
-        /// <exception cref="System.InvalidOperationException">未注册全局 Mapper</exception>
         public static List<TDestination>? AdaptList<TDestination>(
             this System.Collections.IEnumerable? source,
             System.Action<TDestination?, object, int>? custom = null)
         {
             if (source == null) return null;
 
-            var mapper = MapperProvider.Current ?? throw new System.InvalidOperationException("没有注册默认的 mapper，请先调 MapperProvider.SetCurrent(mapper) 或使用带 IMapper 参数的重载。");
+            var mapper = MapperProvider.Current;
             
             var result = new List<TDestination>();
             int index = 0;
@@ -601,6 +646,120 @@ namespace Ling.Mapper
                     $"请检查构造函数是否抛出了异常，或目标类型是否可以正常实例化。", ex);
             }
         }
+
+        #region Collection Auto Detection Helpers (v2.3)
+
+        /// <summary>
+        /// 检测类型是否为支持的集合类型
+        /// </summary>
+        /// <param name="type">要检测的类型</param>
+        /// <returns>如果是集合类型返回 true，否则返回 false</returns>
+        /// <remarks>
+        /// 支持的集合类型：
+        /// - List&lt;T&gt;
+        /// - IList&lt;T&gt;
+        /// - ICollection&lt;T&gt;
+        /// - IEnumerable&lt;T&gt;
+        /// - T[]
+        /// </remarks>
+        private static bool IsCollectionType(System.Type type)
+        {
+            // 数组类型
+            if (type.IsArray)
+                return true;
+
+            // 非泛型集合（如 ArrayList）不支持自动检测
+            if (!type.IsGenericType)
+                return false;
+
+            var genericDef = type.GetGenericTypeDefinition();
+
+            // 检查常见的泛型集合类型
+            return genericDef == typeof(List<>) ||
+                   genericDef == typeof(IList<>) ||
+                   genericDef == typeof(ICollection<>) ||
+                   genericDef == typeof(IEnumerable<>);
+        }
+
+        /// <summary>
+        /// 内部集合映射方法
+        /// </summary>
+        private static TDestination? AdaptCollectionInternal<TDestination>(
+            System.Collections.IEnumerable source,
+            System.Type destType,
+            IMapper mapper)
+        {
+            if (source == null) return default;
+
+            // 获取元素类型
+            var elementType = GetCollectionElementType(destType);
+            if (elementType == null)
+                return default;
+
+            // 创建结果列表（泛型）
+            var listType = typeof(List<>).MakeGenericType(elementType);
+            var resultList = (System.Collections.IList)System.Activator.CreateInstance(listType)!;
+
+            // 映射每个元素
+            foreach (var item in source)
+            {
+                var mappedItem = mapper.Map(item, item?.GetType() ?? typeof(object), elementType);
+                if (mappedItem != null)
+                {
+                    resultList.Add(mappedItem);
+                }
+            }
+
+            // 根据目标类型返回合适的集合
+            if (destType.IsArray)
+            {
+                // 转换为数组
+                var array = System.Array.CreateInstance(elementType, resultList.Count);
+                resultList.CopyTo(array, 0);
+                return (TDestination)(object)array;
+            }
+            else if (destType.GetGenericTypeDefinition() == typeof(List<>))
+            {
+                // 返回 List<T>
+                return (TDestination)resultList;
+            }
+            else
+            {
+                // IEnumerable<T>, IList<T>, ICollection<T> 都可以返回 List<T>
+                return (TDestination)resultList;
+            }
+        }
+
+        /// <summary>
+        /// 获取集合的元素类型
+        /// </summary>
+        private static System.Type? GetCollectionElementType(System.Type collectionType)
+        {
+            // 数组
+            if (collectionType.IsArray)
+                return collectionType.GetElementType();
+
+            // 泛型集合
+            if (collectionType.IsGenericType)
+            {
+                var genericArgs = collectionType.GetGenericArguments();
+                if (genericArgs.Length == 1)
+                    return genericArgs[0];
+            }
+
+            // IEnumerable 接口
+            var enumerableInterface = collectionType.GetInterfaces()
+                .FirstOrDefault(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IEnumerable<>));
+            
+            if (enumerableInterface != null)
+            {
+                return enumerableInterface.GetGenericArguments()[0];
+            }
+
+            return null;
+        }
+
+        #endregion
 
         #region 带 AdaptOptions 的 Adapt 扩展方法
 
@@ -688,13 +847,12 @@ namespace Ling.Mapper
         /// <param name="options">映射规则选项</param>
         /// <param name="custom">可选的回调函数</param>
         /// <returns>映射后的目标对象</returns>
-        /// <exception cref="System.InvalidOperationException">未注册全局 Mapper</exception>
         public static TDestination? Adapt<TDestination, TSource>(
             this TSource source,
             AdaptOptions options,
             System.Action<TDestination?, TSource>? custom = null)
         {
-            var mapper = MapperProvider.Current ?? throw new System.InvalidOperationException("没有注册默认的 mapper。请调用 MapperProvider.SetCurrent(mapper) 或使用带 IMapper 参数的重载.");
+            var mapper = MapperProvider.Current;
             return source.Adapt<TDestination, TSource>(mapper, options, custom);
         }
 
@@ -744,13 +902,12 @@ namespace Ling.Mapper
         /// <param name="options">映射规则选项</param>
         /// <param name="custom">可选的回调函数</param>
         /// <returns>映射后的目标对象</returns>
-        /// <exception cref="System.InvalidOperationException">未注册全局 Mapper</exception>
         public static TDestination? Adapt<TDestination>(
             this object source,
             AdaptOptions options,
             System.Action<TDestination?, object>? custom = null)
         {
-            var mapper = MapperProvider.Current ?? throw new System.InvalidOperationException("没有注册默认的 mapper。请调用 MapperProvider.SetCurrent(mapper) 或使用带 IMapper 参数的重载.");
+            var mapper = MapperProvider.Current;
             return source.Adapt<TDestination>(mapper, options, custom);
         }
 
