@@ -9,9 +9,15 @@ namespace TestConsole;
 /// </summary>
 public static class EnumConversionDemo
 {
+    private static int _passedTests = 0;
+    private static int _failedTests = 0;
+
     public static void Run()
     {
         Console.WriteLine("\n=== 枚举转换测试 ===");
+
+        _passedTests = 0;
+        _failedTests = 0;
 
         // 场景 1: enum -> int
         TestEnumToInt();
@@ -40,7 +46,15 @@ public static class EnumConversionDemo
         // 场景 9: nullable enum -> nullable int
         TestNullableEnumToNullableInt();
 
-        Console.WriteLine("=== 枚举转换测试完成 ===\n");
+        Console.WriteLine($"\n📊 测试统计: ✅ {_passedTests} 通过, ❌ {_failedTests} 失败");
+        if (_failedTests == 0)
+        {
+            Console.WriteLine("✅ 枚举转换测试完成 - 所有测试通过\n");
+        }
+        else
+        {
+            Console.WriteLine($"⚠️  枚举转换测试完成 - {_failedTests} 个测试失败\n");
+        }
     }
 
     #region 测试场景
@@ -53,12 +67,23 @@ public static class EnumConversionDemo
         try
         {
             var result = source.Adapt<EnumToIntTarget>();
+            var success = (result?.Status ?? 0) == (int)UserStatus.Active;
             Console.WriteLine($"Status: {result?.Status ?? 0} (期望: {(int)UserStatus.Active})");
-            Console.WriteLine((result?.Status ?? 0) == (int)UserStatus.Active ? "? 转换成功" : "? 转换失败");
+            if (success)
+            {
+                Console.WriteLine("  ✅ 转换成功");
+                _passedTests++;
+            }
+            else
+            {
+                Console.WriteLine("  ❌ 转换失败");
+                _failedTests++;
+            }
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"? 异常: {ex.Message}");
+            Console.WriteLine($"  ❌ 异常: {ex.Message}");
+            _failedTests++;
         }
     }
 
@@ -70,12 +95,23 @@ public static class EnumConversionDemo
         try
         {
             var result = source.Adapt<IntToEnumTarget>();
+            var success = (result?.Status ?? UserStatus.Inactive) == UserStatus.Active;
             Console.WriteLine($"Status: {result?.Status ?? UserStatus.Inactive} (期望: {UserStatus.Active})");
-            Console.WriteLine((result?.Status ?? UserStatus.Inactive) == UserStatus.Active ? "? 转换成功" : "? 转换失败");
+            if (success)
+            {
+                Console.WriteLine("  ✅ 转换成功");
+                _passedTests++;
+            }
+            else
+            {
+                Console.WriteLine("  ❌ 转换失败");
+                _failedTests++;
+            }
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"? 异常: {ex.Message}");
+            Console.WriteLine($"  ❌ 异常: {ex.Message}");
+            _failedTests++;
         }
     }
 
@@ -87,12 +123,23 @@ public static class EnumConversionDemo
         try
         {
             var result = source.Adapt<EnumToStringTarget>();
-            Console.WriteLine($"Status: {result?.Status ?? "null"} (期望: \"Inactive\" 或 \"0\")");
-            Console.WriteLine(!string.IsNullOrEmpty(result?.Status) ? "? 转换成功" : "? 转换失败");
+            var success = !string.IsNullOrEmpty(result?.Status);
+            Console.WriteLine($"Status: {result?.Status ?? "null"} (期望: \"Inactive\")");
+            if (success)
+            {
+                Console.WriteLine("  ✅ 转换成功");
+                _passedTests++;
+            }
+            else
+            {
+                Console.WriteLine("  ❌ 转换失败");
+                _failedTests++;
+            }
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"? 异常: {ex.Message}");
+            Console.WriteLine($"  ❌ 异常: {ex.Message}");
+            _failedTests++;
         }
     }
 
@@ -104,12 +151,23 @@ public static class EnumConversionDemo
         try
         {
             var result = source.Adapt<StringToEnumTarget>();
+            var success = (result?.Status ?? UserStatus.Inactive) == UserStatus.Active;
             Console.WriteLine($"Status: {result?.Status ?? UserStatus.Inactive} (期望: {UserStatus.Active})");
-            Console.WriteLine((result?.Status ?? UserStatus.Inactive) == UserStatus.Active ? "? 转换成功" : "? 转换失败");
+            if (success)
+            {
+                Console.WriteLine("  ✅ 转换成功");
+                _passedTests++;
+            }
+            else
+            {
+                Console.WriteLine("  ❌ 转换失败");
+                _failedTests++;
+            }
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"? 异常: {ex.Message}");
+            Console.WriteLine($"  ❌ 异常: {ex.Message}");
+            _failedTests++;
         }
     }
 
@@ -121,12 +179,23 @@ public static class EnumConversionDemo
         try
         {
             var result = source.Adapt<EnumToSameEnumTarget>();
+            var success = (result?.Status ?? UserStatus.Inactive) == UserStatus.Pending;
             Console.WriteLine($"Status: {result?.Status ?? UserStatus.Inactive} (期望: {UserStatus.Pending})");
-            Console.WriteLine((result?.Status ?? UserStatus.Inactive) == UserStatus.Pending ? "? 转换成功" : "? 转换失败");
+            if (success)
+            {
+                Console.WriteLine("  ✅ 转换成功");
+                _passedTests++;
+            }
+            else
+            {
+                Console.WriteLine("  ❌ 转换失败");
+                _failedTests++;
+            }
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"? 异常: {ex.Message}");
+            Console.WriteLine($"  ❌ 异常: {ex.Message}");
+            _failedTests++;
         }
     }
 
@@ -139,11 +208,13 @@ public static class EnumConversionDemo
         {
             var result = source.Adapt<EnumToDifferentEnumTarget>();
             Console.WriteLine($"Status: {result?.Status ?? OrderStatus.Pending} (期望: {OrderStatus.Completed})");
-            Console.WriteLine("? 转换尝试完成");
+            Console.WriteLine("  ✅ 转换尝试完成");
+            _passedTests++;
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"? 异常: {ex.Message}");
+            Console.WriteLine($"  ❌ 异常: {ex.Message}");
+            _failedTests++;
         }
     }
 
@@ -156,12 +227,23 @@ public static class EnumConversionDemo
         try
         {
             var result1 = source1.Adapt<NullableEnumToIntTarget>();
+            var success = (result1?.Status ?? -1) == (int)UserStatus.Active;
             Console.WriteLine($"有值: Status = {result1?.Status ?? -1} (期望: {(int)UserStatus.Active})");
-            Console.WriteLine((result1?.Status ?? -1) == (int)UserStatus.Active ? "? 转换成功" : "? 转换失败");
+            if (success)
+            {
+                Console.WriteLine("  ✅ 转换成功");
+                _passedTests++;
+            }
+            else
+            {
+                Console.WriteLine("  ❌ 转换失败");
+                _failedTests++;
+            }
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"? 异常: {ex.Message}");
+            Console.WriteLine($"  ❌ 异常: {ex.Message}");
+            _failedTests++;
         }
 
         // null 的情况
@@ -169,12 +251,23 @@ public static class EnumConversionDemo
         try
         {
             var result2 = source2.Adapt<NullableEnumToIntTarget>();
+            var success = (result2?.Status ?? -1) == 0;
             Console.WriteLine($"null: Status = {result2?.Status ?? -1} (期望: 0)");
-            Console.WriteLine((result2?.Status ?? -1) == 0 ? "? 转换成功" : "? 转换失败");
+            if (success)
+            {
+                Console.WriteLine("  ✅ 转换成功");
+                _passedTests++;
+            }
+            else
+            {
+                Console.WriteLine("  ❌ 转换失败");
+                _failedTests++;
+            }
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"? 异常: {ex.Message}");
+            Console.WriteLine($"  ❌ 异常: {ex.Message}");
+            _failedTests++;
         }
     }
 
@@ -186,12 +279,23 @@ public static class EnumConversionDemo
         try
         {
             var result = source.Adapt<IntToNullableEnumTarget>();
+            var success = (result?.Status ?? UserStatus.Inactive) == UserStatus.Active;
             Console.WriteLine($"Status: {result?.Status?.ToString() ?? "null"} (期望: {UserStatus.Active})");
-            Console.WriteLine((result?.Status ?? UserStatus.Inactive) == UserStatus.Active ? "? 转换成功" : "? 转换失败");
+            if (success)
+            {
+                Console.WriteLine("  ✅ 转换成功");
+                _passedTests++;
+            }
+            else
+            {
+                Console.WriteLine("  ❌ 转换失败");
+                _failedTests++;
+            }
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"? 异常: {ex.Message}");
+            Console.WriteLine($"  ❌ 异常: {ex.Message}");
+            _failedTests++;
         }
     }
 
@@ -204,12 +308,23 @@ public static class EnumConversionDemo
         try
         {
             var result1 = source1.Adapt<NullableEnumToNullableIntTarget>();
+            var success = (result1?.Status ?? -1) == (int)UserStatus.Inactive;
             Console.WriteLine($"有值: Status = {result1?.Status?.ToString() ?? "null"} (期望: {(int)UserStatus.Inactive})");
-            Console.WriteLine((result1?.Status ?? -1) == (int)UserStatus.Inactive ? "? 转换成功" : "? 转换失败");
+            if (success)
+            {
+                Console.WriteLine("  ✅ 转换成功");
+                _passedTests++;
+            }
+            else
+            {
+                Console.WriteLine("  ❌ 转换失败");
+                _failedTests++;
+            }
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"? 异常: {ex.Message}");
+            Console.WriteLine($"  ❌ 异常: {ex.Message}");
+            _failedTests++;
         }
 
         // null 的情况
@@ -217,12 +332,23 @@ public static class EnumConversionDemo
         try
         {
             var result2 = source2.Adapt<NullableEnumToNullableIntTarget>();
+            var success = result2?.Status == null;
             Console.WriteLine($"null: Status = {result2?.Status?.ToString() ?? "null"} (期望: null)");
-            Console.WriteLine((result2?.Status == null) ? "? 转换成功" : "? 转换失败");
+            if (success)
+            {
+                Console.WriteLine("  ✅ 转换成功");
+                _passedTests++;
+            }
+            else
+            {
+                Console.WriteLine("  ❌ 转换失败");
+                _failedTests++;
+            }
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"? 异常: {ex.Message}");
+            Console.WriteLine($"  ❌ 异常: {ex.Message}");
+            _failedTests++;
         }
     }
 

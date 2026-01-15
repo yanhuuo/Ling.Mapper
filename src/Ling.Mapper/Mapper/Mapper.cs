@@ -32,6 +32,9 @@ namespace Ling.Mapper.Mapper
         private static readonly MethodInfo MapCollectionWithOptionsMethod =
             typeof(Mapper).GetMethod(nameof(MapCollectionInternalWithOptions), BindingFlags.Instance | BindingFlags.NonPublic)!;
 
+        private static readonly MethodInfo RegisterInContextMethod =
+            typeof(Mapper).GetMethod(nameof(RegisterInContext), BindingFlags.Instance | BindingFlags.NonPublic)!;
+
         public Mapper(MapperConfiguration config)
         {
             _config = config ?? throw new ArgumentNullException(nameof(config));
@@ -104,14 +107,38 @@ namespace Ling.Mapper.Mapper
                 if (ctx.TryGetValue(source, out var cached))
                     return cached;
 
+                // 使用占位符标记正在处理（避免无限递归）
                 ctx[source] = null!;
+                
                 var mapper = GetOrCompile(sourceType, destType, options, null);
                 var result = mapper(source);
+                
+                // 更新缓存为实际结果
                 ctx[source] = result!;
                 return result;
             }
 
             return GetOrCompile(sourceType, destType, options, null)(source);
+        }
+
+        // 🔥 在编译的表达式中调用此方法来注册循环引用上下文
+        private void RegisterInContext(object source, object destination, Type sourceType)
+        {
+            if (source == null || destination == null)
+                return;
+
+            var needCycleCheck =
+                !sourceType.IsValueType &&
+                !TypeUtils.IsSimple(sourceType);
+
+            if (needCycleCheck)
+            {
+                var ctx = _mappingContext.Value;
+                if (ctx != null && !ctx.ContainsKey(source))
+                {
+                    ctx[source] = destination;
+                }
+            }
         }
 
         // ============================================================
@@ -138,6 +165,12 @@ namespace Ling.Mapper.Mapper
 
                     if (MapperRegistry.TryGetWrapper(srcType, destType, out var wrapper) && wrapper != null)
                         return wrapper;
+
+                    // 🔥 集合到集合的映射：直接使用集合映射方法
+                    if (IsCollectionButNotString(srcType) && IsCollectionButNotString(destType))
+                    {
+                        return src => MapCollectionInternalWithOptions(src, srcType, destType, options);
+                    }
 
                     var config = cfg ?? _config.Configs.FirstOrDefault(c =>
                         c.SourceType == srcType && c.DestType == destType);
@@ -183,6 +216,21 @@ namespace Ling.Mapper.Mapper
     {
         Expression.Assign(destVar, Expression.New(destType))
     };
+
+            // 🔥 循环引用处理：创建对象后立即注册到上下文
+            var needsCycleCheck = !srcType.IsValueType && !TypeUtils.IsSimple(srcType) && !TypeUtils.IsSimple(destType);
+            if (needsCycleCheck)
+            {
+                body.Add(
+                    Expression.Call(
+                        Expression.Constant(this),
+                        RegisterInContextMethod,
+                        srcObj,
+                        Expression.Convert(destVar, typeof(object)),
+                        Expression.Constant(srcType, typeof(Type))
+                    )
+                );
+            }
 
             var srcProps = srcType.GetProperties(BindingFlags.Public | BindingFlags.Instance)
                 .Where(p => p.CanRead && p.GetIndexParameters().Length == 0)
@@ -242,17 +290,30 @@ namespace Ling.Mapper.Mapper
                 if (IsCollectionButNotString(srcValueType) &&
                     IsCollectionButNotString(dp.PropertyType))
                 {
-                    value = Expression.Convert(
-                        Expression.Call(
-                            Expression.Constant(this),
-                            MapCollectionWithOptionsMethod,
-                            Expression.Convert(srcValue, typeof(object)),
-                            Expression.Constant(srcValueType, typeof(Type)),
-                            Expression.Constant(dp.PropertyType, typeof(Type)),
-                            Expression.Constant(options)
-                        ),
-                        dp.PropertyType
+                    var callExpr = Expression.Call(
+                        Expression.Constant(this),
+                        MapCollectionWithOptionsMethod,
+                        Expression.Convert(srcValue, typeof(object)),
+                        Expression.Constant(srcValueType, typeof(Type)),
+                        Expression.Constant(dp.PropertyType, typeof(Type)),
+                        Expression.Constant(options)
                     );
+
+                    // 添加 null 检查和安全的类型转换
+                    if (!srcValueType.IsValueType)
+                    {
+                        // 源类型是引用类型，需要 null 检查
+                        var srcBoxed = Expression.Convert(srcValue, typeof(object));
+                        value = Expression.Condition(
+                            Expression.Equal(srcBoxed, Expression.Constant(null, typeof(object))),
+                            Expression.Default(dp.PropertyType),
+                            Expression.Convert(callExpr, dp.PropertyType)
+                        );
+                    }
+                    else
+                    {
+                        value = Expression.Convert(callExpr, dp.PropertyType);
+                    }
                 }
                 // ===== 3. 简单类型（值 / Nullable / string / enum）=====
                 else if (TypeUtils.IsSimple(srcValueType) &&
@@ -343,7 +404,7 @@ namespace Ling.Mapper.Mapper
             return new string(buf[..idx]);
         }
 
-        // Nullable-aware
+        // Nullable-aware + Enum/String conversion support
         private static Expression ConvertValueExpression(
             Expression value,
             Type srcType,
@@ -351,6 +412,17 @@ namespace Ling.Mapper.Mapper
         {
             var destUnderlying = Nullable.GetUnderlyingType(destType);
             var srcUnderlying = Nullable.GetUnderlyingType(srcType);
+
+            // 获取真实的非可空类型
+            var actualSrcType = srcUnderlying ?? srcType;
+            var actualDestType = destUnderlying ?? destType;
+
+            // ===== 特殊情况：enum <-> string 转换 =====
+            if ((actualSrcType.IsEnum && actualDestType == typeof(string)) ||
+                (actualSrcType == typeof(string) && actualDestType.IsEnum))
+            {
+                return BuildEnumStringConversion(value, srcType, destType, actualSrcType, actualDestType);
+            }
 
             // ===== dest: 非 Nullable 值类型 =====
             if (destType.IsValueType && destUnderlying == null)
@@ -396,6 +468,86 @@ namespace Ling.Mapper.Mapper
             // ❌ 其他情况禁止 Convert（必须走 Mapper）
             throw new InvalidOperationException(
                 $"Invalid ConvertValueExpression: {srcType.FullName} -> {destType.FullName}");
+        }
+
+        // 处理 enum <-> string 转换
+        private static Expression BuildEnumStringConversion(
+            Expression value,
+            Type srcType,
+            Type destType,
+            Type actualSrcType,
+            Type actualDestType)
+        {
+            var srcIsNullable = Nullable.GetUnderlyingType(srcType) != null;
+            var destIsNullable = Nullable.GetUnderlyingType(destType) != null;
+
+            // ===== Enum -> String =====
+            if (actualSrcType.IsEnum && actualDestType == typeof(string))
+            {
+                // 使用 Enum.ToString() 方法
+                var toStringMethod = typeof(object).GetMethod(nameof(ToString))!;
+
+                if (srcIsNullable)
+                {
+                    // Nullable<Enum> -> String
+                    var enumValue = Expression.Property(value, "Value");
+                    var boxed = Expression.Convert(enumValue, typeof(object));
+                    var toString = Expression.Call(boxed, toStringMethod);
+
+                    return Expression.Condition(
+                        Expression.Property(value, "HasValue"),
+                        toString,
+                        Expression.Constant(string.Empty, typeof(string))
+                    );
+                }
+                else
+                {
+                    // Enum -> String
+                    var boxed = Expression.Convert(value, typeof(object));
+                    return Expression.Call(boxed, toStringMethod);
+                }
+            }
+
+            // ===== String -> Enum =====
+            if (actualSrcType == typeof(string) && actualDestType.IsEnum)
+            {
+                // 使用 Enum.Parse 方法
+                var enumParseMethod = typeof(Enum).GetMethod(
+                    nameof(Enum.Parse),
+                    new[] { typeof(Type), typeof(string), typeof(bool) })!;
+
+                var parseCall = Expression.Call(
+                    enumParseMethod,
+                    Expression.Constant(actualDestType, typeof(Type)),
+                    value,
+                    Expression.Constant(true) // ignoreCase = true
+                );
+
+                var convertedEnum = Expression.Convert(parseCall, actualDestType);
+
+                if (destIsNullable)
+                {
+                    // String -> Nullable<Enum>
+                    // 需要处理空字符串的情况
+                    var nullCheck = Expression.Call(
+                        typeof(string).GetMethod(nameof(string.IsNullOrEmpty), new[] { typeof(string) })!,
+                        value
+                    );
+
+                    return Expression.Condition(
+                        nullCheck,
+                        Expression.Default(destType),
+                        Expression.Convert(convertedEnum, destType)
+                    );
+                }
+                else
+                {
+                    // String -> Enum (非空)
+                    return convertedEnum;
+                }
+            }
+
+            throw new InvalidOperationException("Unexpected enum/string conversion scenario");
         }
 
 
@@ -469,27 +621,87 @@ namespace Ling.Mapper.Mapper
             if (destElemType == null)
                 return null;
 
-            var list = (IList)Activator.CreateInstance(
-                typeof(List<>).MakeGenericType(destElemType))!;
+            var listType = typeof(List<>).MakeGenericType(destElemType);
+            var list = (IList)Activator.CreateInstance(listType)!;
+
+            // 🔥 处理可空类型：获取底层类型
+            var srcUnderlyingType = srcElemType != null ? Nullable.GetUnderlyingType(srcElemType) ?? srcElemType : null;
+            var destUnderlyingType = Nullable.GetUnderlyingType(destElemType) ?? destElemType;
+
+            // 检查元素类型是否为简单类型（string, int, enum 等）
+            var srcElemIsSimple = srcUnderlyingType != null && TypeUtils.IsSimple(srcUnderlyingType);
+            var destElemIsSimple = TypeUtils.IsSimple(destUnderlyingType);
 
             foreach (var item in (IEnumerable)srcCollection)
             {
+                // 处理 null 元素
                 if (item == null)
                 {
-                    list.Add(null);
+                    // 如果目标类型是可空类型或引用类型，可以接受 null
+                    if (!destElemType.IsValueType || Nullable.GetUnderlyingType(destElemType) != null)
+                    {
+                        list.Add(null);
+                    }
+                    else
+                    {
+                        // 目标类型是不可空的值类型，添加默认值
+                        list.Add(Activator.CreateInstance(destElemType));
+                    }
                     continue;
                 }
 
                 var actualSrcType = srcElemType ?? item.GetType();
+                var actualSrcUnderlyingType = Nullable.GetUnderlyingType(actualSrcType) ?? actualSrcType;
 
-                // 🔥 关键：必须走 MapObjectWithOptions
-                var mapped = MapObjectWithOptions(
-                    item,
-                    actualSrcType,
-                    destElemType,
-                    options);
+                // 🎯 简单类型到简单类型：直接转换或复制
+                if (srcElemIsSimple && destElemIsSimple)
+                {
+                    try
+                    {
+                        // 类型完全相同（包括可空性）
+                        if (actualSrcType == destElemType)
+                        {
+                            list.Add(item);
+                        }
+                        // 底层类型相同，但可空性不同（如 int -> int? 或 int? -> int）
+                        else if (actualSrcUnderlyingType == destUnderlyingType)
+                        {
+                            list.Add(item);
+                        }
+                        // 需要类型转换（如 int -> long, int? -> long?, enum -> int）
+                        else
+                        {
+                            var targetType = destUnderlyingType;
+                            var converted = Convert.ChangeType(item, targetType);
+                            list.Add(converted);
+                        }
+                    }
+                    catch
+                    {
+                        // 转换失败，添加默认值
+                        if (destElemType.IsValueType && Nullable.GetUnderlyingType(destElemType) == null)
+                        {
+                            // 不可空值类型：添加默认值
+                            list.Add(Activator.CreateInstance(destElemType));
+                        }
+                        else
+                        {
+                            // 可空类型或引用类型：添加 null
+                            list.Add(null);
+                        }
+                    }
+                }
+                // 🎯 复杂类型：走完整的映射逻辑
+                else
+                {
+                    var mapped = MapObjectWithOptions(
+                        item,
+                        actualSrcType,
+                        destElemType,
+                        options);
 
-                list.Add(mapped);
+                    list.Add(mapped);
+                }
             }
 
             // 如果目标是数组
@@ -502,6 +714,32 @@ namespace Ling.Mapper.Mapper
                 return toArray.Invoke(null, new object[] { list });
             }
 
+            // 如果目标类型是具体的 List<T> 或其可分配的类型，直接返回
+            if (destType.IsAssignableFrom(listType))
+            {
+                return list;
+            }
+
+            // 如果目标类型是其他具体集合类型，尝试通过构造函数或方法转换
+            // 例如：HashSet<T>, Queue<T> 等
+            if (!destType.IsInterface && !destType.IsAbstract)
+            {
+                try
+                {
+                    // 尝试使用接受 IEnumerable<T> 的构造函数
+                    var ctor = destType.GetConstructor(new[] { typeof(IEnumerable<>).MakeGenericType(destElemType) });
+                    if (ctor != null)
+                    {
+                        return ctor.Invoke(new object[] { list });
+                    }
+                }
+                catch
+                {
+                    // 构造失败，返回 List<T>
+                }
+            }
+
+            // 默认返回 List<T>（兼容大多数接口：IEnumerable<T>, ICollection<T>, IList<T>）
             return list;
         }
 
