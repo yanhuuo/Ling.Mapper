@@ -175,22 +175,16 @@ namespace Ling.Mapper
         /// <param name="source">源对象</param>
         /// <param name="custom">自定义处理回调，参数为 (destination, source)</param>
         /// <returns>映射后的目标对象</returns>
+        /// <remarks>
+        /// 默认启用 FlexibleOption（忽略大小写和下划线），支持驼峰与下划线互转。
+        /// </remarks>
         /// <exception cref="System.MissingMethodException">目标类型没有无参构造函数</exception>
         public static TDestination? Adapt<TDestination, TSource>(
             this TSource source, System.Action<TDestination?, TSource>? custom)
         {
+            // 使用默认的 FlexibleOption
             var mapper = MapperProvider.Current;
-            var dest = mapper.Map<TDestination>(source);
-
-            if (dest == null && !typeof(TDestination).IsValueType)
-            {
-                dest = CreateInstance<TDestination>();
-            }
-
-            if (dest != null)
-                custom?.Invoke(dest, source);
-
-            return dest;
+            return source.Adapt<TDestination, TSource>(mapper, AdaptOptions.FlexibleOption, custom);
         }
 
         /// <summary>
