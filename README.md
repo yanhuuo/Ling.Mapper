@@ -7,73 +7,73 @@
 [![License](https://img.shields.io/github/license/yanhuuo/Ling.Mapper?style=flat-square)](LICENSE)
 [![.NET](https://img.shields.io/badge/.NET-6%20%7C%208%20%7C%209%20%7C%2010-512BD4?style=flat-square&logo=dotnet)](https://dotnet.microsoft.com/)
 
-**?? ¼òµ¥¡¢¸ßĞ§¡¢ÀàĞÍ°²È«µÄ .NET ¶ÔÏóÓ³Éä¿â**
+**?? ç®€å•ã€é«˜æ•ˆã€ç±»å‹å®‰å…¨çš„ .NET å¯¹è±¡æ˜ å°„åº“**
 
-[¿ìËÙ¿ªÊ¼](#-¿ìËÙ¿ªÊ¼) ? [ÌØĞÔ](#-ÌØĞÔ) ? [ÎÄµµ](#-ÎÄµµ) ? [Ê¾Àı](#-Ê¾Àı) ? [ĞÔÄÜ](#-ĞÔÄÜ)
+[å¿«é€Ÿå¼€å§‹](#-å¿«é€Ÿå¼€å§‹) ? [ç‰¹æ€§](#-ç‰¹æ€§) ? [æ–‡æ¡£](#-æ–‡æ¡£) ? [ç¤ºä¾‹](#-ç¤ºä¾‹) ? [æ€§èƒ½](#-æ€§èƒ½)
 
 </div>
 
 ---
 
-## ?? ¼ò½é
+## ?? ç®€ä»‹
 
-Ling.Mapper ÊÇÒ»¸öÇáÁ¿¼¶¡¢¸ßĞÔÄÜµÄ .NET ¶ÔÏóÓ³Éä¿â£¬×¨×¢ÓÚÌá¹©**¼òµ¥Ò×ÓÃ**ºÍ**¸ßĞ§Ö´ĞĞ**µÄÓ³ÉäÌåÑé¡£
+Ling.Mapper æ˜¯ä¸€ä¸ªè½»é‡çº§ã€é«˜æ€§èƒ½çš„ .NET å¯¹è±¡æ˜ å°„åº“ï¼Œä¸“æ³¨äºæä¾›**ç®€å•æ˜“ç”¨**å’Œ**é«˜æ•ˆæ‰§è¡Œ**çš„æ˜ å°„ä½“éªŒã€‚
 
-### ÎªÊ²Ã´Ñ¡Ôñ Ling.Mapper£¿
+### ä¸ºä»€ä¹ˆé€‰æ‹© Ling.Mapperï¼Ÿ
 
-| ÌØµã | ËµÃ÷ |
+| ç‰¹ç‚¹ | è¯´æ˜ |
 |------|------|
-| ?? **¼òµ¥Ö±¹Û** | Fluent API Éè¼Æ£¬Á´Ê½µ÷ÓÃ£¬5 ·ÖÖÓÉÏÊÖ |
-| ? **ĞÔÄÜ×¿Ô½** | ±í´ïÊ½Ê÷±àÒë + Î¯ÍĞ»º´æ£¬½Ó½üÊÖĞ´´úÂëµÄĞÔÄÜ |
-| ??? **ÀàĞÍ°²È«** | ÍêÕûµÄ·ºĞÍÖ§³ÖºÍ¿É¿ÕÀàĞÍ´¦Àí |
-| ?? **Áé»îÇ¿´ó** | Profile ÅäÖÃ + ÔËĞĞÊ±¹æÔò + ×Ô¶¨Òå×ª»»Æ÷ |
-| ?? **AOT ÓÑºÃ** | Ö§³ÖÔ­Éú AOT ±àÒëºÍ Source Generator |
-| ?? **DI ¼¯³É** | ¿ªÏä¼´ÓÃµÄÒÀÀµ×¢ÈëÖ§³Ö |
+| ?? **ç®€å•ç›´è§‚** | Fluent API è®¾è®¡ï¼Œé“¾å¼è°ƒç”¨ï¼Œ5 åˆ†é’Ÿä¸Šæ‰‹ |
+| ? **æ€§èƒ½å“è¶Š** | è¡¨è¾¾å¼æ ‘ç¼–è¯‘ + å§”æ‰˜ç¼“å­˜ï¼Œæ¥è¿‘æ‰‹å†™ä»£ç çš„æ€§èƒ½ |
+| ??? **ç±»å‹å®‰å…¨** | å®Œæ•´çš„æ³›å‹æ”¯æŒå’Œå¯ç©ºç±»å‹å¤„ç† |
+| ?? **çµæ´»å¼ºå¤§** | Profile é…ç½® + è¿è¡Œæ—¶è§„åˆ™ + è‡ªå®šä¹‰è½¬æ¢å™¨ |
+| ?? **AOT å‹å¥½** | æ”¯æŒåŸç”Ÿ AOT ç¼–è¯‘å’Œ Source Generator |
+| ?? **DI é›†æˆ** | å¼€ç®±å³ç”¨çš„ä¾èµ–æ³¨å…¥æ”¯æŒ |
 
 ---
 
-## ? ÌØĞÔ
+## ? ç‰¹æ€§
 
-### ºËĞÄ¹¦ÄÜ
+### æ ¸å¿ƒåŠŸèƒ½
 
 <table>
 <tr>
 <td width="50%">
 
-**»ù´¡Ó³Éä**
-- ? ×Ô¶¯Ó³ÉäÍ¬ÃûÊôĞÔ
-- ? Profile ÅäÖÃ¸ß¼¶¹æÔò
-- ? ForMember ×Ô¶¨Òå±í´ïÊ½
-- ? Rename ÊôĞÔÖØÃüÃû
-- ? Ignore ºöÂÔÊôĞÔ
+**åŸºç¡€æ˜ å°„**
+- ? è‡ªåŠ¨æ˜ å°„åŒåå±æ€§
+- ? Profile é…ç½®é«˜çº§è§„åˆ™
+- ? ForMember è‡ªå®šä¹‰è¡¨è¾¾å¼
+- ? Rename å±æ€§é‡å‘½å
+- ? Ignore å¿½ç•¥å±æ€§
 
 </td>
 <td width="50%">
 
-**ÀàĞÍÖ§³Ö**
-- ? ¿É¿ÕÀàĞÍ£¨`int?`, `string?`£©
-- ? Ã¶¾Ù×ª»»£¨enum ? int/string£©
-- ? ¼¯ºÏÓ³Éä£¨List, Array, IEnumerable£©
-- ? Ç¶Ì×¶ÔÏóµİ¹éÓ³Éä
-- ? ×Ô¶¨ÒåÀàĞÍ×ª»»Æ÷
+**ç±»å‹æ”¯æŒ**
+- ? å¯ç©ºç±»å‹ï¼ˆ`int?`, `string?`ï¼‰
+- ? æšä¸¾è½¬æ¢ï¼ˆenum ? int/stringï¼‰
+- ? é›†åˆæ˜ å°„ï¼ˆList, Array, IEnumerableï¼‰
+- ? åµŒå¥—å¯¹è±¡é€’å½’æ˜ å°„
+- ? è‡ªå®šä¹‰ç±»å‹è½¬æ¢å™¨
 
 </td>
 </tr>
 </table>
 
-### ¸ß¼¶ÌØĞÔ
+### é«˜çº§ç‰¹æ€§
 
-- ?? **ÔËĞĞÊ±¹æÔò**£º`AdaptOptions` Áé»îÅäÖÃÓ³ÉäĞĞÎª
-- ?? **À©Õ¹·½·¨**£º`Adapt<T>()` ¼ò½àµÄÓ³ÉäÓï·¨
-- ?? **ÊÖ¶¯×¢²á**£º`MapperRegistry` ×¢²á¸ßĞÔÄÜÎ¯ÍĞ
-- ?? **·´ÏòÓ³Éä**£º`ReverseMap()` ×Ô¶¯Éú³É·´ÏòÅäÖÃ
-- ?? **ÑÏ¸ñÄ£Ê½**£º¿ª·¢Ê±¼ì²âÎ´Ó³ÉäÊôĞÔ
+- ?? **è¿è¡Œæ—¶è§„åˆ™**ï¼š`AdaptOptions` çµæ´»é…ç½®æ˜ å°„è¡Œä¸º
+- ?? **æ‰©å±•æ–¹æ³•**ï¼š`Adapt<T>()` ç®€æ´çš„æ˜ å°„è¯­æ³•
+- ?? **æ‰‹åŠ¨æ³¨å†Œ**ï¼š`MapperRegistry` æ³¨å†Œé«˜æ€§èƒ½å§”æ‰˜
+- ?? **åå‘æ˜ å°„**ï¼š`ReverseMap()` è‡ªåŠ¨ç”Ÿæˆåå‘é…ç½®
+- ?? **ä¸¥æ ¼æ¨¡å¼**ï¼šå¼€å‘æ—¶æ£€æµ‹æœªæ˜ å°„å±æ€§
 
 ---
 
-## ?? °²×°
+## ?? å®‰è£…
 
-### NuGet °ü¹ÜÀíÆ÷
+### NuGet åŒ…ç®¡ç†å™¨
 
 ```bash
 dotnet add package Ling.Mapper
@@ -85,7 +85,7 @@ dotnet add package Ling.Mapper
 Install-Package Ling.Mapper
 ```
 
-### .csproj ÎÄ¼ş
+### .csproj æ–‡ä»¶
 
 ```xml
 <PackageReference Include="Ling.Mapper" Version="1.0.5" />
@@ -93,9 +93,9 @@ Install-Package Ling.Mapper
 
 ---
 
-## ?? ¿ìËÙ¿ªÊ¼
+## ?? å¿«é€Ÿå¼€å§‹
 
-### 1. ¶¨ÒåÓ³Éä¹æÔò
+### 1. å®šä¹‰æ˜ å°„è§„åˆ™
 
 ```csharp
 using Ling.Mapper;
@@ -113,7 +113,7 @@ public class UserProfile : MapperProfile
 }
 ```
 
-### 2. ÅäÖÃ Mapper
+### 2. é…ç½® Mapper
 
 ```csharp
 var config = new MapperConfiguration();
@@ -124,19 +124,19 @@ config.ConfigureConventions(opt =>
 });
 
 var mapper = config.CreateMapper();
-MapperProvider.SetCurrent(mapper);  // ÉèÖÃÈ«¾Ö Mapper
+MapperProvider.SetCurrent(mapper);  // è®¾ç½®å…¨å±€ Mapper
 ```
 
-### 3. Ö´ĞĞÓ³Éä
+### 3. æ‰§è¡Œæ˜ å°„
 
 ```csharp
-// »ù´¡Ó³Éä
+// åŸºç¡€æ˜ å°„
 var user = mapper.Map<User>(userDto);
 
-// Ê¹ÓÃÀ©Õ¹·½·¨
+// ä½¿ç”¨æ‰©å±•æ–¹æ³•
 var user = userDto.Adapt<User>();
 
-// ´ø»Øµ÷µÄÓ³Éä
+// å¸¦å›è°ƒçš„æ˜ å°„
 var user = userDto.Adapt<User>((src, dest) => 
 {
     dest.UpdatedAt = DateTime.Now;
@@ -145,12 +145,12 @@ var user = userDto.Adapt<User>((src, dest) =>
 
 ---
 
-## ?? Ê¾Àı
+## ?? ç¤ºä¾‹
 
-### »ù±¾Ó³Éä
+### åŸºæœ¬æ˜ å°„
 
 ```csharp
-// ¶¨ÒåÄ£ĞÍ
+// å®šä¹‰æ¨¡å‹
 public class UserDto
 {
     public int Id { get; set; }
@@ -164,7 +164,7 @@ public class User
     public string? FullName { get; set; }
 }
 
-// ÅäÖÃÓ³Éä
+// é…ç½®æ˜ å°„
 public class UserProfile : MapperProfile
 {
     public UserProfile()
@@ -176,11 +176,11 @@ public class UserProfile : MapperProfile
     }
 }
 
-// Ö´ĞĞÓ³Éä
+// æ‰§è¡Œæ˜ å°„
 var user = userDto.Adapt<User>();
 ```
 
-### ¿É¿ÕÀàĞÍÓ³Éä
+### å¯ç©ºç±»å‹æ˜ å°„
 
 ```csharp
 public class Source
@@ -191,52 +191,52 @@ public class Source
 
 public class Target
 {
-    public int Id { get; set; }        // null ¡ú 0
+    public int Id { get; set; }        // null â†’ 0
     public string? Name { get; set; }
 }
 
-// ×Ô¶¯´¦Àí
+// è‡ªåŠ¨å¤„ç†
 var target = source.Adapt<Target>();
 
-// ×Ô¶¨Òå´¦Àí
+// è‡ªå®šä¹‰å¤„ç†
 CreateMap<Source, Target>()
     .ForMember(d => d.Id, s => s.NullableId ?? -1);
 ```
 
-### Ã¶¾ÙÀàĞÍÓ³Éä
+### æšä¸¾ç±»å‹æ˜ å°„
 
 ```csharp
 public enum UserStatus { Inactive = 0, Active = 1, Pending = 2 }
 
-// enum ¡ú int
+// enum â†’ int
 var source = new { Status = UserStatus.Active };
 var target = source.Adapt<IntTarget>();  // Status = 1
 
-// int ¡ú enum
+// int â†’ enum
 var source2 = new { StatusCode = 1 };
 var target2 = source2.Adapt<EnumTarget>();  // Status = Active
 
-// enum ¡ú string
+// enum â†’ string
 var target3 = source.Adapt<StringTarget>();  // Status = "Active"
 
-// string ¡ú enum (²»Çø·Ö´óĞ¡Ğ´)
+// string â†’ enum (ä¸åŒºåˆ†å¤§å°å†™)
 var source3 = new { Status = "active" };
 var target4 = source3.Adapt<EnumTarget>();  // Status = Active
 ```
 
-### ÔËĞĞÊ±Ó³Éä¹æÔò
+### è¿è¡Œæ—¶æ˜ å°„è§„åˆ™
 
 ```csharp
-// ºöÂÔ´óĞ¡Ğ´
+// å¿½ç•¥å¤§å°å†™
 var user = apiResponse.Adapt<User>(AdaptOptions.IgnoreCaseOption);
 
-// ºöÂÔÏÂ»®Ïß
+// å¿½ç•¥ä¸‹åˆ’çº¿
 var user = dbRow.Adapt<User>(AdaptOptions.IgnoreUnderscoreOption);
 
-// Áé»îÆ¥Åä
+// çµæ´»åŒ¹é…
 var user = data.Adapt<User>(AdaptOptions.FlexibleOption);
 
-// ×éºÏ¹æÔò
+// ç»„åˆè§„åˆ™
 var user = source.Adapt<User>(new AdaptOptions
 {
     IgnoreCase = true,
@@ -245,20 +245,20 @@ var user = source.Adapt<User>(new AdaptOptions
 });
 ```
 
-### ¼¯ºÏÓ³Éä
+### é›†åˆæ˜ å°„
 
 ```csharp
-// List Ó³Éä
+// List æ˜ å°„
 var users = userDtos.AdaptList<User>();
 
-// ´øË÷Òı´¦Àí
+// å¸¦ç´¢å¼•å¤„ç†
 var users = userDtos.AdaptList<User>((src, dest, index) => 
 {
     dest.RowNumber = index + 1;
 });
 ```
 
-### DI ¼¯³É
+### DI é›†æˆ
 
 ```csharp
 // Program.cs
@@ -271,7 +271,7 @@ services.AddFluentMapper(config =>
     });
 });
 
-// ÔÚ·şÎñÖĞÊ¹ÓÃ
+// åœ¨æœåŠ¡ä¸­ä½¿ç”¨
 public class UserService
 {
     private readonly IMapper _mapper;
@@ -291,71 +291,71 @@ public class UserService
 
 ---
 
-## ?? ÎÄµµ
+## ?? æ–‡æ¡£
 
-### ºËĞÄÎÄµµ
+### æ ¸å¿ƒæ–‡æ¡£
 
-| ÎÄµµ | ËµÃ÷ |
+| æ–‡æ¡£ | è¯´æ˜ |
 |------|------|
-| [?? ¹¦ÄÜ¸ÅÀÀ](docs/Feature-Summary.md) | ÍêÕûµÄ¹¦ÄÜÁĞ±í |
-| [?? Adapt Ê¹ÓÃ](docs/Adapt-Usage.md) | Adapt ·½·¨Ïê½â |
-| [?? Ã¶¾Ù×ª»»](docs/EnumConversion_Support.md) | enum ? int/string |
-| [?? Òì³£´¦Àí](docs/Exception-Handling-Quick-Guide.md) | Òì³£´¦Àí²ßÂÔ |
+| [?? åŠŸèƒ½æ¦‚è§ˆ](docs/Feature-Summary.md) | å®Œæ•´çš„åŠŸèƒ½åˆ—è¡¨ |
+| [?? Adapt ä½¿ç”¨](docs/Adapt-Usage.md) | Adapt æ–¹æ³•è¯¦è§£ |
+| [?? æšä¸¾è½¬æ¢](docs/EnumConversion_Support.md) | enum ? int/string |
+| [?? å¼‚å¸¸å¤„ç†](docs/Exception-Handling-Quick-Guide.md) | å¼‚å¸¸å¤„ç†ç­–ç•¥ |
 
-### ¸üĞÂÈÕÖ¾
+### æ›´æ–°æ—¥å¿—
 
-| °æ±¾ | ËµÃ÷ |
+| ç‰ˆæœ¬ | è¯´æ˜ |
 |------|------|
-| v1.0.5 | ¿É¿ÕÀàĞÍÖ§³Ö |
-| v1.0.4 | ¾¯¸æĞŞ¸´ |
-| v1.0.3 | ÔËĞĞÊ±¹æÔò |
+| v1.0.5 | å¯ç©ºç±»å‹æ”¯æŒ |
+| v1.0.4 | è­¦å‘Šä¿®å¤ |
+| v1.0.3 | è¿è¡Œæ—¶è§„åˆ™ |
 
 ---
 
-## ? ĞÔÄÜ
+## ? æ€§èƒ½
 
-### ĞÔÄÜÌØµã
+### æ€§èƒ½ç‰¹ç‚¹
 
 <table>
 <tr>
 <td width="50%">
 
-**ÓÅ»¯»úÖÆ**
-1. ±í´ïÊ½Ê÷±àÒë£¨Ò»´Î±àÒë£¬¶à´Î¸´ÓÃ£©
-2. Î¯ÍĞ»º´æ£¨±ÜÃâÖØ¸´±àÒë£©
-3. Source Generator£¨±àÒëÊ±Éú³É´úÂë£©
-4. ÊÖ¶¯×¢²áÓÅÏÈ£¨×î¸ßĞÔÄÜÂ·¾¶£©
+**ä¼˜åŒ–æœºåˆ¶**
+1. è¡¨è¾¾å¼æ ‘ç¼–è¯‘ï¼ˆä¸€æ¬¡ç¼–è¯‘ï¼Œå¤šæ¬¡å¤ç”¨ï¼‰
+2. å§”æ‰˜ç¼“å­˜ï¼ˆé¿å…é‡å¤ç¼–è¯‘ï¼‰
+3. Source Generatorï¼ˆç¼–è¯‘æ—¶ç”Ÿæˆä»£ç ï¼‰
+4. æ‰‹åŠ¨æ³¨å†Œä¼˜å…ˆï¼ˆæœ€é«˜æ€§èƒ½è·¯å¾„ï¼‰
 
 </td>
 <td width="50%">
 
-**Ö´ĞĞË³Ğò**
+**æ‰§è¡Œé¡ºåº**
 ```
-MapperRegistry ×¢²áµÄÎ¯ÍĞ£¨×î¿ì£©
-    ¡ı
-Source Generator Éú³ÉµÄ´úÂë
-    ¡ı
-±í´ïÊ½Ê÷±àÒë£¨ÔËĞĞÊ±»ØÍË£©
+MapperRegistry æ³¨å†Œçš„å§”æ‰˜ï¼ˆæœ€å¿«ï¼‰
+    â†“
+Source Generator ç”Ÿæˆçš„ä»£ç 
+    â†“
+è¡¨è¾¾å¼æ ‘ç¼–è¯‘ï¼ˆè¿è¡Œæ—¶å›é€€ï¼‰
 ```
 
 </td>
 </tr>
 </table>
 
-### ĞÔÄÜ½¨Òé
+### æ€§èƒ½å»ºè®®
 
-| ½¨Òé | ËµÃ÷ |
+| å»ºè®® | è¯´æ˜ |
 |------|------|
-| ? ÊÖ¶¯×¢²á | Ê¹ÓÃ `MapperRegistry.Register` ×¢²á¸ßÆµÓ³Éä |
-| ? Source Generator | ÆôÓÃ Source Generator£¨Èç¹û¿ÉÓÃ£© |
-| ? »º´æÊµÀı | Mapper Ïß³Ì°²È«£¬½¨Òéµ¥Àı |
-| ? Ò»´ÎÅäÖÃ | ÔÚÆô¶¯Ê±ÅäÖÃ£¬±ÜÃâÆµ·±ÅäÖÃ |
+| ? æ‰‹åŠ¨æ³¨å†Œ | ä½¿ç”¨ `MapperRegistry.Register` æ³¨å†Œé«˜é¢‘æ˜ å°„ |
+| ? Source Generator | å¯ç”¨ Source Generatorï¼ˆå¦‚æœå¯ç”¨ï¼‰ |
+| ? ç¼“å­˜å®ä¾‹ | Mapper çº¿ç¨‹å®‰å…¨ï¼Œå»ºè®®å•ä¾‹ |
+| ? ä¸€æ¬¡é…ç½® | åœ¨å¯åŠ¨æ—¶é…ç½®ï¼Œé¿å…é¢‘ç¹é…ç½® |
 
 ---
 
-## ?? Êµ¼ÊÓ¦ÓÃ³¡¾°
+## ?? å®é™…åº”ç”¨åœºæ™¯
 
-### API ÏìÓ¦Ó³Éä
+### API å“åº”æ˜ å°„
 
 ```csharp
 [HttpGet]
@@ -366,7 +366,7 @@ public async Task<IActionResult> GetUsers()
 }
 ```
 
-### Êı¾İ¿âÓ³Éä
+### æ•°æ®åº“æ˜ å°„
 
 ```csharp
 var dbResult = await _connection.QueryAsync<DatabaseRow>(sql);
@@ -375,7 +375,7 @@ var users = dbResult.Select(row =>
 ).ToList();
 ```
 
-### µÚÈı·½ API ¼¯³É
+### ç¬¬ä¸‰æ–¹ API é›†æˆ
 
 ```csharp
 var externalData = await _httpClient.GetAsync<ExternalApiResponse>();
@@ -387,91 +387,91 @@ var user = externalData.Adapt<User>(
 
 ---
 
-## ?? ÓëÆäËû¿â¶Ô±È
+## ?? ä¸å…¶ä»–åº“å¯¹æ¯”
 
-| ÌØĞÔ | Ling.Mapper | AutoMapper | Mapster |
+| ç‰¹æ€§ | Ling.Mapper | AutoMapper | Mapster |
 |------|------------|------------|---------|
-| ¼òµ¥Ò×ÓÃ | ? | ? | ? |
-| ¸ßĞÔÄÜ | ? | ?? | ? |
-| AOT Ö§³Ö | ? | ? | ?? |
-| ¿É¿ÕÀàĞÍ | ? | ?? | ?? |
-| ÔËĞĞÊ±¹æÔò | ? | ? | ? |
-| ÇáÁ¿¼¶ | ? (< 100KB) | ? | ? |
-| DI ¼¯³É | ? | ? | ?? |
-| Á´Ê½ API | ? | ? | ? |
+| ç®€å•æ˜“ç”¨ | ? | ? | ? |
+| é«˜æ€§èƒ½ | ? | ?? | ? |
+| AOT æ”¯æŒ | ? | ? | ?? |
+| å¯ç©ºç±»å‹ | ? | ?? | ?? |
+| è¿è¡Œæ—¶è§„åˆ™ | ? | ? | ? |
+| è½»é‡çº§ | ? (< 100KB) | ? | ? |
+| DI é›†æˆ | ? | ? | ?? |
+| é“¾å¼ API | ? | ? | ? |
 
 ---
 
-## ?? ¸üĞÂÈÕÖ¾
+## ?? æ›´æ–°æ—¥å¿—
 
-### v1.0.5 (µ±Ç°) - ¿É¿ÕÀàĞÍÖ§³Ö
+### v1.0.5 (å½“å‰) - å¯ç©ºç±»å‹æ”¯æŒ
 
-- ? **ĞÂÔö**£ºÍêÕûµÄ¿É¿ÕÀàĞÍÖ§³Ö£¨`int?`¡¢`string?` µÈ£©
-- ? **ÔöÇ¿**£º`ConvertSimpleType` ·½·¨ĞÂÔö 7 ÖÖ¿É¿ÕÀàĞÍ×ª»»³¡¾°
-- ?? **ÎÄµµ**£ºÌí¼Ó¿É¿ÕÀàĞÍÏêÏ¸Ê¹ÓÃÎÄµµ
-- ? **²âÊÔ**£ºÌí¼Ó 6+ ¸ö¿É¿ÕÀàĞÍ²âÊÔ³¡¾°
+- ? **æ–°å¢**ï¼šå®Œæ•´çš„å¯ç©ºç±»å‹æ”¯æŒï¼ˆ`int?`ã€`string?` ç­‰ï¼‰
+- ? **å¢å¼º**ï¼š`ConvertSimpleType` æ–¹æ³•æ–°å¢ 7 ç§å¯ç©ºç±»å‹è½¬æ¢åœºæ™¯
+- ?? **æ–‡æ¡£**ï¼šæ·»åŠ å¯ç©ºç±»å‹è¯¦ç»†ä½¿ç”¨æ–‡æ¡£
+- ? **æµ‹è¯•**ï¼šæ·»åŠ  6+ ä¸ªå¯ç©ºç±»å‹æµ‹è¯•åœºæ™¯
 
-### v1.0.4 - ¾¯¸æĞŞ¸´
+### v1.0.4 - è­¦å‘Šä¿®å¤
 
-- ??? **ĞŞ¸´**£ºËùÓĞ XML ×¢ÊÍ¾¯¸æ£¨27 ¡ú 2£©
-- ??? **ĞŞ¸´**£º¿ÕÒıÓÃ¾¯¸æºÍ CS8603 ¾¯¸æ
-- ??? **ÓÅ»¯**£ºDependencyInjection °ü°æ±¾¼æÈİĞÔ
-- ?? **ÎÄµµ**£ºÍêÉÆ README ºÍ API ²Î¿¼ÎÄµµ
+- ??? **ä¿®å¤**ï¼šæ‰€æœ‰ XML æ³¨é‡Šè­¦å‘Šï¼ˆ27 â†’ 2ï¼‰
+- ??? **ä¿®å¤**ï¼šç©ºå¼•ç”¨è­¦å‘Šå’Œ CS8603 è­¦å‘Š
+- ??? **ä¼˜åŒ–**ï¼šDependencyInjection åŒ…ç‰ˆæœ¬å…¼å®¹æ€§
+- ?? **æ–‡æ¡£**ï¼šå®Œå–„ README å’Œ API å‚è€ƒæ–‡æ¡£
 
-### v1.0.3 - ÔËĞĞÊ±¹æÔò
+### v1.0.3 - è¿è¡Œæ—¶è§„åˆ™
 
-- ? **ĞÂÔö**£ºÔËĞĞÊ±Ó³Éä¹æÔò£¨AdaptOptions£©
-- ? **ĞÂÔö**£ºAdaptList ¼¯ºÏÓ³ÉäÀ©Õ¹
-- ?? **ĞŞ¸´**£ºÀàĞÍ×ª»»Æ÷ÎÊÌâ
-
----
-
-## ?? ¹±Ï×
-
-»¶Ó­Ìá½» Issue ºÍ Pull Request£¡
-
-### ¹±Ï×Á÷³Ì
-
-1. Fork ÏîÄ¿
-2. ´´½¨ÌØĞÔ·ÖÖ§ (`git checkout -b feature/AmazingFeature`)
-3. Ìá½»¸ü¸Ä (`git commit -m 'Add some AmazingFeature'`)
-4. ÍÆËÍµ½·ÖÖ§ (`git push origin feature/AmazingFeature`)
-5. ¿ªÆô Pull Request
-
-### ¹±Ï×Ö¸ÄÏ
-
-- ×ñÑ­ÏÖÓĞ´úÂë·ç¸ñ
-- Ìí¼ÓÊÊµ±µÄ²âÊÔ
-- ¸üĞÂÏà¹ØÎÄµµ
-- È·±£ËùÓĞ²âÊÔÍ¨¹ı
+- ? **æ–°å¢**ï¼šè¿è¡Œæ—¶æ˜ å°„è§„åˆ™ï¼ˆAdaptOptionsï¼‰
+- ? **æ–°å¢**ï¼šAdaptList é›†åˆæ˜ å°„æ‰©å±•
+- ?? **ä¿®å¤**ï¼šç±»å‹è½¬æ¢å™¨é—®é¢˜
 
 ---
 
-## ?? Ğí¿ÉÖ¤
+## ?? è´¡çŒ®
 
-±¾ÏîÄ¿²ÉÓÃ [MIT License](LICENSE) Ğí¿ÉÖ¤¡£
+æ¬¢è¿æäº¤ Issue å’Œ Pull Requestï¼
+
+### è´¡çŒ®æµç¨‹
+
+1. Fork é¡¹ç›®
+2. åˆ›å»ºç‰¹æ€§åˆ†æ”¯ (`git checkout -b feature/AmazingFeature`)
+3. æäº¤æ›´æ”¹ (`git commit -m 'Add some AmazingFeature'`)
+4. æ¨é€åˆ°åˆ†æ”¯ (`git push origin feature/AmazingFeature`)
+5. å¼€å¯ Pull Request
+
+### è´¡çŒ®æŒ‡å—
+
+- éµå¾ªç°æœ‰ä»£ç é£æ ¼
+- æ·»åŠ é€‚å½“çš„æµ‹è¯•
+- æ›´æ–°ç›¸å…³æ–‡æ¡£
+- ç¡®ä¿æ‰€æœ‰æµ‹è¯•é€šè¿‡
 
 ---
 
-## ?? Ïà¹ØÁ´½Ó
+## ?? è®¸å¯è¯
+
+æœ¬é¡¹ç›®é‡‡ç”¨ [MIT License](LICENSE) è®¸å¯è¯ã€‚
+
+---
+
+## ?? ç›¸å…³é“¾æ¥
 
 <div align="center">
 
-| Á´½Ó | ËµÃ÷ |
+| é“¾æ¥ | è¯´æ˜ |
 |------|------|
-| ?? [NuGet °ü](https://www.nuget.org/packages/Ling.Mapper/) | ÏÂÔØ×îĞÂ°æ±¾ |
-| ?? [GitHub ²Ö¿â](https://github.com/yanhuuo/Ling.Mapper) | Ô´´úÂëºÍÎÊÌâ×·×Ù |
-| ?? [ÍêÕûÎÄµµ](docs/README.md) | ÏêÏ¸µÄ¼¼ÊõÎÄµµ |
-| ?? [ÎÊÌâ·´À¡](https://github.com/yanhuuo/Ling.Mapper/issues) | ±¨¸æ Bug |
-| ?? [¹¦ÄÜ½¨Òé](https://github.com/yanhuuo/Ling.Mapper/issues) | Ìá³öĞÂÏë·¨ |
+| ?? [NuGet åŒ…](https://www.nuget.org/packages/Ling.Mapper/) | ä¸‹è½½æœ€æ–°ç‰ˆæœ¬ |
+| ?? [GitHub ä»“åº“](https://github.com/yanhuuo/Ling.Mapper) | æºä»£ç å’Œé—®é¢˜è¿½è¸ª |
+| ?? [å®Œæ•´æ–‡æ¡£](docs/README.md) | è¯¦ç»†çš„æŠ€æœ¯æ–‡æ¡£ |
+| ?? [é—®é¢˜åé¦ˆ](https://github.com/yanhuuo/Ling.Mapper/issues) | æŠ¥å‘Š Bug |
+| ?? [åŠŸèƒ½å»ºè®®](https://github.com/yanhuuo/Ling.Mapper/issues) | æå‡ºæ–°æƒ³æ³• |
 
 </div>
 
 ---
 
-## ? Star ÀúÊ·
+## ? Star å†å²
 
-Èç¹ûÕâ¸öÏîÄ¿¶ÔÄúÓĞ°ïÖú£¬Çë¸øÒ»¸ö ? Star Ö§³ÖÒ»ÏÂ£¡
+å¦‚æœè¿™ä¸ªé¡¹ç›®å¯¹æ‚¨æœ‰å¸®åŠ©ï¼Œè¯·ç»™ä¸€ä¸ª ? Star æ”¯æŒä¸€ä¸‹ï¼
 
 [![Stargazers over time](https://starchart.cc/yanhuuo/Ling.Mapper.svg)](https://starchart.cc/yanhuuo/Ling.Mapper)
 
@@ -479,9 +479,9 @@ var user = externalData.Adapt<User>(
 
 <div align="center">
 
-### ?? ÈÃ¶ÔÏóÓ³Éä±äµÃ¼òµ¥¸ßĞ§£¡
+### ?? è®©å¯¹è±¡æ˜ å°„å˜å¾—ç®€å•é«˜æ•ˆï¼
 
-**Ling.Mapper** - ÇáÁ¿¡¢¸ßĞ§¡¢Ò×ÓÃµÄ¶ÔÏóÓ³Éä¿â
+**Ling.Mapper** - è½»é‡ã€é«˜æ•ˆã€æ˜“ç”¨çš„å¯¹è±¡æ˜ å°„åº“
 
 Made with ?? by [yanhuuo](https://github.com/yanhuuo)
 
