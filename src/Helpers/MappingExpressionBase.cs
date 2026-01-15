@@ -10,8 +10,8 @@ namespace Ling.Mapper.Helpers
 {
     /// <summary>
     /// Profile 配置表达式读取器：
-    /// - IgnoredMembers: 忽略目标属性
-    /// - RenamedMembers: destName -> srcName（支持嵌套路径）
+    /// - IgnoredMembers：忽略目标属性
+    /// - RenamedMembers：destName -> srcName（支持嵌套路径）
     /// </summary>
     internal sealed class MappingExpressionBase
     {
