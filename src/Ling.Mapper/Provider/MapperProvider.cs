@@ -3,31 +3,31 @@ using System;
 namespace Ling.Mapper
 {
     /// <summary>
-    /// È«¾ÖÄ¬ÈÏÓ³ÉäÆ÷Ìá¹©Õß£¨¿ÉÑ¡×é¼ş£©¡£
-    /// ÓÃÓÚ¿ìËÙµ÷ÓÃ Adapt/Map À©Õ¹·½·¨Ê±×Ô¶¯×¢Èë IMapper¡£
-    /// ÔÚ DI ÈİÆ÷ÖĞ×¢²á»òÊÖ¶¯´´½¨ Mapper ºó£¬Í¨¹ı FluentMapperServiceCollectionExtensions »òÊÖ¶¯µ÷ÓÃ¸ÃÊµÀı¡£
+    /// å…¨å±€é»˜è®¤æ˜ å°„å™¨æä¾›è€…ï¼ˆå¯é€‰ç»„ä»¶ï¼‰ã€‚
+    /// ç”¨äºå¿«é€Ÿè°ƒç”¨ Adapt/Map æ‰©å±•æ–¹æ³•æ—¶è‡ªåŠ¨æ³¨å…¥ IMapperã€‚
+    /// åœ¨ DI å®¹å™¨ä¸­æ³¨å†Œæˆ–æ‰‹åŠ¨åˆ›å»º Mapper åï¼Œé€šè¿‡ FluentMapperServiceCollectionExtensions æˆ–æ‰‹åŠ¨è°ƒç”¨è¯¥å®ä¾‹ã€‚
     /// </summary>
     public static class MapperProvider
     {
         private static IMapper? _current;
 
         /// <summary>
-        /// »ñÈ¡µ±Ç°È«¾Ö Mapper ÊµÀı¡£
+        /// è·å–å½“å‰å…¨å±€ Mapper å®ä¾‹ã€‚
         /// </summary>
         public static IMapper? Current => _current;
 
         /// <summary>
-        /// ÉèÖÃµ±Ç°È«¾Ö Mapper ÊµÀı¡£
+        /// è®¾ç½®å½“å‰å…¨å±€ Mapper å®ä¾‹ã€‚
         /// </summary>
-        /// <param name="mapper">ÒªÉèÖÃµÄ IMapper ÊµÀı</param>
-        /// <exception cref="ArgumentNullException">mapper Îª null Ê±Å×³ö</exception>
+        /// <param name="mapper">è¦è®¾ç½®çš„ IMapper å®ä¾‹</param>
+        /// <exception cref="ArgumentNullException">mapper ä¸º null æ—¶æŠ›å‡º</exception>
         public static void SetCurrent(IMapper mapper)
         {
             _current = mapper ?? throw new ArgumentNullException(nameof(mapper));
         }
 
         /// <summary>
-        /// Çå³ıµ±Ç°È«¾Ö Mapper ÊµÀı¡£
+        /// æ¸…é™¤å½“å‰å…¨å±€ Mapper å®ä¾‹ã€‚
         /// </summary>
         public static void Clear() => _current = null;
     }

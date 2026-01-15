@@ -5,8 +5,8 @@ using System.Runtime.CompilerServices;
 namespace Ling.Mapper
 {
     /// <summary>
-    /// Ñ­»·ÒıÓÃ¼ì²âÆ÷£¬ÓÃÓÚ·ÀÖ¹ÔÚ¸´ÔÓ¶ÔÏóÓ³ÉäÖĞ³öÏÖÎŞÏŞµİ¹é£¨A -> B -> A -> StackOverflow£©¡£
-    /// Ê¹ÓÃÒıÓÃÏàµÈ£¨ReferenceEquals£©½øĞĞ¼ì²â£¬½öÔÚ¸´ÔÓ¶ÔÏóµİ¹éÓ³ÉäÊ±ÆôÓÃ¡£
+    /// å¾ªç¯å¼•ç”¨æ£€æµ‹å™¨ï¼Œç”¨äºé˜²æ­¢åœ¨å¤æ‚å¯¹è±¡æ˜ å°„ä¸­å‡ºç°æ— é™é€’å½’ï¼ˆA -> B -> A -> StackOverflowï¼‰ã€‚
+    /// ä½¿ç”¨å¼•ç”¨ç›¸ç­‰ï¼ˆReferenceEqualsï¼‰è¿›è¡Œæ£€æµ‹ï¼Œä»…åœ¨å¤æ‚å¯¹è±¡é€’å½’æ˜ å°„æ—¶å¯ç”¨ã€‚
     /// </summary>
     internal sealed class CircularReferenceDetector : IDisposable
     {
@@ -14,9 +14,9 @@ namespace Ling.Mapper
         private readonly bool _enabled;
 
         /// <summary>
-        /// ´´½¨Ñ­»·ÒıÓÃ¼ì²âÆ÷ÊµÀı¡£
+        /// åˆ›å»ºå¾ªç¯å¼•ç”¨æ£€æµ‹å™¨å®ä¾‹ã€‚
         /// </summary>
-        /// <param name="enabled">ÊÇ·ñÆôÓÃ¼ì²â£¨Ä¬ÈÏ true£©</param>
+        /// <param name="enabled">æ˜¯å¦å¯ç”¨æ£€æµ‹ï¼ˆé»˜è®¤ trueï¼‰</param>
         public CircularReferenceDetector(bool enabled = true)
         {
             _enabled = enabled;
@@ -27,18 +27,18 @@ namespace Ling.Mapper
         }
 
         /// <summary>
-        /// ³¢ÊÔÌí¼ÓÔ´¶ÔÏóµ½¸ú×ÙÁĞ±í¡£
+        /// å°è¯•æ·»åŠ æºå¯¹è±¡åˆ°è·Ÿè¸ªåˆ—è¡¨ã€‚
         /// </summary>
-        /// <param name="source">Ô´¶ÔÏó</param>
-        /// <param name="destination">Ä¿±ê¶ÔÏó</param>
-        /// <returns>Èç¹û¶ÔÏóÒÑ¾­ÔÚ¸ú×ÙÖĞ£¨¼ì²âµ½Ñ­»·£©£¬·µ»Ø false£»·ñÔòÌí¼Ó³É¹¦·µ»Ø true</returns>
+        /// <param name="source">æºå¯¹è±¡</param>
+        /// <param name="destination">ç›®æ ‡å¯¹è±¡</param>
+        /// <returns>å¦‚æœå¯¹è±¡å·²ç»åœ¨è·Ÿè¸ªä¸­ï¼ˆæ£€æµ‹åˆ°å¾ªç¯ï¼‰ï¼Œè¿”å› falseï¼›å¦åˆ™æ·»åŠ æˆåŠŸè¿”å› true</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool TryTrack(object source, object destination)
         {
             if (!_enabled || _trackedObjects == null)
                 return true;
 
-            // Èç¹ûÔ´¶ÔÏóÒÑ¾­ÔÚÓ³ÉäÖĞ£¬ËµÃ÷¼ì²âµ½Ñ­»·ÒıÓÃ
+            // å¦‚æœæºå¯¹è±¡å·²ç»åœ¨æ˜ å°„ä¸­ï¼Œè¯´æ˜æ£€æµ‹åˆ°å¾ªç¯å¼•ç”¨
             if (_trackedObjects.ContainsKey(source))
                 return false;
 
@@ -47,11 +47,11 @@ namespace Ling.Mapper
         }
 
         /// <summary>
-        /// ³¢ÊÔ»ñÈ¡ÒÑÓ³ÉäµÄÄ¿±ê¶ÔÏó£¨ÓÃÓÚ·µ»Ø»º´æµÄ½á¹û£©¡£
+        /// å°è¯•è·å–å·²æ˜ å°„çš„ç›®æ ‡å¯¹è±¡ï¼ˆç”¨äºè¿”å›ç¼“å­˜çš„ç»“æœï¼‰ã€‚
         /// </summary>
-        /// <param name="source">Ô´¶ÔÏó</param>
-        /// <param name="destination">Êä³öµÄÄ¿±ê¶ÔÏó</param>
-        /// <returns>Èç¹ûÕÒµ½·µ»Ø true£¬·ñÔò false</returns>
+        /// <param name="source">æºå¯¹è±¡</param>
+        /// <param name="destination">è¾“å‡ºçš„ç›®æ ‡å¯¹è±¡</param>
+        /// <returns>å¦‚æœæ‰¾åˆ°è¿”å› trueï¼Œå¦åˆ™ false</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool TryGetMapped(object source, out object? destination)
         {
@@ -63,7 +63,7 @@ namespace Ling.Mapper
         }
 
         /// <summary>
-        /// ÇåÀí¸ú×ÙµÄ¶ÔÏó¡£
+        /// æ¸…ç†è·Ÿè¸ªçš„å¯¹è±¡ã€‚
         /// </summary>
         public void Dispose()
         {
@@ -71,7 +71,7 @@ namespace Ling.Mapper
         }
 
         /// <summary>
-        /// ÒıÓÃÏàµÈ±È½ÏÆ÷£¬ÓÃÓÚ Dictionary ¼ü±È½Ï¡£
+        /// å¼•ç”¨ç›¸ç­‰æ¯”è¾ƒå™¨ï¼Œç”¨äº Dictionary é”®æ¯”è¾ƒã€‚
         /// </summary>
         private sealed class ReferenceEqualityComparer : IEqualityComparer<object>
         {

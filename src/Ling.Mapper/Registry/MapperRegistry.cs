@@ -4,8 +4,8 @@ using System.Collections.Concurrent;
 namespace Ling.Mapper
 {
     /// <summary>
-    /// Ó³ÉäÆ÷×¢²á±í£¬ÓÃÓÚÊÖ¶¯×¢²á¸ßĞÔÄÜµÄÓ³ÉäÎ¯ÍĞ¡£
-    /// Ö§³Ö×¢²áÇ¿ÀàĞÍÎ¯ÍĞºÍ°ü×°ºóµÄ object Î¯ÍĞ¡£
+    /// æ˜ å°„å™¨æ³¨å†Œè¡¨ï¼Œç”¨äºæ‰‹åŠ¨æ³¨å†Œé«˜æ€§èƒ½çš„æ˜ å°„å§”æ‰˜ã€‚
+    /// æ”¯æŒæ³¨å†Œå¼ºç±»å‹å§”æ‰˜å’ŒåŒ…è£…åçš„ object å§”æ‰˜ã€‚
     /// </summary>
     public static class MapperRegistry
     {
@@ -13,12 +13,12 @@ namespace Ling.Mapper
         private static readonly ConcurrentDictionary<(Type, Type), Func<object, object?>> _wrapped = new();
 
         /// <summary>
-        /// ×¢²áÇ¿ÀàĞÍÓ³ÉäÎ¯ÍĞ¡£
+        /// æ³¨å†Œå¼ºç±»å‹æ˜ å°„å§”æ‰˜ã€‚
         /// </summary>
-        /// <typeparam name="TSource">Ô´ÀàĞÍ</typeparam>
-        /// <typeparam name="TDestination">Ä¿±êÀàĞÍ</typeparam>
-        /// <param name="func">Ó³Éäº¯Êı</param>
-        /// <exception cref="ArgumentNullException">func Îª null Ê±Å×³ö</exception>
+        /// <typeparam name="TSource">æºç±»å‹</typeparam>
+        /// <typeparam name="TDestination">ç›®æ ‡ç±»å‹</typeparam>
+        /// <param name="func">æ˜ å°„å‡½æ•°</param>
+        /// <exception cref="ArgumentNullException">func ä¸º null æ—¶æŠ›å‡º</exception>
         public static void Register<TSource, TDestination>(Func<TSource, TDestination> func)
         {
             if (func == null) throw new ArgumentNullException(nameof(func));
@@ -28,12 +28,12 @@ namespace Ling.Mapper
         }
 
         /// <summary>
-        /// ×¢²áÀàĞÍÓ³ÉäÎ¯ÍĞ£¨·Ç·ºĞÍ°æ±¾£©¡£
+        /// æ³¨å†Œç±»å‹æ˜ å°„å§”æ‰˜ï¼ˆéæ³›å‹ç‰ˆæœ¬ï¼‰ã€‚
         /// </summary>
-        /// <param name="src">Ô´ÀàĞÍ</param>
-        /// <param name="dest">Ä¿±êÀàĞÍ</param>
-        /// <param name="func">Ó³ÉäÎ¯ÍĞ</param>
-        /// <exception cref="ArgumentNullException">²ÎÊıÎª null Ê±Å×³ö</exception>
+        /// <param name="src">æºç±»å‹</param>
+        /// <param name="dest">ç›®æ ‡ç±»å‹</param>
+        /// <param name="func">æ˜ å°„å§”æ‰˜</param>
+        /// <exception cref="ArgumentNullException">å‚æ•°ä¸º null æ—¶æŠ›å‡º</exception>
         public static void Register(Type src, Type dest, Delegate func)
         {
             if (src == null) throw new ArgumentNullException(nameof(src));
@@ -45,12 +45,12 @@ namespace Ling.Mapper
         }
 
         /// <summary>
-        /// ³¢ÊÔ»ñÈ¡ÒÑ×¢²áµÄÇ¿ÀàĞÍÓ³ÉäÎ¯ÍĞ¡£
+        /// å°è¯•è·å–å·²æ³¨å†Œçš„å¼ºç±»å‹æ˜ å°„å§”æ‰˜ã€‚
         /// </summary>
-        /// <param name="src">Ô´ÀàĞÍ</param>
-        /// <param name="dest">Ä¿±êÀàĞÍ</param>
-        /// <param name="func">Êä³öµÄÓ³ÉäÎ¯ÍĞ</param>
-        /// <returns>ÕÒµ½Ôò·µ»Ø true£¬·ñÔò·µ»Ø false</returns>
+        /// <param name="src">æºç±»å‹</param>
+        /// <param name="dest">ç›®æ ‡ç±»å‹</param>
+        /// <param name="func">è¾“å‡ºçš„æ˜ å°„å§”æ‰˜</param>
+        /// <returns>æ‰¾åˆ°åˆ™è¿”å› trueï¼Œå¦åˆ™è¿”å› false</returns>
         public static bool TryGet(Type src, Type dest, out Delegate? func)
         {
             return _typed.TryGetValue((src, dest), out func);

@@ -9,27 +9,27 @@ using System.Reflection;
 namespace Ling.Mapper
 {
     /// <summary>
-    /// Ó³ÉäÆ÷µÄÄÚ²¿ÊµÏÖÀà v2¡£
-    /// ¸Ä½øÒªµã£º
-    /// 1. ÎŞ²Î¹¹Ôìº¯Êı¼ì²â - ±ÜÃâÔËĞĞÊ±±ÀÀ£
-    /// 2. ¼¯ºÏÓ³ÉäÀàĞÍ×ª»» - ĞŞ¸´¼òµ¥ÀàĞÍÓ³ÉäÂß¼­
-    /// 3. SourceProperty ²éÕÒÓÅ»¯ - O(n?) ¡ú O(1)
-    /// 4. MappingExpressionBase ·´Éä»º´æ - ±ÜÃâÖØ¸´ GetField
-    /// 5. ConvertSimpleType ²ğ·Ö - Ìá¸ß¿ÉÎ¬»¤ĞÔºÍ JIT ÓÅ»¯
-    /// 6. Ñ­»·ÒıÓÃ±£»¤ - ·ÀÖ¹ StackOverflow
-    /// 7. wrapper Î¯ÍĞÍ³Ò»Â·¾¶ - ±ÜÃâ DynamicInvoke
-    /// 8. Source Generator ÓÑºÃ - Ã÷È·¶ÌÂ·Âß¼­
+    /// æ˜ å°„å™¨çš„å†…éƒ¨å®ç°ç±» v2ã€‚
+    /// æ”¹è¿›è¦ç‚¹ï¼š
+    /// 1. æ— å‚æ„é€ å‡½æ•°æ£€æµ‹ - é¿å…è¿è¡Œæ—¶å´©æºƒ
+    /// 2. é›†åˆæ˜ å°„ç±»å‹è½¬æ¢ - ä¿®å¤ç®€å•ç±»å‹æ˜ å°„é€»è¾‘
+    /// 3. SourceProperty æŸ¥æ‰¾ä¼˜åŒ– - O(n?) â†’ O(1)
+    /// 4. MappingExpressionBase åå°„ç¼“å­˜ - é¿å…é‡å¤ GetField
+    /// 5. ConvertSimpleType æ‹†åˆ† - æé«˜å¯ç»´æŠ¤æ€§å’Œ JIT ä¼˜åŒ–
+    /// 6. å¾ªç¯å¼•ç”¨ä¿æŠ¤ - é˜²æ­¢ StackOverflow
+    /// 7. wrapper å§”æ‰˜ç»Ÿä¸€è·¯å¾„ - é¿å… DynamicInvoke
+    /// 8. Source Generator å‹å¥½ - æ˜ç¡®çŸ­è·¯é€»è¾‘
     /// </summary>
     internal class Mapper : IMapper
     {
         private readonly MapperConfiguration _config;
         private readonly ConcurrentDictionary<(Type, Type), Delegate> _compiledMappers = new();
         
-        // v2 FIX: Ìí¼Ó±àÒëÆÚµİ¹é±£»¤£¬·ÀÖ¹ÔÚ±àÒëÓ³ÉäÊ±ÎŞÏŞµİ¹é
+        // v2 FIX: æ·»åŠ ç¼–è¯‘æœŸé€’å½’ä¿æŠ¤ï¼Œé˜²æ­¢åœ¨ç¼–è¯‘æ˜ å°„æ—¶æ— é™é€’å½’
         private readonly ThreadLocal<HashSet<(Type, Type)>> _compilingMappers = 
             new ThreadLocal<HashSet<(Type, Type)>>(() => new HashSet<(Type, Type)>());
         
-        // v2.1.3 FIX: Ìí¼ÓÔËĞĞÊ±Ñ­»·ÒıÓÃ¼ì²â£¬·ÀÖ¹¶ÔÏóÊµÀıÖ®¼äµÄÑ­»·ÒıÓÃ
+        // v2.1.3 FIX: æ·»åŠ è¿è¡Œæ—¶å¾ªç¯å¼•ç”¨æ£€æµ‹ï¼Œé˜²æ­¢å¯¹è±¡å®ä¾‹ä¹‹é—´çš„å¾ªç¯å¼•ç”¨
         private readonly ThreadLocal<Dictionary<object, object>> _mappingContext = 
             new ThreadLocal<Dictionary<object, object>>(() => new Dictionary<object, object>(ReferenceEqualityComparer.Instance));
 
@@ -59,16 +59,16 @@ namespace Ling.Mapper
                 return (TDestination?)objFunc(source!);
             }
 
-            // v2: wrapper Ó¦ÎªÎ¨Ò»Â·¾¶£¬´Ë´¦½ö×÷¶µµ×£¨ÀíÂÛÉÏ²»Ó¦µ½´ï£©
+            // v2: wrapper åº”ä¸ºå”¯ä¸€è·¯å¾„ï¼Œæ­¤å¤„ä»…ä½œå…œåº•ï¼ˆç†è®ºä¸Šä¸åº”åˆ°è¾¾ï¼‰
             return (TDestination?)del.DynamicInvoke(source!);
         }
 
         public object? Map(object? source, Type sourceType, Type destType)
         {
-            // v2 FIX: ÖµÀàĞÍÄ¿±ê + source == null ĞĞÎªÃ÷È·
+            // v2 FIX: å€¼ç±»å‹ç›®æ ‡ + source == null è¡Œä¸ºæ˜ç¡®
             if (source == null)
             {
-                // Èç¹ûÄ¿±êÀàĞÍÊÇ·Ç¿É¿ÕÖµÀàĞÍ£¬·µ»ØÄ¬ÈÏÖµ
+                // å¦‚æœç›®æ ‡ç±»å‹æ˜¯éå¯ç©ºå€¼ç±»å‹ï¼Œè¿”å›é»˜è®¤å€¼
                 if (destType.IsValueType && Nullable.GetUnderlyingType(destType) == null)
                 {
                     return Activator.CreateInstance(destType);
@@ -76,7 +76,7 @@ namespace Ling.Mapper
                 return null;
             }
             
-            // v2.1.3 FIX: ÔËĞĞÊ±Ñ­»·ÒıÓÃ¼ì²â£¨½ö¶ÔÒıÓÃÀàĞÍ£©
+            // v2.1.3 FIX: è¿è¡Œæ—¶å¾ªç¯å¼•ç”¨æ£€æµ‹ï¼ˆä»…å¯¹å¼•ç”¨ç±»å‹ï¼‰
             if (!sourceType.IsValueType && !TypeUtils.IsSimple(sourceType))
             {
                 var context = _mappingContext.Value;
@@ -86,13 +86,13 @@ namespace Ling.Mapper
                     _mappingContext.Value = context;
                 }
                 
-                // ¼ì²éÊÇ·ñÒÑ¾­ÔÚÓ³ÉäÕâ¸ö¶ÔÏóÊµÀı
+                // æ£€æŸ¥æ˜¯å¦å·²ç»åœ¨æ˜ å°„è¿™ä¸ªå¯¹è±¡å®ä¾‹
                 if (context.TryGetValue(source, out var existingResult))
                 {
-                    return existingResult;  // ·µ»ØÒÑÓ³ÉäµÄ¶ÔÏó£¬´òÆÆÑ­»·
+                    return existingResult;  // è¿”å›å·²æ˜ å°„çš„å¯¹è±¡ï¼Œæ‰“ç ´å¾ªç¯
                 }
                 
-                // ±ê¼ÇÕıÔÚÓ³Éä£¨ÏÈÌí¼Ó null Õ¼Î»·û£©
+                // æ ‡è®°æ­£åœ¨æ˜ å°„ï¼ˆå…ˆæ·»åŠ  null å ä½ç¬¦ï¼‰
                 context[source] = null!;
                 
                 try
@@ -109,18 +109,18 @@ namespace Ling.Mapper
                         result = del.DynamicInvoke(source);
                     }
                     
-                    // ¸üĞÂÎªÊµ¼ÊÓ³Éä½á¹û
+                    // æ›´æ–°ä¸ºå®é™…æ˜ å°„ç»“æœ
                     context[source] = result!;
                     return result;
                 }
                 finally
                 {
-                    // Ó³ÉäÍê³ÉºóÇåÀí£¨¿ÉÑ¡£¬µ«ÎªÁË±ÜÃâÄÚ´æĞ¹Â©£©
-                    // ×¢Òâ£º²»ÒªÔÚÕâÀïÒÆ³ı£¬ÒòÎª¿ÉÄÜ»¹ÓĞÇ¶Ì×Ó³ÉäÔÚÊ¹ÓÃ
+                    // æ˜ å°„å®Œæˆåæ¸…ç†ï¼ˆå¯é€‰ï¼Œä½†ä¸ºäº†é¿å…å†…å­˜æ³„æ¼ï¼‰
+                    // æ³¨æ„ï¼šä¸è¦åœ¨è¿™é‡Œç§»é™¤ï¼Œå› ä¸ºå¯èƒ½è¿˜æœ‰åµŒå¥—æ˜ å°„åœ¨ä½¿ç”¨
                 }
             }
 
-            // ¼òµ¥ÀàĞÍ»òÖµÀàĞÍ£¬Ö±½ÓÓ³Éä£¨ÎŞĞèÑ­»·¼ì²â£©
+            // ç®€å•ç±»å‹æˆ–å€¼ç±»å‹ï¼Œç›´æ¥æ˜ å°„ï¼ˆæ— éœ€å¾ªç¯æ£€æµ‹ï¼‰
             var del2 = GetOrCompileMapper(sourceType, destType, null);
             if (del2 is Func<object, object?> objFunc2)
             {
@@ -134,13 +134,13 @@ namespace Ling.Mapper
         {
             var key = (src, dest);
             
-            // v2 FIX: ÓÅÏÈ´Ó»º´æ¼ì²é£¨±ÜÃâ²»±ØÒªµÄµİ¹é¼ì²â£©
+            // v2 FIX: ä¼˜å…ˆä»ç¼“å­˜æ£€æŸ¥ï¼ˆé¿å…ä¸å¿…è¦çš„é€’å½’æ£€æµ‹ï¼‰
             if (_compiledMappers.TryGetValue(key, out var existingMapper))
             {
                 return existingMapper;
             }
             
-            // v2 FIX: µİ¹é¼ì²é£¨ÔÚ GetOrAdd Ö®Ç°£©
+            // v2 FIX: é€’å½’æ£€æŸ¥ï¼ˆåœ¨ GetOrAdd ä¹‹å‰ï¼‰
             var compilingSet = _compilingMappers.Value;
             if (compilingSet == null)
             {
@@ -148,15 +148,15 @@ namespace Ling.Mapper
                 _compilingMappers.Value = compilingSet;
             }
             
-            // Èç¹ûÕıÔÚ±àÒëÏàÍ¬µÄÓ³Éä£¬Á¢¼´·µ»ØÑÓ³Ù½âÎöµÄ wrapper
+            // å¦‚æœæ­£åœ¨ç¼–è¯‘ç›¸åŒçš„æ˜ å°„ï¼Œç«‹å³è¿”å›å»¶è¿Ÿè§£æçš„ wrapper
             if (compilingSet.Contains(key))
             {
-                // ¼ì²âµ½µİ¹é£º·µ»ØÒ»¸ö wrapper£¬ËüÔÚÔËĞĞÊ±ÔÙ´Î²éÕÒÓ³Éä
+                // æ£€æµ‹åˆ°é€’å½’ï¼šè¿”å›ä¸€ä¸ª wrapperï¼Œå®ƒåœ¨è¿è¡Œæ—¶å†æ¬¡æŸ¥æ‰¾æ˜ å°„
                 return new Func<object, object?>(srcObj =>
                 {
                     if (srcObj == null) return null;
                     
-                    // ÔËĞĞÊ±µİ¹é²éÕÒ£¨´ËÊ±Ó³ÉäÒÑ±àÒëÍê³É£©
+                    // è¿è¡Œæ—¶é€’å½’æŸ¥æ‰¾ï¼ˆæ­¤æ—¶æ˜ å°„å·²ç¼–è¯‘å®Œæˆï¼‰
                     if (_compiledMappers.TryGetValue(key, out var mapper))
                     {
                         if (mapper is Func<object, object?> func)
@@ -164,12 +164,12 @@ namespace Ling.Mapper
                         return mapper.DynamicInvoke(srcObj);
                     }
                     
-                    // Èç¹ûÓ³Éä»¹Î´Íê³É£¬·µ»Ø null£¨±ÜÃâÎŞÏŞµÈ´ı£©
+                    // å¦‚æœæ˜ å°„è¿˜æœªå®Œæˆï¼Œè¿”å› nullï¼ˆé¿å…æ— é™ç­‰å¾…ï¼‰
                     return null;
                 });
             }
             
-            // ¼ì²éµİ¹éÉî¶È£¨·ÀÖ¹¼«¶ËÇé¿ö£©
+            // æ£€æŸ¥é€’å½’æ·±åº¦ï¼ˆé˜²æ­¢æç«¯æƒ…å†µï¼‰
             if (compilingSet.Count > 50)
             {
                 throw new InvalidOperationException(
@@ -179,39 +179,39 @@ namespace Ling.Mapper
                     $"Compilation stack: {string.Join(" -> ", compilingSet.Select(t => $"{t.Item1.Name}->{t.Item2.Name}"))}");
             }
             
-            // ±ê¼ÇÕıÔÚ±àÒë
+            // æ ‡è®°æ­£åœ¨ç¼–è¯‘
             compilingSet.Add(key);
             
             try
             {
-                // ÔÙ´Î¼ì²é»º´æ£¨Ë«ÖØ¼ì²éËø¶¨Ä£Ê½£©
+                // å†æ¬¡æ£€æŸ¥ç¼“å­˜ï¼ˆåŒé‡æ£€æŸ¥é”å®šæ¨¡å¼ï¼‰
                 if (_compiledMappers.TryGetValue(key, out var cachedMapper))
                 {
                     return cachedMapper;
                 }
                 
-                // ÏÖÔÚ²Å½øÈë GetOrAdd£¬´ËÊ±ÒÑ¾­ÓĞµİ¹é±£»¤
+                // ç°åœ¨æ‰è¿›å…¥ GetOrAddï¼Œæ­¤æ—¶å·²ç»æœ‰é€’å½’ä¿æŠ¤
                 return _compiledMappers.GetOrAdd(key, k =>
                 {
-                    // v2: Ã÷È· Source Generator ¶ÌÂ·Âß¼­ - ÍêÈ«ÈÆ¹ı Expression Tree
+                    // v2: æ˜ç¡® Source Generator çŸ­è·¯é€»è¾‘ - å®Œå…¨ç»•è¿‡ Expression Tree
                     if (TryGetGeneratedMapper(k.Item1, k.Item2, out var generatedMapper))
                     {
                         return generatedMapper!;
                     }
 
-                    // 0) ÓÃ»§ÊÖ¶¯×¢²áµÄ wrapper£¨×î¸ßÓÅÏÈ¼¶£©
+                    // 0) ç”¨æˆ·æ‰‹åŠ¨æ³¨å†Œçš„ wrapperï¼ˆæœ€é«˜ä¼˜å…ˆçº§ï¼‰
                     if (MapperRegistry.TryGetWrapper(k.Item1, k.Item2, out var wrapper) && wrapper != null)
                         return wrapper;
 
-                    // 0.5) ÓÃ»§×¢²áµÄÇ¿ÀàĞÍÎ¯ÍĞ
+                    // 0.5) ç”¨æˆ·æ³¨å†Œçš„å¼ºç±»å‹å§”æ‰˜
                     if (MapperRegistry.TryGet(k.Item1, k.Item2, out var reg) && reg != null)
                     {
                         if (reg is Func<object, object?> fo) return fo;
-                        // v2: ´´½¨ wrapper ±ÜÃâÔËĞĞÊ± DynamicInvoke
+                        // v2: åˆ›å»º wrapper é¿å…è¿è¡Œæ—¶ DynamicInvoke
                         return new Func<object, object?>(o => (object?)reg!.DynamicInvoke(o));
                     }
 
-                    // »ØÍËµ½ÔËĞĞÊ±±àÒë
+                    // å›é€€åˆ°è¿è¡Œæ—¶ç¼–è¯‘
                     var cfg = config ?? _config.Configs.FirstOrDefault(
                         c => c.SourceType == k.Item1 && c.DestType == k.Item2);
 
@@ -220,13 +220,13 @@ namespace Ling.Mapper
             }
             finally
             {
-                // ±àÒëÍê³Éºó£¬´Ó¼¯ºÏÖĞÒÆ³ı
+                // ç¼–è¯‘å®Œæˆåï¼Œä»é›†åˆä¸­ç§»é™¤
                 compilingSet.Remove(key);
             }
         }
 
         /// <summary>
-        /// v2: ÌáÈ¡ Source Generator ²éÕÒÂß¼­Îª¶ÀÁ¢·½·¨£¬Ã÷È·¶ÌÂ·Â·¾¶
+        /// v2: æå– Source Generator æŸ¥æ‰¾é€»è¾‘ä¸ºç‹¬ç«‹æ–¹æ³•ï¼Œæ˜ç¡®çŸ­è·¯è·¯å¾„
         /// </summary>
         private bool TryGetGeneratedMapper(Type srcType, Type destType, out Delegate? mapper)
         {
@@ -256,7 +256,7 @@ namespace Ling.Mapper
             }
             catch
             {
-                // ºöÂÔ·´ÉäÒì³£
+                // å¿½ç•¥åå°„å¼‚å¸¸
             }
 
             return false;
@@ -264,11 +264,11 @@ namespace Ling.Mapper
 
         private Delegate CompileMapper(Type srcType, Type destType, IMappingConfig? cfg)
         {
-            // v2 FIX 1: ¼ì²âÎŞ²Î¹¹Ôìº¯Êı
+            // v2 FIX 1: æ£€æµ‹æ— å‚æ„é€ å‡½æ•°
             var destCtor = destType.GetConstructor(Type.EmptyTypes);
             if (destCtor == null && !destType.IsValueType)
             {
-                // Ä¿±êÀàĞÍÎŞÎŞ²Î¹¹Ôìº¯Êı
+                // ç›®æ ‡ç±»å‹æ— æ— å‚æ„é€ å‡½æ•°
                 if (_config.StrictMode)
                 {
                     throw new InvalidOperationException(
@@ -277,7 +277,7 @@ namespace Ling.Mapper
                         $"Consider adding a parameterless constructor or using StrictMode=false.");
                 }
 
-                // StrictMode = false: ·µ»Ø null wrapper
+                // StrictMode = false: è¿”å› null wrapper
                 return new Func<object, object?>(src => null);
             }
 
@@ -297,46 +297,46 @@ namespace Ling.Mapper
                 .Where(p => p.CanRead)
                 .ToList();
 
-            // v2 FIX 4: ¹¹½¨Ô´ÊôĞÔ×Öµä£¬ÓÅ»¯²éÕÒĞÔÄÜ O(n) ¡ú O(1)
+            // v2 FIX 4: æ„å»ºæºå±æ€§å­—å…¸ï¼Œä¼˜åŒ–æŸ¥æ‰¾æ€§èƒ½ O(n) â†’ O(1)
             var srcPropMap = BuildSourcePropertyMap(srcProps, options);
 
             MappingExpressionBase? mappingExprBase = null;
             if (cfg != null)
                 mappingExprBase = new MappingExpressionBase(cfg.ExpressionObject);
 
-            // ±éÀúÄ¿±êÊôĞÔ²¢ÎªÃ¿¸öÊôĞÔÉú³É¸³Öµ±í´ïÊ½£¨Èç¹ûÓĞ¶ÔÓ¦À´Ô´»ò×Ô¶¨ÒåÓ³Éä£©
+            // éå†ç›®æ ‡å±æ€§å¹¶ä¸ºæ¯ä¸ªå±æ€§ç”Ÿæˆèµ‹å€¼è¡¨è¾¾å¼ï¼ˆå¦‚æœæœ‰å¯¹åº”æ¥æºæˆ–è‡ªå®šä¹‰æ˜ å°„ï¼‰
             foreach (var dp in destProps)
             {
-                // v2 FIX: Ìø¹ıË÷ÒıÆ÷ÊôĞÔ£¨Èç this[int index]£©
+                // v2 FIX: è·³è¿‡ç´¢å¼•å™¨å±æ€§ï¼ˆå¦‚ this[int index]ï¼‰
                 if (dp.GetIndexParameters().Length > 0)
                     continue;
                 
                 if (mappingExprBase?.IsIgnored(dp.Name) == true)
-                    continue; // ±» Ignore µÄÊôĞÔÌø¹ı
+                    continue; // è¢« Ignore çš„å±æ€§è·³è¿‡
 
                 Expression? valueExpr = null;
 
-                // ÓÅÏÈÊ¹ÓÃ ForMember ÅäÖÃµÄ×Ô¶¨Òå°ó¶¨±í´ïÊ½
+                // ä¼˜å…ˆä½¿ç”¨ ForMember é…ç½®çš„è‡ªå®šä¹‰ç»‘å®šè¡¨è¾¾å¼
                 if (mappingExprBase?.TryGetCustomBinding(dp.Name, out var customLambda) == true)
                 {
                     if (customLambda != null) valueExpr = Expression.Invoke(customLambda, srcParam);
                 }
                 else
                 {
-                    // ¸ù¾İ Rename ÅäÖÃ»òÄ¬ÈÏÍ¬Ãû¹æÔòÕÒµ½Ô´ÊôĞÔ
+                    // æ ¹æ® Rename é…ç½®æˆ–é»˜è®¤åŒåè§„åˆ™æ‰¾åˆ°æºå±æ€§
                     var srcName = mappingExprBase?.GetRenamedSource(dp.Name) ?? dp.Name;
-                    // v2: Ê¹ÓÃ×Öµä²éÕÒ£¬ĞÔÄÜÌáÉı
+                    // v2: ä½¿ç”¨å­—å…¸æŸ¥æ‰¾ï¼Œæ€§èƒ½æå‡
                     var sp = FindSourcePropertyFromMap(srcPropMap, srcName, options);
 
                     if (sp != null)
                     {
-                        // v2 FIX: Ìø¹ıË÷ÒıÆ÷ÊôĞÔ
+                        // v2 FIX: è·³è¿‡ç´¢å¼•å™¨å±æ€§
                         if (sp.GetIndexParameters().Length > 0)
                             continue;
                         
                         var srcAccess = Expression.Property(srcParam, sp);
 
-                        // Èç¹û´æÔÚÀàĞÍ×ª»»Æ÷ÓÅÏÈµ÷ÓÃ×ª»»Æ÷
+                        // å¦‚æœå­˜åœ¨ç±»å‹è½¬æ¢å™¨ä¼˜å…ˆè°ƒç”¨è½¬æ¢å™¨
                         if (TypeConverterRegistry.TryGet(sp.PropertyType, dp.PropertyType, out var converterDel))
                         {
                             var delConst = Expression.Constant(converterDel);
@@ -345,12 +345,12 @@ namespace Ling.Mapper
                         }
                         else if (TypeUtils.IsSimple(dp.PropertyType) && TypeUtils.IsSimple(sp.PropertyType))
                         {
-                            // v2 FIX 5: Ê¹ÓÃ²ğ·ÖºóµÄÀàĞÍ×ª»»·½·¨
+                            // v2 FIX 5: ä½¿ç”¨æ‹†åˆ†åçš„ç±»å‹è½¬æ¢æ–¹æ³•
                             valueExpr = ConvertSimpleType(srcAccess, sp.PropertyType, dp.PropertyType);
                         }
                         else if (TypeUtils.IsCollection(dp.PropertyType))
                         {
-                            // ¼¯ºÏÀàĞÍÊ¹ÓÃÄÚ²¿ MapCollectionInternal À´´¦ÀíÔªËØÓ³Éä
+                            // é›†åˆç±»å‹ä½¿ç”¨å†…éƒ¨ MapCollectionInternal æ¥å¤„ç†å…ƒç´ æ˜ å°„
                             var mapCollMethod = typeof(Mapper).GetMethod(nameof(MapCollectionInternal), BindingFlags.NonPublic | BindingFlags.Instance);
                             if (mapCollMethod != null)
                                 valueExpr = Expression.Convert(
@@ -359,7 +359,7 @@ namespace Ling.Mapper
                         }
                         else
                         {
-                            // ¸´ÔÓÀàĞÍµİ¹éµ÷ÓÃ Map(object, Type, Type)
+                            // å¤æ‚ç±»å‹é€’å½’è°ƒç”¨ Map(object, Type, Type)
                             var mapMethod = typeof(Mapper).GetMethod(nameof(Map), new[] { typeof(object), typeof(Type), typeof(Type) });
                             if (mapMethod != null)
                                 valueExpr = Expression.Convert(
@@ -369,7 +369,7 @@ namespace Ling.Mapper
                     }
                     else
                     {
-                        // Î´ÕÒµ½Ô´ÊôĞÔÇÒÔÚ StrictMode ÏÂÅ×³öÒì³£ÒÔ°ïÖú·¢ÏÖÓ³ÉäÎÊÌâ
+                        // æœªæ‰¾åˆ°æºå±æ€§ä¸”åœ¨ StrictMode ä¸‹æŠ›å‡ºå¼‚å¸¸ä»¥å¸®åŠ©å‘ç°æ˜ å°„é—®é¢˜
                         if (_config.StrictMode)
                         {
                             throw new InvalidOperationException($"No source property found for destination '{dp.Name}' when mapping {srcType} -> {destType}");
@@ -384,27 +384,27 @@ namespace Ling.Mapper
                 }
             }
 
-            // ±í´ïÊ½Ìå×îºó·µ»ØÄ¿±ê¶ÔÏó dest
+            // è¡¨è¾¾å¼ä½“æœ€åè¿”å›ç›®æ ‡å¯¹è±¡ dest
             bodyExprs.Add(destVar);
 
             var typedBody = Expression.Block(new[] { destVar }, bodyExprs);
-            // ´´½¨Ç¿ÀàĞÍµÄ Lambda£¨Î´Ö¸¶¨·ºĞÍÎ¯ÍĞÀàĞÍ£¬Ê¹ÆäÍ¨ÓÃ£©
+            // åˆ›å»ºå¼ºç±»å‹çš„ Lambdaï¼ˆæœªæŒ‡å®šæ³›å‹å§”æ‰˜ç±»å‹ï¼Œä½¿å…¶é€šç”¨ï¼‰
             var typedLambda = Expression.Lambda(typedBody, srcParam);
 
-            // v2: È·±£·µ»Ø wrapper£¬Í³Ò»ÔËĞĞÂ·¾¶
+            // v2: ç¡®ä¿è¿”å› wrapperï¼Œç»Ÿä¸€è¿è¡Œè·¯å¾„
             var objParam = Expression.Parameter(typeof(object), "srcObj");
             var invokeTyped = Expression.Invoke(typedLambda, Expression.Convert(objParam, srcType));
             var convertResult = Expression.Convert(invokeTyped, typeof(object));
             var wrapperLambda = Expression.Lambda<Func<object, object?>>(convertResult, objParam);
 
-            // ½« wrapper ±àÒëÎªÎ¯ÍĞ²¢·µ»Ø¡£ÕâÑùÔËĞĞÊ±µ÷ÓÃÖ»ĞèÖ±½Óµ÷ÓÃ wrapper£¬ÎŞĞè DynamicInvoke¡£
+            // å°† wrapper ç¼–è¯‘ä¸ºå§”æ‰˜å¹¶è¿”å›ã€‚è¿™æ ·è¿è¡Œæ—¶è°ƒç”¨åªéœ€ç›´æ¥è°ƒç”¨ wrapperï¼Œæ— éœ€ DynamicInvokeã€‚
             var wrapper = wrapperLambda.Compile();
 
             return wrapper;
         }
 
         /// <summary>
-        /// v2 NEW: ¹¹½¨Ô´ÊôĞÔ×Öµä£¬ÓÅ»¯²éÕÒĞÔÄÜ
+        /// v2 NEW: æ„å»ºæºå±æ€§å­—å…¸ï¼Œä¼˜åŒ–æŸ¥æ‰¾æ€§èƒ½
         /// </summary>
         private Dictionary<string, PropertyInfo> BuildSourcePropertyMap(
             List<PropertyInfo> srcProps,
@@ -414,12 +414,12 @@ namespace Ling.Mapper
             
             foreach (var sp in srcProps)
             {
-                // v2 FIX: Ìø¹ıË÷ÒıÆ÷ÊôĞÔ£¨Èç this[int index]£©
+                // v2 FIX: è·³è¿‡ç´¢å¼•å™¨å±æ€§ï¼ˆå¦‚ this[int index]ï¼‰
                 if (sp.GetIndexParameters().Length > 0)
                     continue;
                 
                 var normalizedName = NormalizeName(sp.Name, options);
-                // Èç¹ûÓĞÖØ¸´µÄ¹æ·¶»¯Ãû³Æ£¬±£ÁôµÚÒ»¸ö
+                // å¦‚æœæœ‰é‡å¤çš„è§„èŒƒåŒ–åç§°ï¼Œä¿ç•™ç¬¬ä¸€ä¸ª
                 if (!map.ContainsKey(normalizedName))
                 {
                     map[normalizedName] = sp;
@@ -430,7 +430,7 @@ namespace Ling.Mapper
         }
 
         /// <summary>
-        /// v2 NEW: ´Ó×ÖµäÖĞ²éÕÒÔ´ÊôĞÔ£¬O(1) ¸´ÔÓ¶È
+        /// v2 NEW: ä»å­—å…¸ä¸­æŸ¥æ‰¾æºå±æ€§ï¼ŒO(1) å¤æ‚åº¦
         /// </summary>
         private PropertyInfo? FindSourcePropertyFromMap(
             Dictionary<string, PropertyInfo> srcPropMap,
@@ -463,8 +463,8 @@ namespace Ling.Mapper
         }
 
         /// <summary>
-        /// v2 FIX 5: ²ğ·ÖºóµÄÀàĞÍ×ª»»·½·¨£¬Ìá¸ß¿ÉÎ¬»¤ĞÔºÍ JIT ÓÅ»¯
-        /// Ê¹ÓÃ TypeConversionHelper ´¦Àí¾ßÌå×ª»»Âß¼­
+        /// v2 FIX 5: æ‹†åˆ†åçš„ç±»å‹è½¬æ¢æ–¹æ³•ï¼Œæé«˜å¯ç»´æŠ¤æ€§å’Œ JIT ä¼˜åŒ–
+        /// ä½¿ç”¨ TypeConversionHelper å¤„ç†å…·ä½“è½¬æ¢é€»è¾‘
         /// </summary>
         private Expression ConvertSimpleType(Expression srcAccess, Type srcType, Type destType)
         {
@@ -474,13 +474,13 @@ namespace Ling.Mapper
             var srcIsNullable = Nullable.GetUnderlyingType(srcType) != null;
             var destIsNullable = Nullable.GetUnderlyingType(destType) != null;
 
-            // ÀàĞÍÍêÈ«ÏàÍ¬
+            // ç±»å‹å®Œå…¨ç›¸åŒ
             if (srcType == destType)
             {
                 return srcAccess;
             }
 
-            // v2: ³¢ÊÔÃ¶¾Ù×ª»»
+            // v2: å°è¯•æšä¸¾è½¬æ¢
             var enumResult = TypeConversionHelper.TryConvertEnum(
                 srcAccess, srcType, destType,
                 srcUnderlyingType, destUnderlyingType,
@@ -489,7 +489,7 @@ namespace Ling.Mapper
             if (enumResult != null)
                 return enumResult;
 
-            // v2: ³¢ÊÔ¿É¿ÕÀàĞÍ×ª»»
+            // v2: å°è¯•å¯ç©ºç±»å‹è½¬æ¢
             var nullableResult = TypeConversionHelper.TryConvertNullable(
                 srcAccess, srcType, destType,
                 srcUnderlyingType, destUnderlyingType,
@@ -498,19 +498,19 @@ namespace Ling.Mapper
             if (nullableResult != null)
                 return nullableResult;
 
-            // v2: ¼òµ¥ÀàĞÍÖ®¼äµÄÖ±½Ó×ª»»£¨T -> U£©
+            // v2: ç®€å•ç±»å‹ä¹‹é—´çš„ç›´æ¥è½¬æ¢ï¼ˆT -> Uï¼‰
             if (!srcIsNullable && !destIsNullable && srcUnderlyingType != destUnderlyingType)
             {
                 return TypeConversionHelper.ConvertSimpleCast(srcAccess, destType);
             }
 
-            // Ä¬ÈÏ£ºÖ±½Ó×ª»»
+            // é»˜è®¤ï¼šç›´æ¥è½¬æ¢
             return TypeConversionHelper.ConvertSimpleCast(srcAccess, destType);
         }
 
         /// <summary>
-        /// v2 FIX 2: ĞŞ¸´¼¯ºÏÓ³ÉäÖĞ¼òµ¥ÀàĞÍ´¦ÀíÂß¼­
-        /// È·±£ËùÓĞÔªËØ¶¼¾­¹ıÀàĞÍ×ª»»£¬Óë·Ç¼¯ºÏÓ³ÉäĞĞÎªÒ»ÖÂ
+        /// v2 FIX 2: ä¿®å¤é›†åˆæ˜ å°„ä¸­ç®€å•ç±»å‹å¤„ç†é€»è¾‘
+        /// ç¡®ä¿æ‰€æœ‰å…ƒç´ éƒ½ç»è¿‡ç±»å‹è½¬æ¢ï¼Œä¸éé›†åˆæ˜ å°„è¡Œä¸ºä¸€è‡´
         /// </summary>
         private object? MapCollectionInternal(object? srcCollection, Type srcType, Type destType)
         {
@@ -532,8 +532,8 @@ namespace Ling.Mapper
                         continue;
                     }
 
-                    // v2 FIX: ¼´Ê¹ÊÇ¼òµ¥ÀàĞÍ£¬Ò²ĞèÒª¾­¹ıÀàĞÍ×ª»»
-                    // ÀıÈç£ºint -> long, enum -> int, string -> enum µÈ
+                    // v2 FIX: å³ä½¿æ˜¯ç®€å•ç±»å‹ï¼Œä¹Ÿéœ€è¦ç»è¿‡ç±»å‹è½¬æ¢
+                    // ä¾‹å¦‚ï¼šint -> long, enum -> int, string -> enum ç­‰
                     if (srcElementType != null)
                     {
                         var mapped = Map(item, srcElementType, destElementType);
@@ -541,7 +541,7 @@ namespace Ling.Mapper
                     }
                     else
                     {
-                        // ÎŞ·¨È·¶¨Ô´ÔªËØÀàĞÍÊ±£¬Ê¹ÓÃÔËĞĞÊ±ÀàĞÍ
+                        // æ— æ³•ç¡®å®šæºå…ƒç´ ç±»å‹æ—¶ï¼Œä½¿ç”¨è¿è¡Œæ—¶ç±»å‹
                         var itemType = item.GetType();
                         var mapped = Map(item, itemType, destElementType);
                         destList.Add(mapped);
@@ -558,14 +558,14 @@ namespace Ling.Mapper
         }
 
         /// <summary>
-        /// v2 FIX 4: ÓÅ»¯ºóµÄ MappingExpressionBase£¬»º´æ·´Éä×Ö¶Î
+        /// v2 FIX 4: ä¼˜åŒ–åçš„ MappingExpressionBaseï¼Œç¼“å­˜åå°„å­—æ®µ
         /// </summary>
         private class MappingExpressionBase
         {
             private readonly object _exprObj;
             private readonly Type _exprType;
 
-            // v2: »º´æ·´Éä×Ö¶Î£¬±ÜÃâÖØ¸´ GetField
+            // v2: ç¼“å­˜åå°„å­—æ®µï¼Œé¿å…é‡å¤ GetField
             private readonly FieldInfo? _ignoredMembersField;
             private readonly FieldInfo? _customMemberBindingsField;
             private readonly FieldInfo? _renamedMembersField;
@@ -575,7 +575,7 @@ namespace Ling.Mapper
                 _exprObj = exprObj ?? throw new ArgumentNullException(nameof(exprObj));
                 _exprType = exprObj.GetType();
 
-                // v2: ÔÚ¹¹Ôìº¯ÊıÖĞ»º´æ×Ö¶ÎĞÅÏ¢
+                // v2: åœ¨æ„é€ å‡½æ•°ä¸­ç¼“å­˜å­—æ®µä¿¡æ¯
                 _ignoredMembersField = _exprType.GetField("IgnoredMembers", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
                 _customMemberBindingsField = _exprType.GetField("CustomMemberBindings", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
                 _renamedMembersField = _exprType.GetField("RenamedMembers", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
@@ -583,7 +583,7 @@ namespace Ling.Mapper
 
             public bool IsIgnored(string destName)
             {
-                // v2: Ê¹ÓÃ»º´æµÄ×Ö¶Î
+                // v2: ä½¿ç”¨ç¼“å­˜çš„å­—æ®µ
                 var set = _ignoredMembersField?.GetValue(_exprObj) as System.Collections.IEnumerable;
                 if (set == null) return false;
 
@@ -598,7 +598,7 @@ namespace Ling.Mapper
 
             public bool TryGetCustomBinding(string destName, out LambdaExpression? lambda)
             {
-                // v2: Ê¹ÓÃ»º´æµÄ×Ö¶Î
+                // v2: ä½¿ç”¨ç¼“å­˜çš„å­—æ®µ
                 var dict = _customMemberBindingsField?.GetValue(_exprObj) as System.Collections.IDictionary;
                 lambda = null;
                 if (dict == null) return false;
@@ -617,7 +617,7 @@ namespace Ling.Mapper
 
             public string? GetRenamedSource(string destName)
             {
-                // v2: Ê¹ÓÃ»º´æµÄ×Ö¶Î
+                // v2: ä½¿ç”¨ç¼“å­˜çš„å­—æ®µ
                 var dict = _renamedMembersField?.GetValue(_exprObj) as System.Collections.IDictionary;
                 if (dict == null) return null;
 

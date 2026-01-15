@@ -5,8 +5,8 @@ using System.Linq;
 namespace Ling.Mapper
 {
     /// <summary>
-    /// ÀàĞÍÏà¹ØµÄ¹¤¾ß·½·¨¼¯ºÏ¡£
-    /// Ìá¹©¼òµ¥ÀàĞÍÅĞ¶Ï¡¢¼¯ºÏÀàĞÍÅĞ¶ÏÒÔ¼°¼¯ºÏÔªËØÀàĞÍ»ñÈ¡µÈ¹¦ÄÜ¡£
+    /// ç±»å‹ç›¸å…³çš„å·¥å…·æ–¹æ³•é›†åˆã€‚
+    /// æä¾›ç®€å•ç±»å‹åˆ¤æ–­ã€é›†åˆç±»å‹åˆ¤æ–­ä»¥åŠé›†åˆå…ƒç´ ç±»å‹è·å–ç­‰åŠŸèƒ½ã€‚
     /// </summary>
     internal static class TypeUtils
     {
@@ -17,8 +17,8 @@ namespace Ling.Mapper
         }
 
         /// <summary>
-        /// ÅĞ¶ÏÒ»¸öÀàĞÍÊÇ·ñÎª¡°¼òµ¥ÀàĞÍ¡±¡£
-        /// ¼òµ¥ÀàĞÍ°üº¬£ºÔ­Ê¼ÀàĞÍ¡¢Ã¶¾Ù¡¢string¡¢decimal¡¢DateTime¡¢Guid¡£
+        /// åˆ¤æ–­ä¸€ä¸ªç±»å‹æ˜¯å¦ä¸ºâ€œç®€å•ç±»å‹â€ã€‚
+        /// ç®€å•ç±»å‹åŒ…å«ï¼šåŸå§‹ç±»å‹ã€æšä¸¾ã€stringã€decimalã€DateTimeã€Guidã€‚
         /// </summary>
         public static bool IsSimple(Type type)
         {
@@ -27,14 +27,14 @@ namespace Ling.Mapper
         }
 
         /// <summary>
-        /// ÅĞ¶ÏÒ»¸öÀàĞÍÊÇ·ñÎª¼¯ºÏÀàĞÍ£¨ÊµÏÖ IEnumerable ÇÒ²»ÊÇ string£©¡£
+        /// åˆ¤æ–­ä¸€ä¸ªç±»å‹æ˜¯å¦ä¸ºé›†åˆç±»å‹ï¼ˆå®ç° IEnumerable ä¸”ä¸æ˜¯ stringï¼‰ã€‚
         /// </summary>
         public static bool IsCollection(Type type) => typeof(IEnumerable).IsAssignableFrom(type) && type != typeof(string);
 
         /// <summary>
-        /// »ñÈ¡¼¯ºÏÀàĞÍµÄÔªËØÀàĞÍ¡£
-        /// Ö§³ÖÊı×é¡¢·ºĞÍ¼¯ºÏ¡¢ÊµÏÖ IEnumerable&lt;T&gt; µÄÀàĞÍ¡£
-        /// Èç¹ûÎŞ·¨ÍÆ¶Ï£¬·µ»Ø null¡£
+        /// è·å–é›†åˆç±»å‹çš„å…ƒç´ ç±»å‹ã€‚
+        /// æ”¯æŒæ•°ç»„ã€æ³›å‹é›†åˆã€å®ç° IEnumerable&lt;T&gt; çš„ç±»å‹ã€‚
+        /// å¦‚æœæ— æ³•æ¨æ–­ï¼Œè¿”å› nullã€‚
         /// </summary>
         public static Type? GetElementType(Type collectionType)
         {
@@ -50,7 +50,7 @@ namespace Ling.Mapper
                     return args[0];
             }
 
-            // ²éÕÒ IEnumerable<T>
+            // æŸ¥æ‰¾ IEnumerable<T>
             var ifaces = collectionType.GetInterfaces();
             foreach (var i in ifaces)
             {

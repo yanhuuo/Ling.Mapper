@@ -3,28 +3,28 @@ using System.Collections.Generic;
 namespace Ling.Mapper
 {
     /// <summary>
-    /// ¼¯ºÏÀàĞÍ×ª»»µÄ¸¨ÖúÀ©Õ¹·½·¨
+    /// é›†åˆç±»å‹è½¬æ¢çš„è¾…åŠ©æ‰©å±•æ–¹æ³•
     /// </summary>
     public static class CollectionAdaptExtensions
     {
         /// <summary>
-        /// ½«¼¯ºÏÖ±½Ó×ª»»Îª List£¬Ö§³Ö page.Data.AdaptToList&lt;CustomerDto, Customer&gt;() Óï·¨
+        /// å°†é›†åˆç›´æ¥è½¬æ¢ä¸º Listï¼Œæ”¯æŒ page.Data.AdaptToList&lt;CustomerDto, Customer&gt;() è¯­æ³•
         /// </summary>
-        /// <typeparam name="TDestination">Ä¿±êÔªËØÀàĞÍ</typeparam>
-        /// <typeparam name="TSource">Ô´ÔªËØÀàĞÍ</typeparam>
-        /// <param name="source">Ô´¼¯ºÏ</param>
-        /// <param name="custom">¿ÉÑ¡µÄ»Øµ÷º¯Êı£¬ÓÃÓÚ¶ÔÕû¸öÁĞ±í½øĞĞ´¦Àí</param>
-        /// <returns>Ó³ÉäºóµÄÄ¿±ê List ¼¯ºÏ</returns>
+        /// <typeparam name="TDestination">ç›®æ ‡å…ƒç´ ç±»å‹</typeparam>
+        /// <typeparam name="TSource">æºå…ƒç´ ç±»å‹</typeparam>
+        /// <param name="source">æºé›†åˆ</param>
+        /// <param name="custom">å¯é€‰çš„å›è°ƒå‡½æ•°ï¼Œç”¨äºå¯¹æ•´ä¸ªåˆ—è¡¨è¿›è¡Œå¤„ç†</param>
+        /// <returns>æ˜ å°„åçš„ç›®æ ‡ List é›†åˆ</returns>
         /// <remarks>
-        /// <para>´ËÀ©Õ¹·½·¨Ê¹ Adapt Ö§³ÖÖ±½Ó½øĞĞ List ×ª»»£¬ÎŞĞèÊ¹ÓÃ AdaptList ·½·¨¡£</para>
+        /// <para>æ­¤æ‰©å±•æ–¹æ³•ä½¿ Adapt æ”¯æŒç›´æ¥è¿›è¡Œ List è½¬æ¢ï¼Œæ— éœ€ä½¿ç”¨ AdaptList æ–¹æ³•ã€‚</para>
         /// <example>
-        /// Ê¾Àı 1£ºÖ±½Ó×ª»» List
+        /// ç¤ºä¾‹ 1ï¼šç›´æ¥è½¬æ¢ List
         /// <code>
         /// var customerDtos = page.Data.AdaptToList&lt;CustomerDto, Customer&gt;();
         /// </code>
         /// </example>
         /// <example>
-        /// Ê¾Àı 2£º×ª»»²¢´¦ÀíÕû¸öÁĞ±í
+        /// ç¤ºä¾‹ 2ï¼šè½¬æ¢å¹¶å¤„ç†æ•´ä¸ªåˆ—è¡¨
         /// <code>
         /// var customerDtos = page.Data.AdaptToList&lt;CustomerDto, Customer&gt;((list, source) =>
         /// {
@@ -36,14 +36,14 @@ namespace Ling.Mapper
         /// </code>
         /// </example>
         /// </remarks>
-        /// <exception cref="System.InvalidOperationException">Î´×¢²áÈ«¾Ö Mapper</exception>
+        /// <exception cref="System.InvalidOperationException">æœªæ³¨å†Œå…¨å±€ Mapper</exception>
         public static List<TDestination>? AdaptToList<TDestination, TSource>(
             this IEnumerable<TSource>? source,
             System.Action<List<TDestination>?, IEnumerable<TSource>>? custom = null)
         {
             if (source == null) return null;
 
-            var mapper = MapperProvider.Current ?? throw new System.InvalidOperationException("Ã»ÓĞ×¢²áÄ¬ÈÏµÄ mapper£¬ÇëÏÈµ÷ MapperProvider.SetCurrent(mapper) »òÊ¹ÓÃ´ø IMapper ²ÎÊıµÄÖØÔØ¡£");
+            var mapper = MapperProvider.Current ?? throw new System.InvalidOperationException("æ²¡æœ‰æ³¨å†Œé»˜è®¤çš„ mapperï¼Œè¯·å…ˆè°ƒ MapperProvider.SetCurrent(mapper) æˆ–ä½¿ç”¨å¸¦ IMapper å‚æ•°çš„é‡è½½ã€‚");
             
             var result = new List<TDestination>();
             
@@ -61,18 +61,18 @@ namespace Ling.Mapper
         }
 
         /// <summary>
-        /// ´ø IMapper ²ÎÊıµÄ¼¯ºÏ×ª»»·½·¨
+        /// å¸¦ IMapper å‚æ•°çš„é›†åˆè½¬æ¢æ–¹æ³•
         /// </summary>
-        /// <typeparam name="TDestination">Ä¿±êÔªËØÀàĞÍ</typeparam>
-        /// <typeparam name="TSource">Ô´ÔªËØÀàĞÍ</typeparam>
-        /// <param name="source">Ô´¼¯ºÏ</param>
-        /// <param name="mapper">Ö¸¶¨µÄ IMapper ÊµÀı</param>
-        /// <param name="custom">¿ÉÑ¡µÄ»Øµ÷º¯Êı£¬ÓÃÓÚ¶ÔÕû¸öÁĞ±í½øĞĞ´¦Àí</param>
-        /// <returns>Ó³ÉäºóµÄÄ¿±ê List ¼¯ºÏ</returns>
+        /// <typeparam name="TDestination">ç›®æ ‡å…ƒç´ ç±»å‹</typeparam>
+        /// <typeparam name="TSource">æºå…ƒç´ ç±»å‹</typeparam>
+        /// <param name="source">æºé›†åˆ</param>
+        /// <param name="mapper">æŒ‡å®šçš„ IMapper å®ä¾‹</param>
+        /// <param name="custom">å¯é€‰çš„å›è°ƒå‡½æ•°ï¼Œç”¨äºå¯¹æ•´ä¸ªåˆ—è¡¨è¿›è¡Œå¤„ç†</param>
+        /// <returns>æ˜ å°„åçš„ç›®æ ‡ List é›†åˆ</returns>
         /// <remarks>
-        /// <para>´Ë·½·¨Ê¹ÓÃÖ¸¶¨µÄ IMapper ÊµÀı½øĞĞÓ³Éä£¬ÊÊÓÃÓÚĞèÒªÊ¹ÓÃ·ÇÈ«¾Ö Mapper µÄ³¡¾°¡£</para>
+        /// <para>æ­¤æ–¹æ³•ä½¿ç”¨æŒ‡å®šçš„ IMapper å®ä¾‹è¿›è¡Œæ˜ å°„ï¼Œé€‚ç”¨äºéœ€è¦ä½¿ç”¨éå…¨å±€ Mapper çš„åœºæ™¯ã€‚</para>
         /// <example>
-        /// Ê¾Àı£ºÊ¹ÓÃÖ¸¶¨µÄ Mapper
+        /// ç¤ºä¾‹ï¼šä½¿ç”¨æŒ‡å®šçš„ Mapper
         /// <code>
         /// var customMapper = new MapperConfiguration().CreateMapper();
         /// var customerDtos = page.Data.AdaptToList&lt;CustomerDto, Customer&gt;(customMapper, (list, source) =>

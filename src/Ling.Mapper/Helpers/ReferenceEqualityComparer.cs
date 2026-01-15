@@ -4,13 +4,13 @@ using System.Runtime.CompilerServices;
 namespace Ling.Mapper
 {
     /// <summary>
-    /// ÒıÓÃÏàµÈ±È½ÏÆ÷£¬ÓÃÓÚÔËĞĞÊ±Ñ­»·ÒıÓÃ¼ì²â
-    /// Ê¹ÓÃ¶ÔÏóÒıÓÃ¶ø·ÇÖµÏàµÈ½øĞĞ±È½Ï
+    /// å¼•ç”¨ç›¸ç­‰æ¯”è¾ƒå™¨ï¼Œç”¨äºè¿è¡Œæ—¶å¾ªç¯å¼•ç”¨æ£€æµ‹
+    /// ä½¿ç”¨å¯¹è±¡å¼•ç”¨è€Œéå€¼ç›¸ç­‰è¿›è¡Œæ¯”è¾ƒ
     /// </summary>
     internal sealed class ReferenceEqualityComparer : IEqualityComparer<object>
     {
         /// <summary>
-        /// µ¥ÀıÊµÀı
+        /// å•ä¾‹å®ä¾‹
         /// </summary>
         public static readonly ReferenceEqualityComparer Instance = new ReferenceEqualityComparer();
 
@@ -19,7 +19,7 @@ namespace Ling.Mapper
         }
 
         /// <summary>
-        /// Ê¹ÓÃÒıÓÃÏàµÈ±È½ÏÁ½¸ö¶ÔÏó
+        /// ä½¿ç”¨å¼•ç”¨ç›¸ç­‰æ¯”è¾ƒä¸¤ä¸ªå¯¹è±¡
         /// </summary>
         public new bool Equals(object? x, object? y)
         {
@@ -27,7 +27,7 @@ namespace Ling.Mapper
         }
 
         /// <summary>
-        /// »ñÈ¡¶ÔÏóµÄ¹şÏ£Âë£¨»ùÓÚ¶ÔÏóÒıÓÃ£©
+        /// è·å–å¯¹è±¡çš„å“ˆå¸Œç ï¼ˆåŸºäºå¯¹è±¡å¼•ç”¨ï¼‰
         /// </summary>
         public int GetHashCode(object obj)
         {

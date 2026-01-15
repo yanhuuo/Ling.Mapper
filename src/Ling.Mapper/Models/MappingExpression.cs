@@ -7,46 +7,46 @@ using System.Reflection;
 namespace Ling.Mapper
 {
     /// <summary>
-    /// ÓÃÓÚÃèÊö´Ó TSource µ½ TDestination µÄÓ³ÉäÅäÖÃ¡£
-    /// Ö§³ÖÅäÖÃ£º
-    /// - ForMember£ºÎªµ¥¸öÄ¿±êÊôÐÔÖ¸¶¨Ó³Éä±í´ïÊ½
-    /// - Ignore£ººöÂÔÄ³¸öÄ¿±êÊôÐÔ
-    /// - Rename£ºÖ¸¶¨Ô´ÊôÐÔÃûÓëÄ¿±êÊôÐÔµÄÓ³Éä
-    /// - ReverseMap£ºÉùÃ÷ÐèÒªÉú³É·´ÏòÓ³Éä
+    /// ç”¨äºŽæè¿°ä»Ž TSource åˆ° TDestination çš„æ˜ å°„é…ç½®ã€‚
+    /// æ”¯æŒé…ç½®ï¼š
+    /// - ForMemberï¼šä¸ºå•ä¸ªç›®æ ‡å±žæ€§æŒ‡å®šæ˜ å°„è¡¨è¾¾å¼
+    /// - Ignoreï¼šå¿½ç•¥æŸä¸ªç›®æ ‡å±žæ€§
+    /// - Renameï¼šæŒ‡å®šæºå±žæ€§åä¸Žç›®æ ‡å±žæ€§çš„æ˜ å°„
+    /// - ReverseMapï¼šå£°æ˜Žéœ€è¦ç”Ÿæˆåå‘æ˜ å°„
     /// </summary>
-    /// <typeparam name="TSource">Ô´ÀàÐÍ¡£</typeparam>
-    /// <typeparam name="TDestination">Ä¿±êÀàÐÍ¡£</typeparam>
+    /// <typeparam name="TSource">æºç±»åž‹ã€‚</typeparam>
+    /// <typeparam name="TDestination">ç›®æ ‡ç±»åž‹ã€‚</typeparam>
     public class MappingExpression<TSource, TDestination>
     {
         /// <summary>
-        /// ×Ô¶¨Òå³ÉÔ±°ó¶¨×Öµä£¬¼üÎªÄ¿±êÊôÐÔÃû£¬ÖµÎª»ùÓÚÔ´ÀàÐÍµÄ±í´ïÊ½¡£
+        /// è‡ªå®šä¹‰æˆå‘˜ç»‘å®šå­—å…¸ï¼Œé”®ä¸ºç›®æ ‡å±žæ€§åï¼Œå€¼ä¸ºåŸºäºŽæºç±»åž‹çš„è¡¨è¾¾å¼ã€‚
         /// </summary>
         internal readonly Dictionary<string, LambdaExpression> CustomMemberBindings
             = new(); // destPropName -> srcExpr
 
         /// <summary>
-        /// ±»ºöÂÔµÄÄ¿±êÊôÐÔÃû¼¯ºÏ¡£
+        /// è¢«å¿½ç•¥çš„ç›®æ ‡å±žæ€§åé›†åˆã€‚
         /// </summary>
         internal readonly HashSet<string> IgnoredMembers = new();
 
         /// <summary>
-        /// ±»ÖØÃüÃûµÄÊôÐÔÓ³Éä£¬key ÎªÄ¿±êÊôÐÔÃû£¬value ÎªÔ´ÊôÐÔÃû¡£
+        /// è¢«é‡å‘½åçš„å±žæ€§æ˜ å°„ï¼Œkey ä¸ºç›®æ ‡å±žæ€§åï¼Œvalue ä¸ºæºå±žæ€§åã€‚
         /// </summary>
         internal readonly Dictionary<string, string> RenamedMembers = new();
 
         /// <summary>
-        /// ±êÖ¾ÊÇ·ñÇëÇóÁË·´ÏòÓ³Éä¡£
-        /// Ä¿Ç°½ö×ö±ê¼Ç£¬Äã¿ÉÒÔÔÚºóÐøÀ©Õ¹ÀïÊ¹ÓÃËüÀ´×Ô¶¯Éú³É·´ÏòÅäÖÃ¡£
+        /// æ ‡å¿—æ˜¯å¦è¯·æ±‚äº†åå‘æ˜ å°„ã€‚
+        /// ç›®å‰ä»…åšæ ‡è®°ï¼Œä½ å¯ä»¥åœ¨åŽç»­æ‰©å±•é‡Œä½¿ç”¨å®ƒæ¥è‡ªåŠ¨ç”Ÿæˆåå‘é…ç½®ã€‚
         /// </summary>
         internal bool ReverseMapRequested;
 
         /// <summary>
-        /// ÎªÖ¸¶¨Ä¿±êÊôÐÔÅäÖÃÒ»¸ö×Ô¶¨ÒåÓ³Éä±í´ïÊ½¡£
+        /// ä¸ºæŒ‡å®šç›®æ ‡å±žæ€§é…ç½®ä¸€ä¸ªè‡ªå®šä¹‰æ˜ å°„è¡¨è¾¾å¼ã€‚
         /// </summary>
-        /// <typeparam name="TMember">Ä¿±êÊôÐÔµÄÀàÐÍ¡£</typeparam>
-        /// <param name="destMember">Ä¿±êÊôÐÔÑ¡ÔñÆ÷¡£</param>
-        /// <param name="srcExpr">Ô´Ó³Éä±í´ïÊ½£¬´ÓÔ´¶ÔÏóÓ³Éäµ½Ä¿±êÊôÐÔÖµ¡£</param>
-        /// <returns>µ±Ç° <see cref="MappingExpression{TSource,TDestination}"/> ÊµÀý£¬ÓÃÓÚÁ´Ê½µ÷ÓÃ¡£</returns>
+        /// <typeparam name="TMember">ç›®æ ‡å±žæ€§çš„ç±»åž‹ã€‚</typeparam>
+        /// <param name="destMember">ç›®æ ‡å±žæ€§é€‰æ‹©å™¨ã€‚</param>
+        /// <param name="srcExpr">æºæ˜ å°„è¡¨è¾¾å¼ï¼Œä»Žæºå¯¹è±¡æ˜ å°„åˆ°ç›®æ ‡å±žæ€§å€¼ã€‚</param>
+        /// <returns>å½“å‰ <see cref="MappingExpression{TSource,TDestination}"/> å®žä¾‹ï¼Œç”¨äºŽé“¾å¼è°ƒç”¨ã€‚</returns>
         [return: NotNull]
         public MappingExpression<TSource, TDestination> ForMember<TMember>(
             Expression<Func<TDestination, TMember>> destMember,
@@ -58,10 +58,10 @@ namespace Ling.Mapper
         }
 
         /// <summary>
-        /// ½«Ä³¸öÄ¿±êÊôÐÔ±ê¼ÇÎªºöÂÔ£¬ÔÚÓ³Éä¹ý³ÌÖÐ²»»áÎªÆä¸³Öµ¡£
+        /// å°†æŸä¸ªç›®æ ‡å±žæ€§æ ‡è®°ä¸ºå¿½ç•¥ï¼Œåœ¨æ˜ å°„è¿‡ç¨‹ä¸­ä¸ä¼šä¸ºå…¶èµ‹å€¼ã€‚
         /// </summary>
-        /// <param name="destMember">Ä¿±êÊôÐÔÑ¡ÔñÆ÷¡£</param>
-        /// <returns>µ±Ç° <see cref="MappingExpression{TSource,TDestination}"/> ÊµÀý¡£</returns>
+        /// <param name="destMember">ç›®æ ‡å±žæ€§é€‰æ‹©å™¨ã€‚</param>
+        /// <returns>å½“å‰ <see cref="MappingExpression{TSource,TDestination}"/> å®žä¾‹ã€‚</returns>
         [return: NotNull]
         public MappingExpression<TSource, TDestination> Ignore(
             Expression<Func<TDestination, object>> destMember)
@@ -72,12 +72,12 @@ namespace Ling.Mapper
         }
 
         /// <summary>
-        /// ÅäÖÃÄ¿±êÊôÐÔÃû³ÆÓëÔ´ÊôÐÔÃû³ÆµÄÓ³Éä¡£
-        /// µ±Ä¿±êÊôÐÔÃû³ÆÓëÔ´ÊôÐÔÃû³Æ²»Ò»ÖÂÊ±Ê¹ÓÃ¡£
+        /// é…ç½®ç›®æ ‡å±žæ€§åç§°ä¸Žæºå±žæ€§åç§°çš„æ˜ å°„ã€‚
+        /// å½“ç›®æ ‡å±žæ€§åç§°ä¸Žæºå±žæ€§åç§°ä¸ä¸€è‡´æ—¶ä½¿ç”¨ã€‚
         /// </summary>
-        /// <param name="destMember">Ä¿±êÊôÐÔÑ¡ÔñÆ÷¡£</param>
-        /// <param name="srcName">Ô´ÊôÐÔÃû³Æ¡£</param>
-        /// <returns>µ±Ç° <see cref="MappingExpression{TSource,TDestination}"/> ÊµÀý¡£</returns>
+        /// <param name="destMember">ç›®æ ‡å±žæ€§é€‰æ‹©å™¨ã€‚</param>
+        /// <param name="srcName">æºå±žæ€§åç§°ã€‚</param>
+        /// <returns>å½“å‰ <see cref="MappingExpression{TSource,TDestination}"/> å®žä¾‹ã€‚</returns>
         [return: NotNull]
         public MappingExpression<TSource, TDestination> Rename(
             Expression<Func<TDestination, object>> destMember,
@@ -89,59 +89,59 @@ namespace Ling.Mapper
         }
 
         /// <summary>
-        /// ÉùÃ÷Îªµ±Ç°Ó³ÉäÉú³É·´ÏòÓ³ÉäÅäÖÃ¡£
-        /// µ±Ç°ÊµÏÖ½ö½«±êÖ¾Î»ÉèÖÃÎª true£¬·µ»ØÒ»¸öÐÂµÄ·´ÏòÓ³Éä±í´ïÊ½¶ÔÏó£¬
-        /// ·½±ãºóÐøÀ©Õ¹¸ü¶àÅäÖÃ¡£
+        /// å£°æ˜Žä¸ºå½“å‰æ˜ å°„ç”Ÿæˆåå‘æ˜ å°„é…ç½®ã€‚
+        /// å½“å‰å®žçŽ°ä»…å°†æ ‡å¿—ä½è®¾ç½®ä¸º trueï¼Œè¿”å›žä¸€ä¸ªæ–°çš„åå‘æ˜ å°„è¡¨è¾¾å¼å¯¹è±¡ï¼Œ
+        /// æ–¹ä¾¿åŽç»­æ‰©å±•æ›´å¤šé…ç½®ã€‚
         /// </summary>
-        /// <returns>´Ó TDestination µ½ TSource µÄ·´ÏòÓ³Éä±í´ïÊ½£¬ÓÀ²»Îª null¡£</returns>
+        /// <returns>ä»Ž TDestination åˆ° TSource çš„åå‘æ˜ å°„è¡¨è¾¾å¼ï¼Œæ°¸ä¸ä¸º nullã€‚</returns>
         [return: NotNull]
         public MappingExpression<TDestination, TSource> ReverseMap()
         {
             ReverseMapRequested = true;
-            // µ±Ç°¼òµ¥·µ»ØÒ»¸öÐÂµÄ·´Ïò±í´ïÊ½ÊµÀý£¬ÈçÐèÕæÕýÊ¹ÓÃ¿ÉÀ©Õ¹¡£
+            // å½“å‰ç®€å•è¿”å›žä¸€ä¸ªæ–°çš„åå‘è¡¨è¾¾å¼å®žä¾‹ï¼Œå¦‚éœ€çœŸæ­£ä½¿ç”¨å¯æ‰©å±•ã€‚
             return new MappingExpression<TDestination, TSource>();
         }
 
         /// <summary>
-        /// ´Ó lambda ±í´ïÊ½ÖÐ½âÎö³öÊôÐÔÃû³Æ¡£
-        /// Ö»Ö§³Ö¼òµ¥ÊôÐÔ·ÃÎÊ£ºx => x.Property
-        /// ¶ÔÓÚ¸´ÔÓ±í´ïÊ½£¨x => x.Property.SubProp£©»áÅ×Òì³£¡£
-        /// ×Ô¶¯´¦Àí UnaryExpression£¨Èç Convert£©¡£
+        /// ä»Ž lambda è¡¨è¾¾å¼ä¸­è§£æžå‡ºå±žæ€§åç§°ã€‚
+        /// åªæ”¯æŒç®€å•å±žæ€§è®¿é—®ï¼šx => x.Property
+        /// å¯¹äºŽå¤æ‚è¡¨è¾¾å¼ï¼ˆx => x.Property.SubPropï¼‰ä¼šæŠ›å¼‚å¸¸ã€‚
+        /// è‡ªåŠ¨å¤„ç† UnaryExpressionï¼ˆå¦‚ Convertï¼‰ã€‚
         /// </summary>
-        /// <param name="expr">ÊôÐÔ·ÃÎÊ lambda ±í´ïÊ½¡£</param>
-        /// <returns>ÊôÐÔÃû³Æ¡£</returns>
-        /// <exception cref="InvalidOperationException">µ±±í´ïÊ½²»ÊÇ¼òµ¥ÊôÐÔ·ÃÎÊÊ±Å×³ö¡£</exception>
+        /// <param name="expr">å±žæ€§è®¿é—® lambda è¡¨è¾¾å¼ã€‚</param>
+        /// <returns>å±žæ€§åç§°ã€‚</returns>
+        /// <exception cref="InvalidOperationException">å½“è¡¨è¾¾å¼ä¸æ˜¯ç®€å•å±žæ€§è®¿é—®æ—¶æŠ›å‡ºã€‚</exception>
         private string GetPropName(LambdaExpression expr)
         {
             if (expr == null)
                 throw new ArgumentNullException(nameof(expr));
 
-            // ¢Ù ´¦Àí Unary£¨ÀýÈç£ºConvert(x.Property)£©
+            // â‘  å¤„ç† Unaryï¼ˆä¾‹å¦‚ï¼šConvert(x.Property)ï¼‰
             Expression body = expr.Body;
             if (body is UnaryExpression unary && unary.NodeType == ExpressionType.Convert)
             {
                 body = unary.Operand;
             }
 
-            // ¢Ú ±ØÐëÊÇ MemberExpression
+            // â‘¡ å¿…é¡»æ˜¯ MemberExpression
             if (body is not MemberExpression memberExpr)
             {
                 throw new InvalidOperationException(
-                    $"±í´ïÊ½ÎÞÐ§£º{expr}. ÆÚÍûÐÎÊ½Îª£ºx => x.Property");
+                    $"è¡¨è¾¾å¼æ— æ•ˆï¼š{expr}. æœŸæœ›å½¢å¼ä¸ºï¼šx => x.Property");
             }
 
-            // ¢Û Ä¿±ê±ØÐëÊÇÊôÐÔ
+            // â‘¢ ç›®æ ‡å¿…é¡»æ˜¯å±žæ€§
             if (memberExpr.Member is not PropertyInfo pi)
             {
                 throw new InvalidOperationException(
-                    $"±í´ïÊ½ {expr} ²»ÊÇÊôÐÔ·ÃÎÊ¡£ÇëÊ¹ÓÃ£ºx => x.Property ¸ñÊ½¡£");
+                    $"è¡¨è¾¾å¼ {expr} ä¸æ˜¯å±žæ€§è®¿é—®ã€‚è¯·ä½¿ç”¨ï¼šx => x.Property æ ¼å¼ã€‚");
             }
 
-            // ¢Ü ±ØÐëÊÇÖ±½ÓÊôÐÔ·ÃÎÊ£¬¶ø²»ÊÇ x => x.A.B.C
+            // â‘£ å¿…é¡»æ˜¯ç›´æŽ¥å±žæ€§è®¿é—®ï¼Œè€Œä¸æ˜¯ x => x.A.B.C
             if (memberExpr.Expression is not ParameterExpression)
             {
                 throw new InvalidOperationException(
-                    $"±í´ïÊ½ {expr} Îª¶à¼¶·ÃÎÊ£¨Èç A.B.C£©£¬½öÖ§³ÖÒ»¼¶ÊôÐÔ£ºx => x.Property");
+                    $"è¡¨è¾¾å¼ {expr} ä¸ºå¤šçº§è®¿é—®ï¼ˆå¦‚ A.B.Cï¼‰ï¼Œä»…æ”¯æŒä¸€çº§å±žæ€§ï¼šx => x.Property");
             }
 
             return pi.Name;

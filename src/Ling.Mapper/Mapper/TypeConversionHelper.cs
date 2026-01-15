@@ -6,13 +6,13 @@ using System.Reflection;
 namespace Ling.Mapper
 {
     /// <summary>
-    /// ÀàĞÍ×ª»»¸¨ÖúÀà£¬¸ºÔğ½« ConvertSimpleType ²ğ·ÖÎª¸üĞ¡µÄ¡¢¿ÉÎ¬»¤µÄ·½·¨¡£
-    /// Ã¿¸ö·½·¨×¨×¢ÓÚÌØ¶¨µÄ×ª»»³¡¾°£¬Ìá¸ß´úÂë¿É¶ÁĞÔºÍ JIT ÓÅ»¯Ğ§¹û¡£
+    /// ç±»å‹è½¬æ¢è¾…åŠ©ç±»ï¼Œè´Ÿè´£å°† ConvertSimpleType æ‹†åˆ†ä¸ºæ›´å°çš„ã€å¯ç»´æŠ¤çš„æ–¹æ³•ã€‚
+    /// æ¯ä¸ªæ–¹æ³•ä¸“æ³¨äºç‰¹å®šçš„è½¬æ¢åœºæ™¯ï¼Œæé«˜ä»£ç å¯è¯»æ€§å’Œ JIT ä¼˜åŒ–æ•ˆæœã€‚
     /// </summary>
     internal static class TypeConversionHelper
     {
         /// <summary>
-        /// ´¦ÀíÃ¶¾ÙÀàĞÍµÄ×ª»»£¨enum ? int, enum ? string, enum ? enum£©
+        /// å¤„ç†æšä¸¾ç±»å‹çš„è½¬æ¢ï¼ˆenum ? int, enum ? string, enum ? enumï¼‰
         /// </summary>
         public static Expression? TryConvertEnum(
             Expression srcAccess,
@@ -47,7 +47,7 @@ namespace Ling.Mapper
                 return ConvertStringToEnum(srcAccess, destType, destUnderlyingType, destIsNullable);
             }
 
-            // enum -> enum (²»Í¬ÀàĞÍ)
+            // enum -> enum (ä¸åŒç±»å‹)
             if (srcUnderlyingType.IsEnum && destUnderlyingType.IsEnum && srcUnderlyingType != destUnderlyingType)
             {
                 return ConvertEnumToEnum(srcAccess, srcType, destType, destUnderlyingType, srcIsNullable, destIsNullable);
@@ -57,7 +57,7 @@ namespace Ling.Mapper
         }
 
         /// <summary>
-        /// ´¦Àí¿É¿ÕÀàĞÍµÄ×ª»»£¨T ? T?, T? ? U, etc.£©
+        /// å¤„ç†å¯ç©ºç±»å‹çš„è½¬æ¢ï¼ˆT ? T?, T? ? U, etc.ï¼‰
         /// </summary>
         public static Expression? TryConvertNullable(
             Expression srcAccess,
@@ -68,32 +68,32 @@ namespace Ling.Mapper
             bool srcIsNullable,
             bool destIsNullable)
         {
-            // T -> T? (·Ç¿É¿Õµ½¿É¿Õ£¬µ×²ãÀàĞÍÏàÍ¬)
+            // T -> T? (éå¯ç©ºåˆ°å¯ç©ºï¼Œåº•å±‚ç±»å‹ç›¸åŒ)
             if (!srcIsNullable && destIsNullable && srcUnderlyingType == destUnderlyingType)
             {
                 return Expression.Convert(srcAccess, destType);
             }
 
-            // T? -> T (¿É¿Õµ½·Ç¿É¿Õ£¬µ×²ãÀàĞÍÏàÍ¬)
+            // T? -> T (å¯ç©ºåˆ°éå¯ç©ºï¼Œåº•å±‚ç±»å‹ç›¸åŒ)
             if (srcIsNullable && !destIsNullable && srcUnderlyingType == destUnderlyingType)
             {
                 return ConvertNullableToNonNullable(srcAccess, srcType, destType);
             }
 
-            // T? -> U? (¿É¿Õµ½¿É¿Õ£¬µ×²ãÀàĞÍ²»Í¬)
+            // T? -> U? (å¯ç©ºåˆ°å¯ç©ºï¼Œåº•å±‚ç±»å‹ä¸åŒ)
             if (srcIsNullable && destIsNullable)
             {
                 return ConvertNullableToNullable(srcAccess, srcType, destType, destUnderlyingType);
             }
 
-            // T -> U? (·Ç¿É¿Õµ½²»Í¬ÀàĞÍµÄ¿É¿Õ)
+            // T -> U? (éå¯ç©ºåˆ°ä¸åŒç±»å‹çš„å¯ç©º)
             if (!srcIsNullable && destIsNullable && srcUnderlyingType != destUnderlyingType)
             {
                 var converted = Expression.Convert(srcAccess, destUnderlyingType);
                 return Expression.Convert(converted, destType);
             }
 
-            // T? -> U (¿É¿Õµ½²»Í¬ÀàĞÍµÄ·Ç¿É¿Õ)
+            // T? -> U (å¯ç©ºåˆ°ä¸åŒç±»å‹çš„éå¯ç©º)
             if (srcIsNullable && !destIsNullable && srcUnderlyingType != destUnderlyingType)
             {
                 var getValueMethod = srcType.GetMethod("GetValueOrDefault", Type.EmptyTypes);
@@ -108,7 +108,7 @@ namespace Ling.Mapper
         }
 
         /// <summary>
-        /// ´¦Àí¼òµ¥ÀàĞÍÖ®¼äµÄÖ±½Ó×ª»»
+        /// å¤„ç†ç®€å•ç±»å‹ä¹‹é—´çš„ç›´æ¥è½¬æ¢
         /// </summary>
         public static Expression ConvertSimpleCast(
             Expression srcAccess,
@@ -298,7 +298,7 @@ namespace Ling.Mapper
         {
             if (srcIsNullable && !destIsNullable)
             {
-                // enum? -> enum (²»Í¬ÀàĞÍ)
+                // enum? -> enum (ä¸åŒç±»å‹)
                 var getValueMethod = srcType.GetMethod("GetValueOrDefault", Type.EmptyTypes);
                 if (getValueMethod != null)
                 {
@@ -309,7 +309,7 @@ namespace Ling.Mapper
             }
             else if (srcIsNullable && destIsNullable)
             {
-                // enum? -> enum? (²»Í¬ÀàĞÍ)
+                // enum? -> enum? (ä¸åŒç±»å‹)
                 var hasValueProp = srcType.GetProperty("HasValue");
                 var valueProp = srcType.GetProperty("Value");
                 if (hasValueProp != null && valueProp != null)
@@ -325,14 +325,14 @@ namespace Ling.Mapper
             }
             else if (!srcIsNullable && destIsNullable)
             {
-                // enum -> enum? (²»Í¬ÀàĞÍ)
+                // enum -> enum? (ä¸åŒç±»å‹)
                 var intValue = Expression.Convert(srcAccess, typeof(int));
                 var destEnumValue = Expression.Convert(intValue, destUnderlyingType);
                 return Expression.Convert(destEnumValue, destType);
             }
             else
             {
-                // enum -> enum (²»Í¬ÀàĞÍ)
+                // enum -> enum (ä¸åŒç±»å‹)
                 var intValue = Expression.Convert(srcAccess, typeof(int));
                 return Expression.Convert(intValue, destUnderlyingType);
             }
@@ -349,14 +349,14 @@ namespace Ling.Mapper
             Type srcType,
             Type destType)
         {
-            // T? -> T: Ê¹ÓÃ GetValueOrDefault()
+            // T? -> T: ä½¿ç”¨ GetValueOrDefault()
             var getValueMethod = srcType.GetMethod("GetValueOrDefault", Type.EmptyTypes);
             if (getValueMethod != null)
             {
                 return Expression.Call(srcAccess, getValueMethod);
             }
 
-            // ±¸ÓÃ·½°¸£ºÌõ¼ş±í´ïÊ½
+            // å¤‡ç”¨æ–¹æ¡ˆï¼šæ¡ä»¶è¡¨è¾¾å¼
             var hasValueProp = srcType.GetProperty("HasValue");
             var valueProp = srcType.GetProperty("Value");
             if (hasValueProp != null && valueProp != null)
@@ -377,7 +377,7 @@ namespace Ling.Mapper
             Type destType,
             Type destUnderlyingType)
         {
-            // T? -> U?: ÏÈ×ª»»µ×²ãÀàĞÍ£¬ÔÙ°ü×°Îª¿É¿Õ
+            // T? -> U?: å…ˆè½¬æ¢åº•å±‚ç±»å‹ï¼Œå†åŒ…è£…ä¸ºå¯ç©º
             var hasValueProp = srcType.GetProperty("HasValue");
             var valueProp = srcType.GetProperty("Value");
 

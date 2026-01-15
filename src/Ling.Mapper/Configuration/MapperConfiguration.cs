@@ -4,41 +4,41 @@ using System.Collections.Generic;
 namespace Ling.Mapper
 {
     /// <summary>
-    /// Ó³ÉäÆ÷È«¾ÖÅäÖÃ¡£
-    /// ÓÃÓÚ×¢²á Profile¡¢ÅäÖÃÈ«¾ÖÔ¼¶¨£¬ÒÔ¼°´´½¨ IMapper ÊµÀı¡£
+    /// æ˜ å°„å™¨å…¨å±€é…ç½®ã€‚
+    /// ç”¨äºæ³¨å†Œ Profileã€é…ç½®å…¨å±€çº¦å®šï¼Œä»¥åŠåˆ›å»º IMapper å®ä¾‹ã€‚
     /// </summary>
     public class MapperConfiguration
     {
         /// <summary>
-        /// ÄÚ²¿´æ´¢µÄËùÓĞÓ³ÉäÅäÖÃ¡£
+        /// å†…éƒ¨å­˜å‚¨çš„æ‰€æœ‰æ˜ å°„é…ç½®ã€‚
         /// </summary>
         private readonly List<IMappingConfig> _configs = new();
 
         /// <summary>
-        /// È«¾ÖÔ¼¶¨ÅäÖÃµÄÎ¯ÍĞÁĞ±í£¬ÓÃÓÚÑÓ³Ù¹¹½¨¡£
+        /// å…¨å±€çº¦å®šé…ç½®çš„å§”æ‰˜åˆ—è¡¨ï¼Œç”¨äºå»¶è¿Ÿæ„å»ºã€‚
         /// </summary>
         private readonly List<Action<GlobalConventionOptions>> _globalConventions = new();
 
         /// <summary>
-        /// È«¾ÖÔ¼¶¨Ñ¡ÏîÊµÀı¡£
+        /// å…¨å±€çº¦å®šé€‰é¡¹å®ä¾‹ã€‚
         /// </summary>
         internal GlobalConventionOptions GlobalOptions { get; } = new();
 
         /// <summary>
-        /// ËùÓĞ×¢²áµÄÓ³ÉäÅäÖÃ¼¯ºÏ¡£
+        /// æ‰€æœ‰æ³¨å†Œçš„æ˜ å°„é…ç½®é›†åˆã€‚
         /// </summary>
         internal IEnumerable<IMappingConfig> Configs => _configs;
 
         /// <summary>
-        /// ÊÇ·ñÆôÓÃÑÏ¸ñÄ£Ê½£¬Ä¬ÈÏÎª false¡£
-        /// ÈôÎª true£¬Î´Æ¥ÅäµÄÊôĞÔ½«ÔÚÓ³ÉäÊ±Å×³öÒì³£¡£
+        /// æ˜¯å¦å¯ç”¨ä¸¥æ ¼æ¨¡å¼ï¼Œé»˜è®¤ä¸º falseã€‚
+        /// è‹¥ä¸º trueï¼ŒæœªåŒ¹é…çš„å±æ€§å°†åœ¨æ˜ å°„æ—¶æŠ›å‡ºå¼‚å¸¸ã€‚
         /// </summary>
         public bool StrictMode { get; set; } = false;
 
         /// <summary>
-        /// Ìí¼ÓÒ»¸öÓ³ÉäÅäÖÃ Profile¡£
+        /// æ·»åŠ ä¸€ä¸ªæ˜ å°„é…ç½® Profileã€‚
         /// </summary>
-        /// <param name="profile">Ó³ÉäÅäÖÃ Profile ÊµÀı¡£</param>
+        /// <param name="profile">æ˜ å°„é…ç½® Profile å®ä¾‹ã€‚</param>
         public void AddProfile(MapperProfile profile)
         {
             if (profile == null) throw new ArgumentNullException(nameof(profile));
@@ -46,9 +46,9 @@ namespace Ling.Mapper
         }
 
         /// <summary>
-        /// ÅúÁ¿Ìí¼Ó¶à¸öÓ³ÉäÅäÖÃ Profile¡£
+        /// æ‰¹é‡æ·»åŠ å¤šä¸ªæ˜ å°„é…ç½® Profileã€‚
         /// </summary>
-        /// <param name="profiles">Profile ÊµÀıÊı×é¡£</param>
+        /// <param name="profiles">Profile å®ä¾‹æ•°ç»„ã€‚</param>
         public void AddProfiles(params MapperProfile[] profiles)
         {
             if (profiles == null) return;
@@ -59,10 +59,10 @@ namespace Ling.Mapper
         }
 
         /// <summary>
-        /// ÅäÖÃÈ«¾ÖÓ³ÉäÔ¼¶¨£¬ÀıÈçÊôĞÔÃû³Æ´óĞ¡Ğ´²»Ãô¸ĞÆ¥ÅäµÈ¡£
-        /// ¸Ã·½·¨¿ÉÒÔ±»µ÷ÓÃ¶à´Î£¬ËùÓĞÅäÖÃ»áÀÛ»ıÓ¦ÓÃ¡£
+        /// é…ç½®å…¨å±€æ˜ å°„çº¦å®šï¼Œä¾‹å¦‚å±æ€§åç§°å¤§å°å†™ä¸æ•æ„ŸåŒ¹é…ç­‰ã€‚
+        /// è¯¥æ–¹æ³•å¯ä»¥è¢«è°ƒç”¨å¤šæ¬¡ï¼Œæ‰€æœ‰é…ç½®ä¼šç´¯ç§¯åº”ç”¨ã€‚
         /// </summary>
-        /// <param name="convention">ÓÃÓÚÅäÖÃÈ«¾ÖÔ¼¶¨µÄÎ¯ÍĞ¡£</param>
+        /// <param name="convention">ç”¨äºé…ç½®å…¨å±€çº¦å®šçš„å§”æ‰˜ã€‚</param>
         public void ConfigureConventions(Action<GlobalConventionOptions> convention)
         {
             if (convention == null) return;
@@ -70,8 +70,8 @@ namespace Ling.Mapper
         }
 
         /// <summary>
-        /// ¹¹½¨È«¾ÖÔ¼¶¨ÅäÖÃ¡£
-        /// ÔÚ´´½¨ IMapper Ö®Ç°»áµ÷ÓÃ¸Ã·½·¨£¬ÒÔÓ¦ÓÃÓÃ»§ÅäÖÃµÄËùÓĞÔ¼¶¨¡£
+        /// æ„å»ºå…¨å±€çº¦å®šé…ç½®ã€‚
+        /// åœ¨åˆ›å»º IMapper ä¹‹å‰ä¼šè°ƒç”¨è¯¥æ–¹æ³•ï¼Œä»¥åº”ç”¨ç”¨æˆ·é…ç½®çš„æ‰€æœ‰çº¦å®šã€‚
         /// </summary>
         internal void BuildGlobalConventions()
         {
@@ -82,10 +82,10 @@ namespace Ling.Mapper
         }
 
         /// <summary>
-        /// ´´½¨Ò»¸öĞÂµÄ IMapper ÊµÀı¡£
-        /// ÄÚ²¿»á¹¹½¨È«¾ÖÔ¼¶¨²¢±àÒëËùÓĞÒÑ×¢²áµÄÓ³Éä±í´ïÊ½¡£
+        /// åˆ›å»ºä¸€ä¸ªæ–°çš„ IMapper å®ä¾‹ã€‚
+        /// å†…éƒ¨ä¼šæ„å»ºå…¨å±€çº¦å®šå¹¶ç¼–è¯‘æ‰€æœ‰å·²æ³¨å†Œçš„æ˜ å°„è¡¨è¾¾å¼ã€‚
         /// </summary>
-        /// <returns>IMapper ÊµÀı¡£</returns>
+        /// <returns>IMapper å®ä¾‹ã€‚</returns>
         public IMapper CreateMapper()
         {
             BuildGlobalConventions();
@@ -94,18 +94,18 @@ namespace Ling.Mapper
     }
 
     /// <summary>
-    /// È«¾ÖÓ³ÉäÔ¼¶¨Ñ¡Ïî¡£
-    /// ¿ÉÒÔÍ¨¹ı <see cref="MapperConfiguration.ConfigureConventions"/> ÅäÖÃ¡£
+    /// å…¨å±€æ˜ å°„çº¦å®šé€‰é¡¹ã€‚
+    /// å¯ä»¥é€šè¿‡ <see cref="MapperConfiguration.ConfigureConventions"/> é…ç½®ã€‚
     /// </summary>
     public class GlobalConventionOptions
     {
         /// <summary>
-        /// ÊÇ·ñÔÚÊôĞÔÃûÆ¥ÅäÊ±ºöÂÔ´óĞ¡Ğ´£¬Ä¬ÈÏ true¡£
+        /// æ˜¯å¦åœ¨å±æ€§ååŒ¹é…æ—¶å¿½ç•¥å¤§å°å†™ï¼Œé»˜è®¤ trueã€‚
         /// </summary>
         public bool CaseInsensitiveNameMatch { get; set; } = true;
         /// <summary>
-        /// ÊÇ·ñºöÂÔÌØÊâ×Ö·û£¨ÈçÏÂ»®Ïß£©£¬²¢×Ô¶¯½øĞĞÃüÃû¹æ·¶»¯¡£
-        /// ÀıÈç a_type -> AType¡£
+        /// æ˜¯å¦å¿½ç•¥ç‰¹æ®Šå­—ç¬¦ï¼ˆå¦‚ä¸‹åˆ’çº¿ï¼‰ï¼Œå¹¶è‡ªåŠ¨è¿›è¡Œå‘½åè§„èŒƒåŒ–ã€‚
+        /// ä¾‹å¦‚ a_type -> ATypeã€‚
         /// </summary>
         public bool IgnoreSpecialCharacters { get; set; } = false;
     }

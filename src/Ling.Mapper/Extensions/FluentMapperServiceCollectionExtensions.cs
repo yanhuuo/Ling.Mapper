@@ -6,19 +6,19 @@ using Microsoft.Extensions.DependencyInjection;
 namespace Ling.Mapper
 {
     /// <summary>
-    /// Microsoft.Extensions.DependencyInjection À©Õ¹·½·¨¡£
-    /// ÓÃÓÚ½« FluentMapper ×¢²áµ½ÒÀÀµ×¢ÈëÈİÆ÷ÖĞ²¢×Ô¶¯É¨Ãè Profile¡£
+    /// Microsoft.Extensions.DependencyInjection æ‰©å±•æ–¹æ³•ã€‚
+    /// ç”¨äºå°† FluentMapper æ³¨å†Œåˆ°ä¾èµ–æ³¨å…¥å®¹å™¨ä¸­å¹¶è‡ªåŠ¨æ‰«æ Profileã€‚
     /// </summary>
     public static class FluentMapperServiceCollectionExtensions
     {
         /// <summary>
-        /// Ïò DI ÈİÆ÷ÖĞ×¢²á FluentMapper¡£
-        /// Ö§³Ö´«ÈëÅäÖÃÎ¯ÍĞ²¢¿É×Ô¶¯É¨ÃèÖ¸¶¨³ÌĞò¼¯ÖĞµÄ MapperProfile¡£
+        /// å‘ DI å®¹å™¨ä¸­æ³¨å†Œ FluentMapperã€‚
+        /// æ”¯æŒä¼ å…¥é…ç½®å§”æ‰˜å¹¶å¯è‡ªåŠ¨æ‰«ææŒ‡å®šç¨‹åºé›†ä¸­çš„ MapperProfileã€‚
         /// </summary>
-        /// <param name="services">·şÎñ¼¯ºÏ¡£</param>
-        /// <param name="configAction">ÓÃÓÚÅäÖÃ MapperConfiguration µÄÎ¯ÍĞ¡£</param>
-        /// <param name="scanAssemblies">ÒªÉ¨Ãè Profile µÄ³ÌĞò¼¯£¨¿ÉÑ¡£©¡£</param>
-        /// <returns>·şÎñ¼¯ºÏ±¾Éí£¬·½±ãÁ´Ê½µ÷ÓÃ¡£</returns>
+        /// <param name="services">æœåŠ¡é›†åˆã€‚</param>
+        /// <param name="configAction">ç”¨äºé…ç½® MapperConfiguration çš„å§”æ‰˜ã€‚</param>
+        /// <param name="scanAssemblies">è¦æ‰«æ Profile çš„ç¨‹åºé›†ï¼ˆå¯é€‰ï¼‰ã€‚</param>
+        /// <returns>æœåŠ¡é›†åˆæœ¬èº«ï¼Œæ–¹ä¾¿é“¾å¼è°ƒç”¨ã€‚</returns>
         public static IServiceCollection AddFluentMapper(
             this IServiceCollection services,
             Action<MapperConfiguration>? configAction = null,
@@ -27,7 +27,7 @@ namespace Ling.Mapper
             var cfg = new MapperConfiguration();
             configAction?.Invoke(cfg);
 
-            // É¨Ãè³ÌĞò¼¯ÖĞµÄ MapperProfile ²¢×¢²á
+            // æ‰«æç¨‹åºé›†ä¸­çš„ MapperProfile å¹¶æ³¨å†Œ
             if (scanAssemblies == null || scanAssemblies.Length == 0)
             {
                 scanAssemblies = new[] { Assembly.GetEntryAssembly() ?? Assembly.GetCallingAssembly() };

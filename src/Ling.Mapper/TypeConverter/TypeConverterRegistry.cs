@@ -4,39 +4,39 @@ using System.Collections.Concurrent;
 namespace Ling.Mapper
 {
     /// <summary>
-    /// ��������ת�����ӿڡ�
-    /// �����ʵ�ָýӿڣ����ڶ���� TSource �� TDestination ���Զ���ת���߼���
+    /// 泛型类型转换器接口。
+    /// 你可以实现该接口，用于定义从 TSource 到 TDestination 的自定义转换逻辑。
     /// </summary>
-    /// <typeparam name="TSource">Դ���͡�</typeparam>
-    /// <typeparam name="TDestination">Ŀ�����͡�</typeparam>
+    /// <typeparam name="TSource">源类型。</typeparam>
+    /// <typeparam name="TDestination">目标类型。</typeparam>
     public interface ITypeConverter<TSource, TDestination>
     {
         /// <summary>
-        /// ��Դ����ת��ΪĿ������ʵ����
+        /// 将源对象转换为目标类型实例。
         /// </summary>
-        /// <param name="source">Դ����ʵ����</param>
-        /// <returns>ת�����Ŀ������ʵ����</returns>
+        /// <param name="source">源对象实例。</param>
+        /// <returns>转换后的目标类型实例。</returns>
         TDestination Convert(TSource source);
     }
 
     /// <summary>
-    /// ����ת����ע�����ġ�
-    /// ����ע��Ͳ��Ҳ�ͬ����֮����Զ���ת��ί�С�
-    /// �ṩ JSON ת�� ���ע�᷽����
+    /// 类型转换器注册中心。
+    /// 用于注册和查找不同类型之间的自定义转换委托。
+    /// 提供 JSON 转换 快捷注册方法。
     /// </summary>
     public static class TypeConverterRegistry
     {
         /// <summary>
-        /// �ڲ�ת�����ֵ䣬��Ϊ (Դ����, Ŀ������)��ֵΪ��Ӧ��ί�С�
+        /// 内部转换器字典，键为 (源类型, 目标类型)，值为对应的委托。
         /// </summary>
         private static readonly ConcurrentDictionary<(Type, Type), Delegate> _registry = new();
 
         /// <summary>
-        /// ע��һ������ת������
+        /// 注册一个类型转换器。
         /// </summary>
-        /// <param name="src">Դ���͡�</param>
-        /// <param name="dest">Ŀ�����͡�</param>
-        /// <param name="converter">����ת����ί�У�ͨ���� Func&lt;TSource, TDestination&gt;��</param>
+        /// <param name="src">源类型。</param>
+        /// <param name="dest">目标类型。</param>
+        /// <param name="converter">用于转换的委托，通常是 Func&lt;TSource, TDestination&gt;。</param>
         public static void Register(Type src, Type dest, Delegate converter)
         {
             if (src == null) throw new ArgumentNullException(nameof(src));
@@ -47,12 +47,12 @@ namespace Ling.Mapper
         }
 
         /// <summary>
-        /// ���Ի�ȡָ��Դ���ͺ�Ŀ�����͵�ת������
+        /// 尝试获取指定源类型和目标类型的转换器。
         /// </summary>
-        /// <param name="src">Դ���͡�</param>
-        /// <param name="dest">Ŀ�����͡�</param>
-        /// <param name="converter">���ת��ί�У���������򷵻ء�</param>
-        /// <returns>����ҵ��˶�Ӧ��ת�����򷵻� true�����򷵻� false��</returns>
+        /// <param name="src">源类型。</param>
+        /// <param name="dest">目标类型。</param>
+        /// <param name="converter">输出转换委托，如果存在则返回。</param>
+        /// <returns>如果找到了对应的转换器则返回 true，否则返回 false。</returns>
         public static bool TryGet(Type src, Type dest, out Delegate? converter)
         {
             if (src == null) throw new ArgumentNullException(nameof(src));
@@ -62,10 +62,10 @@ namespace Ling.Mapper
         }
 
         /// <summary>
-        /// Ϊĳ������ע�� JSON ���л�ת������
-        /// ��ͬʱע�� string -&gt; T�������л����� T -&gt; string�����л������������ת������
+        /// 为某个类型注册 JSON 序列化转换器。
+        /// 会同时注册 string -&gt; T（反序列化）和 T -&gt; string（序列化）两个方向的转换器。
         /// </summary>
-        /// <typeparam name="T">��Ҫ���� JSON ת�������͡�</typeparam>
+        /// <typeparam name="T">需要进行 JSON 转换的类型。</typeparam>
         public static void RegisterJson<T>()
         {
             Register(typeof(string), typeof(T), new Func<string, T?>(s =>
