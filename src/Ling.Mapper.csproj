@@ -52,11 +52,12 @@
 		<None Include="ling.png" Pack="true" PackagePath="" />
 
 		<!-- 打包 README -->
+    <None Include="..\README.md" Pack="true" PackagePath="" />
 	</ItemGroup>
 
 	<ItemGroup>
 		<!-- 依赖：使用条件版本以兼容不同的 .NET 框架 -->
-		<PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.0" Condition="'$(TargetFramework)' == 'net9.0' or '$(TargetFramework)' == 'net10.0'" />
+		<!--<PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.0" Condition="'$(TargetFramework)' == 'net9.0' or '$(TargetFramework)' == 'net10.0'" />-->
 	</ItemGroup>
 
 </Project>
