@@ -36,35 +36,47 @@ public static class PerformanceBenchmarkTest
         var source = new SimpleSource { Id = 1, Name = "Test", Value = 100 };
         
         // 预热
+        Console.Write("  预热中...");
         for (int i = 0; i < 1000; i++)
         {
             _ = source.Adapt<SimpleTarget>();
         }
+        Console.WriteLine(" 完成");
         
         GC.Collect();
         GC.WaitForPendingFinalizers();
         GC.Collect();
         
+        // 性能测试（带进度条）
+        const int totalIterations = 1_000_000;
+        using var progressBar = new ProgressBar(totalIterations, width: 50, prefix: "  进度");
+        
         var sw = Stopwatch.StartNew();
-        for (int i = 0; i < 1_000_000; i++)
+        for (int i = 0; i < totalIterations; i++)
         {
             _ = source.Adapt<SimpleTarget>();
+            
+            // 每 10000 次更新一次进度条
+            if (i % 10_000 == 0 || i == totalIterations - 1)
+            {
+                progressBar.Update(i + 1);
+            }
         }
         sw.Stop();
         
         var opsPerSecond = 1_000_000.0 / sw.Elapsed.TotalSeconds;
         
-        Console.WriteLine($"  ? 总耗时: {sw.ElapsedMilliseconds} ms");
-        Console.WriteLine($"  ? 平均每次: {sw.Elapsed.TotalMilliseconds / 1_000_000:F6} ms");
-        Console.WriteLine($"  ? 吞吐量: {opsPerSecond:N0} ops/sec");
+        Console.WriteLine($"  ⏱ 总耗时: {sw.ElapsedMilliseconds} ms");
+        Console.WriteLine($"  📊 平均每次: {sw.Elapsed.TotalMilliseconds / 1_000_000:F6} ms");
+        Console.WriteLine($"  🚀 吞吐量: {opsPerSecond:N0} ops/sec");
         
         if (sw.ElapsedMilliseconds < 1000)
         {
-            Console.WriteLine($"  ? 性能测试通过 (< 1000ms)");
+            Console.WriteLine($"  ✅ 性能测试通过 (< 1000ms)");
         }
         else
         {
-            Console.WriteLine($"  ? 性能警告: {sw.ElapsedMilliseconds} ms");
+            Console.WriteLine($"  ⚠️ 性能警告: {sw.ElapsedMilliseconds} ms");
         }
         
         Console.WriteLine();
@@ -96,6 +108,7 @@ public static class PerformanceBenchmarkTest
         };
         
         // 预热
+        Console.Write("  预热中...");
         for (int i = 0; i < 100; i++)
         {
             try
@@ -106,43 +119,50 @@ public static class PerformanceBenchmarkTest
             {
                 Console.WriteLine(ex);
             }
-           
         }
+        Console.WriteLine(" 完成");
         
         GC.Collect();
         GC.WaitForPendingFinalizers();
         GC.Collect();
+        
+        // 性能测试（带进度条）
+        const int totalIterations = 100_000;
+        using var progressBar = new ProgressBar(totalIterations, width: 50, prefix: "  进度");
+        
         var sw = Stopwatch.StartNew();
-        for (int i = 0; i < 100_000; i++)
+        for (int i = 0; i < totalIterations; i++)
         {
-            
             try
             {
-                var sw1 = Stopwatch.StartNew();
                 _ = source.Adapt<ComplexTarget>();
-                sw1.Stop();
-                Console.WriteLine($"  单次耗时: {sw1.ElapsedMilliseconds} ms");
             }
             catch (Exception ex)
             {
                 Console.WriteLine(ex);
+            }
+            
+            // 每 1000 次更新一次进度条
+            if (i % 1_000 == 0 || i == totalIterations - 1)
+            {
+                progressBar.Update(i + 1);
             }
         }
         sw.Stop();
         
         var opsPerSecond = 100_000.0 / sw.Elapsed.TotalSeconds;
         
-        Console.WriteLine($"  ? 总耗时: {sw.ElapsedMilliseconds} ms");
-        Console.WriteLine($"  ? 平均每次: {sw.Elapsed.TotalMilliseconds / 100_000:F6} ms");
-        Console.WriteLine($"  ? 吞吐量: {opsPerSecond:N0} ops/sec");
+        Console.WriteLine($"  ⏱ 总耗时: {sw.ElapsedMilliseconds} ms");
+        Console.WriteLine($"  📊 平均每次: {sw.Elapsed.TotalMilliseconds / 100_000:F6} ms");
+        Console.WriteLine($"  🚀 吞吐量: {opsPerSecond:N0} ops/sec");
         
         if (sw.ElapsedMilliseconds < 500)
         {
-            Console.WriteLine($"  ? 性能测试通过 (< 500ms)");
+            Console.WriteLine($"  ✅ 性能测试通过 (< 500ms)");
         }
         else
         {
-            Console.WriteLine($"  ? 性能警告: {sw.ElapsedMilliseconds} ms");
+            Console.WriteLine($"  ⚠️ 性能警告: {sw.ElapsedMilliseconds} ms");
         }
         
         Console.WriteLine();
@@ -157,36 +177,48 @@ public static class PerformanceBenchmarkTest
             .ToList();
         
         // 预热
+        Console.Write("  预热中...");
         for (int i = 0; i < 100; i++)
         {
             _ = source.Adapt<List<SimpleTarget>>();
         }
+        Console.WriteLine(" 完成");
         
         GC.Collect();
         GC.WaitForPendingFinalizers();
         GC.Collect();
         
+        // 性能测试（带进度条）
+        const int totalIterations = 10_000;
+        using var progressBar = new ProgressBar(totalIterations, width: 50, prefix: "  进度");
+        
         var sw = Stopwatch.StartNew();
-        for (int i = 0; i < 10_000; i++)
+        for (int i = 0; i < totalIterations; i++)
         {
             _ = source.Adapt<List<SimpleTarget>>();
+            
+            // 每 100 次更新一次进度条
+            if (i % 100 == 0 || i == totalIterations - 1)
+            {
+                progressBar.Update(i + 1);
+            }
         }
         sw.Stop();
         
         var totalElements = 10_000 * 100;
         var elementsPerSecond = totalElements / sw.Elapsed.TotalSeconds;
         
-        Console.WriteLine($"  ? 总耗时: {sw.ElapsedMilliseconds} ms");
-        Console.WriteLine($"  ? 总元素数: {totalElements:N0}");
-        Console.WriteLine($"  ? 吞吐量: {elementsPerSecond:N0} elements/sec");
+        Console.WriteLine($"  ⏱ 总耗时: {sw.ElapsedMilliseconds} ms");
+        Console.WriteLine($"  📊 总元素数: {totalElements:N0}");
+        Console.WriteLine($"  🚀 吞吐量: {elementsPerSecond:N0} elements/sec");
         
         if (sw.ElapsedMilliseconds < 1000)
         {
-            Console.WriteLine($"  ? 性能测试通过 (< 1000ms)");
+            Console.WriteLine($"  ✅ 性能测试通过 (< 1000ms)");
         }
         else
         {
-            Console.WriteLine($"  ? 性能警告: {sw.ElapsedMilliseconds} ms");
+            Console.WriteLine($"  ⚠️ 性能警告: {sw.ElapsedMilliseconds} ms");
         }
         
         Console.WriteLine();
@@ -199,27 +231,39 @@ public static class PerformanceBenchmarkTest
         var source = new EnumSource { Status = TestStatus.Active };
         
         // 预热
+        Console.Write("  预热中...");
         for (int i = 0; i < 1000; i++)
         {
             _ = source.Adapt<EnumTarget>();
         }
+        Console.WriteLine(" 完成");
         
         GC.Collect();
         GC.WaitForPendingFinalizers();
         GC.Collect();
         
+        // 性能测试（带进度条）
+        const int totalIterations = 1_000_000;
+        using var progressBar = new ProgressBar(totalIterations, width: 50, prefix: "  进度");
+        
         var sw = Stopwatch.StartNew();
-        for (int i = 0; i < 1_000_000; i++)
+        for (int i = 0; i < totalIterations; i++)
         {
             _ = source.Adapt<EnumTarget>();
+            
+            // 每 10000 次更新一次进度条
+            if (i % 10_000 == 0 || i == totalIterations - 1)
+            {
+                progressBar.Update(i + 1);
+            }
         }
         sw.Stop();
         
         var opsPerSecond = 1_000_000.0 / sw.Elapsed.TotalSeconds;
         
-        Console.WriteLine($"  ? 总耗时: {sw.ElapsedMilliseconds} ms");
-        Console.WriteLine($"  ? 平均每次: {sw.Elapsed.TotalMilliseconds / 1_000_000:F6} ms");
-        Console.WriteLine($"  ? 吞吐量: {opsPerSecond:N0} ops/sec");
+        Console.WriteLine($"  ⏱ 总耗时: {sw.ElapsedMilliseconds} ms");
+        Console.WriteLine($"  📊 平均每次: {sw.Elapsed.TotalMilliseconds / 1_000_000:F6} ms");
+        Console.WriteLine($"  🚀 吞吐量: {opsPerSecond:N0} ops/sec");
         
         Console.WriteLine();
     }
@@ -231,27 +275,39 @@ public static class PerformanceBenchmarkTest
         var source = new NullableSource { Value = 42, Name = "Test" };
         
         // 预热
+        Console.Write("  预热中...");
         for (int i = 0; i < 1000; i++)
         {
             _ = source.Adapt<NullableTarget>();
         }
+        Console.WriteLine(" 完成");
         
         GC.Collect();
         GC.WaitForPendingFinalizers();
         GC.Collect();
         
+        // 性能测试（带进度条）
+        const int totalIterations = 1_000_000;
+        using var progressBar = new ProgressBar(totalIterations, width: 50, prefix: "  进度");
+        
         var sw = Stopwatch.StartNew();
-        for (int i = 0; i < 1_000_000; i++)
+        for (int i = 0; i < totalIterations; i++)
         {
             _ = source.Adapt<NullableTarget>();
+            
+            // 每 10000 次更新一次进度条
+            if (i % 10_000 == 0 || i == totalIterations - 1)
+            {
+                progressBar.Update(i + 1);
+            }
         }
         sw.Stop();
         
         var opsPerSecond = 1_000_000.0 / sw.Elapsed.TotalSeconds;
         
-        Console.WriteLine($"  ? 总耗时: {sw.ElapsedMilliseconds} ms");
-        Console.WriteLine($"  ? 平均每次: {sw.Elapsed.TotalMilliseconds / 1_000_000:F6} ms");
-        Console.WriteLine($"  ? 吞吐量: {opsPerSecond:N0} ops/sec");
+        Console.WriteLine($"  ⏱ 总耗时: {sw.ElapsedMilliseconds} ms");
+        Console.WriteLine($"  📊 平均每次: {sw.Elapsed.TotalMilliseconds / 1_000_000:F6} ms");
+        Console.WriteLine($"  🚀 吞吐量: {opsPerSecond:N0} ops/sec");
         
         Console.WriteLine();
     }
