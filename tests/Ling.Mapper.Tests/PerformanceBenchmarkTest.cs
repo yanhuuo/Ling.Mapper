@@ -3,19 +3,20 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using Ling.Mapper;
+using TestConsole.Utils;
 
 namespace TestConsole;
 
 /// <summary>
-/// ĞÔÄÜ»ù×¼²âÊÔ - ²âÊÔ²»Í¬³¡¾°ÏÂµÄÓ³ÉäĞÔÄÜ
+/// æ€§èƒ½åŸºå‡†æµ‹è¯• - æµ‹è¯•ä¸åŒåœºæ™¯ä¸‹çš„æ˜ å°„æ€§èƒ½
 /// </summary>
 public static class PerformanceBenchmarkTest
 {
     public static void Run()
     {
-        Console.WriteLine("--- ĞÔÄÜ»ù×¼²âÊÔ ---\n");
-        Console.WriteLine("²âÊÔÅäÖÃ£º");
-        Console.WriteLine($"  - CPU: {Environment.ProcessorCount} ºË");
+        Console.WriteLine("--- æ€§èƒ½åŸºå‡†æµ‹è¯• ---\n");
+        Console.WriteLine("æµ‹è¯•é…ç½®ï¼š");
+        Console.WriteLine($"  - CPU: {Environment.ProcessorCount} æ ¸");
         Console.WriteLine($"  - .NET: {Environment.Version}");
         Console.WriteLine();
         
@@ -30,11 +31,11 @@ public static class PerformanceBenchmarkTest
     
     private static void TestSimpleMappingPerformance()
     {
-        Console.WriteLine("1. ¼òµ¥¶ÔÏóÓ³ÉäĞÔÄÜ£¨1,000,000 ´Î£©");
+        Console.WriteLine("1. ç®€å•å¯¹è±¡æ˜ å°„æ€§èƒ½ï¼ˆ1,000,000 æ¬¡ï¼‰");
         
         var source = new SimpleSource { Id = 1, Name = "Test", Value = 100 };
         
-        // Ô¤ÈÈ
+        // é¢„çƒ­
         for (int i = 0; i < 1000; i++)
         {
             _ = source.Adapt<SimpleTarget>();
@@ -53,17 +54,17 @@ public static class PerformanceBenchmarkTest
         
         var opsPerSecond = 1_000_000.0 / sw.Elapsed.TotalSeconds;
         
-        Console.WriteLine($"  ? ×ÜºÄÊ±: {sw.ElapsedMilliseconds} ms");
-        Console.WriteLine($"  ? Æ½¾ùÃ¿´Î: {sw.Elapsed.TotalMilliseconds / 1_000_000:F6} ms");
-        Console.WriteLine($"  ? ÍÌÍÂÁ¿: {opsPerSecond:N0} ops/sec");
+        Console.WriteLine($"  ? æ€»è€—æ—¶: {sw.ElapsedMilliseconds} ms");
+        Console.WriteLine($"  ? å¹³å‡æ¯æ¬¡: {sw.Elapsed.TotalMilliseconds / 1_000_000:F6} ms");
+        Console.WriteLine($"  ? ååé‡: {opsPerSecond:N0} ops/sec");
         
         if (sw.ElapsedMilliseconds < 1000)
         {
-            Console.WriteLine($"  ? ĞÔÄÜ²âÊÔÍ¨¹ı (< 1000ms)");
+            Console.WriteLine($"  ? æ€§èƒ½æµ‹è¯•é€šè¿‡ (< 1000ms)");
         }
         else
         {
-            Console.WriteLine($"  ? ĞÔÄÜ¾¯¸æ: {sw.ElapsedMilliseconds} ms");
+            Console.WriteLine($"  ? æ€§èƒ½è­¦å‘Š: {sw.ElapsedMilliseconds} ms");
         }
         
         Console.WriteLine();
@@ -71,7 +72,7 @@ public static class PerformanceBenchmarkTest
     
     private static void TestComplexMappingPerformance()
     {
-        Console.WriteLine("2. ¸´ÔÓ¶ÔÏóÓ³ÉäĞÔÄÜ£¨100,000 ´Î£©");
+        Console.WriteLine("2. å¤æ‚å¯¹è±¡æ˜ å°„æ€§èƒ½ï¼ˆ100,000 æ¬¡ï¼‰");
         
         var source = new ComplexSource
         {
@@ -94,36 +95,54 @@ public static class PerformanceBenchmarkTest
             }
         };
         
-        // Ô¤ÈÈ
+        // é¢„çƒ­
         for (int i = 0; i < 100; i++)
         {
-            _ = source.Adapt<ComplexTarget>();
+            try
+            {
+                _ = source.Adapt<ComplexTarget>();
+            }
+            catch(Exception ex)
+            {
+                Console.WriteLine(ex);
+            }
+           
         }
         
         GC.Collect();
         GC.WaitForPendingFinalizers();
         GC.Collect();
-        
         var sw = Stopwatch.StartNew();
         for (int i = 0; i < 100_000; i++)
         {
-            _ = source.Adapt<ComplexTarget>();
+            
+            try
+            {
+                var sw1 = Stopwatch.StartNew();
+                _ = source.Adapt<ComplexTarget>();
+                sw1.Stop();
+                Console.WriteLine($"  å•æ¬¡è€—æ—¶: {sw1.ElapsedMilliseconds} ms");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+            }
         }
         sw.Stop();
         
         var opsPerSecond = 100_000.0 / sw.Elapsed.TotalSeconds;
         
-        Console.WriteLine($"  ? ×ÜºÄÊ±: {sw.ElapsedMilliseconds} ms");
-        Console.WriteLine($"  ? Æ½¾ùÃ¿´Î: {sw.Elapsed.TotalMilliseconds / 100_000:F6} ms");
-        Console.WriteLine($"  ? ÍÌÍÂÁ¿: {opsPerSecond:N0} ops/sec");
+        Console.WriteLine($"  ? æ€»è€—æ—¶: {sw.ElapsedMilliseconds} ms");
+        Console.WriteLine($"  ? å¹³å‡æ¯æ¬¡: {sw.Elapsed.TotalMilliseconds / 100_000:F6} ms");
+        Console.WriteLine($"  ? ååé‡: {opsPerSecond:N0} ops/sec");
         
         if (sw.ElapsedMilliseconds < 500)
         {
-            Console.WriteLine($"  ? ĞÔÄÜ²âÊÔÍ¨¹ı (< 500ms)");
+            Console.WriteLine($"  ? æ€§èƒ½æµ‹è¯•é€šè¿‡ (< 500ms)");
         }
         else
         {
-            Console.WriteLine($"  ? ĞÔÄÜ¾¯¸æ: {sw.ElapsedMilliseconds} ms");
+            Console.WriteLine($"  ? æ€§èƒ½è­¦å‘Š: {sw.ElapsedMilliseconds} ms");
         }
         
         Console.WriteLine();
@@ -131,13 +150,13 @@ public static class PerformanceBenchmarkTest
     
     private static void TestCollectionMappingPerformance()
     {
-        Console.WriteLine("3. ¼¯ºÏÓ³ÉäĞÔÄÜ£¨10,000 ´Î x 100 ÔªËØ£©");
+        Console.WriteLine("3. é›†åˆæ˜ å°„æ€§èƒ½ï¼ˆ10,000 æ¬¡ x 100 å…ƒç´ ï¼‰");
         
         var source = Enumerable.Range(1, 100)
             .Select(i => new SimpleSource { Id = i, Name = $"Item {i}", Value = i * 10 })
             .ToList();
         
-        // Ô¤ÈÈ
+        // é¢„çƒ­
         for (int i = 0; i < 100; i++)
         {
             _ = source.Adapt<List<SimpleTarget>>();
@@ -157,17 +176,17 @@ public static class PerformanceBenchmarkTest
         var totalElements = 10_000 * 100;
         var elementsPerSecond = totalElements / sw.Elapsed.TotalSeconds;
         
-        Console.WriteLine($"  ? ×ÜºÄÊ±: {sw.ElapsedMilliseconds} ms");
-        Console.WriteLine($"  ? ×ÜÔªËØÊı: {totalElements:N0}");
-        Console.WriteLine($"  ? ÍÌÍÂÁ¿: {elementsPerSecond:N0} elements/sec");
+        Console.WriteLine($"  ? æ€»è€—æ—¶: {sw.ElapsedMilliseconds} ms");
+        Console.WriteLine($"  ? æ€»å…ƒç´ æ•°: {totalElements:N0}");
+        Console.WriteLine($"  ? ååé‡: {elementsPerSecond:N0} elements/sec");
         
         if (sw.ElapsedMilliseconds < 1000)
         {
-            Console.WriteLine($"  ? ĞÔÄÜ²âÊÔÍ¨¹ı (< 1000ms)");
+            Console.WriteLine($"  ? æ€§èƒ½æµ‹è¯•é€šè¿‡ (< 1000ms)");
         }
         else
         {
-            Console.WriteLine($"  ? ĞÔÄÜ¾¯¸æ: {sw.ElapsedMilliseconds} ms");
+            Console.WriteLine($"  ? æ€§èƒ½è­¦å‘Š: {sw.ElapsedMilliseconds} ms");
         }
         
         Console.WriteLine();
@@ -175,11 +194,11 @@ public static class PerformanceBenchmarkTest
     
     private static void TestEnumConversionPerformance()
     {
-        Console.WriteLine("4. Ã¶¾Ù×ª»»ĞÔÄÜ£¨1,000,000 ´Î£©");
+        Console.WriteLine("4. æšä¸¾è½¬æ¢æ€§èƒ½ï¼ˆ1,000,000 æ¬¡ï¼‰");
         
         var source = new EnumSource { Status = TestStatus.Active };
         
-        // Ô¤ÈÈ
+        // é¢„çƒ­
         for (int i = 0; i < 1000; i++)
         {
             _ = source.Adapt<EnumTarget>();
@@ -198,20 +217,20 @@ public static class PerformanceBenchmarkTest
         
         var opsPerSecond = 1_000_000.0 / sw.Elapsed.TotalSeconds;
         
-        Console.WriteLine($"  ? ×ÜºÄÊ±: {sw.ElapsedMilliseconds} ms");
-        Console.WriteLine($"  ? Æ½¾ùÃ¿´Î: {sw.Elapsed.TotalMilliseconds / 1_000_000:F6} ms");
-        Console.WriteLine($"  ? ÍÌÍÂÁ¿: {opsPerSecond:N0} ops/sec");
+        Console.WriteLine($"  ? æ€»è€—æ—¶: {sw.ElapsedMilliseconds} ms");
+        Console.WriteLine($"  ? å¹³å‡æ¯æ¬¡: {sw.Elapsed.TotalMilliseconds / 1_000_000:F6} ms");
+        Console.WriteLine($"  ? ååé‡: {opsPerSecond:N0} ops/sec");
         
         Console.WriteLine();
     }
     
     private static void TestNullableConversionPerformance()
     {
-        Console.WriteLine("5. ¿É¿ÕÀàĞÍ×ª»»ĞÔÄÜ£¨1,000,000 ´Î£©");
+        Console.WriteLine("5. å¯ç©ºç±»å‹è½¬æ¢æ€§èƒ½ï¼ˆ1,000,000 æ¬¡ï¼‰");
         
         var source = new NullableSource { Value = 42, Name = "Test" };
         
-        // Ô¤ÈÈ
+        // é¢„çƒ­
         for (int i = 0; i < 1000; i++)
         {
             _ = source.Adapt<NullableTarget>();
@@ -230,9 +249,9 @@ public static class PerformanceBenchmarkTest
         
         var opsPerSecond = 1_000_000.0 / sw.Elapsed.TotalSeconds;
         
-        Console.WriteLine($"  ? ×ÜºÄÊ±: {sw.ElapsedMilliseconds} ms");
-        Console.WriteLine($"  ? Æ½¾ùÃ¿´Î: {sw.Elapsed.TotalMilliseconds / 1_000_000:F6} ms");
-        Console.WriteLine($"  ? ÍÌÍÂÁ¿: {opsPerSecond:N0} ops/sec");
+        Console.WriteLine($"  ? æ€»è€—æ—¶: {sw.ElapsedMilliseconds} ms");
+        Console.WriteLine($"  ? å¹³å‡æ¯æ¬¡: {sw.Elapsed.TotalMilliseconds / 1_000_000:F6} ms");
+        Console.WriteLine($"  ? ååé‡: {opsPerSecond:N0} ops/sec");
         
         Console.WriteLine();
     }

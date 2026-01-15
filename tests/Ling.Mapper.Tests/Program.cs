@@ -13,44 +13,65 @@ Console.WriteLine();
 // 初始化 Mapper 配置
 InitializeMapper();
 
-// 显示测试菜单
-ShowTestMenu();
-
-var choice = Console.ReadLine();
-
-switch (choice)
+// 🔄 循环测试菜单
+while (true)
 {
-    case "1":
-        RunBasicTests();
-        break;
-    case "2":
-        RunAdvancedTests();
-        break;
-    case "3":
-        RunPerformanceTests();
-        break;
-    case "4":
-        RunStressTests();
-        break;
-    case "5":
-        RunAutoInitializeTest();
-        break;
-    case "6":
-        RunCollectionAutoDetectionTest();
-        break;
-    case "7":
-        RunAllTests();
-        break;
-    case "0":
-        return;
-    default:
-        Console.WriteLine("无效选择，运行所有测试...");
-        RunAllTests();
-        break;
-}
+    // 显示测试菜单
+    ShowTestMenu();
 
-Console.WriteLine("\n按任意键退出...");
-Console.ReadLine();
+    var choice = Console.ReadLine();
+
+    switch (choice)
+    {
+        case "1":
+            RunBasicTests();
+            break;
+        case "2":
+            RunAdvancedTests();
+            break;
+        case "3":
+            RunPerformanceTests();
+            break;
+        case "4":
+            RunStressTests();
+            break;
+        case "5":
+            RunAutoInitializeTest();
+            break;
+        case "6":
+            RunCollectionAutoDetectionTest();
+            break;
+        case "7":
+            RunAdaptOptionsFlexibleTest();
+            break;
+        case "8":
+            RunDefaultFlexibleOptionTest();
+            break;
+        case "9":
+            RunNestedPropertyMappingTest();
+            break;
+        case "0":
+            RunAllTests();
+            break;
+        case "q":
+        case "Q":
+            Console.WriteLine("\n👋 感谢使用 Ling.Mapper 测试套件！");
+            return;
+        default:
+            Console.WriteLine("❌ 无效选择，请重新输入");
+            break;
+    }
+
+    Console.WriteLine("\n" + new string('─', 60));
+    Console.WriteLine("按 Enter 键继续测试，或输入 'q' 退出...");
+    var continueChoice = Console.ReadLine();
+    if (continueChoice?.ToLower() == "q")
+    {
+        Console.WriteLine("\n👋 感谢使用 Ling.Mapper 测试套件！");
+        return;
+    }
+    Console.WriteLine();
+}
 
 // ============ 初始化方法 ============
 
@@ -87,9 +108,12 @@ void ShowTestMenu()
     Console.WriteLine("  4 - 压力测试 (Stress Tests)");
     Console.WriteLine("  5 - 自动初始化测试 (Auto Initialize Test) 🆕");
     Console.WriteLine("  6 - 集合自动识别测试 (Collection Auto Detection) 🆕");
-    Console.WriteLine("  7 - 运行所有测试 (Run All Tests)");
-    Console.WriteLine("  0 - 退出 (Exit)");
-    Console.Write("\n选择 (1-7): ");
+    Console.WriteLine("  7 - AdaptOptions FlexibleOption 测试 🔥");
+    Console.WriteLine("  8 - 默认 FlexibleOption 测试 ⭐ NEW!");
+    Console.WriteLine("  9 - 嵌套属性映射测试 (A.B.C.D) 🎯 NEW!");
+    Console.WriteLine("  0 - 运行所有测试 (Run All Tests)");
+    Console.WriteLine("  q - 退出 (Exit)");
+    Console.Write("\n选择 (1-9/0/q): ");
 }
 
 // ============ 测试套件 ============
@@ -185,6 +209,51 @@ void RunCollectionAutoDetectionTest()
     Console.WriteLine($"\n✅ 集合自动识别测试完成，耗时: {sw.ElapsedMilliseconds} ms\n");
 }
 
+void RunAdaptOptionsFlexibleTest()
+{
+    Console.WriteLine("\n╔═══════════════════════════════════════════════╗");
+    Console.WriteLine("║  AdaptOptions FlexibleOption 测试 🔥           ║");
+    Console.WriteLine("╚═══════════════════════════════════════════════╝\n");
+    
+    var sw = Stopwatch.StartNew();
+    
+    AdaptOptionsFlexibleTest.Run();
+    
+    sw.Stop();
+    Console.WriteLine($"\n✅ AdaptOptions 测试完成，耗时: {sw.ElapsedMilliseconds} ms\n");
+}
+
+void RunDefaultFlexibleOptionTest()
+{
+    Console.WriteLine("\n╔══════════════════════════════════════════════════╗");
+    Console.WriteLine("║  默认 FlexibleOption 测试 (v2.4) ⭐              ║");
+    Console.WriteLine("╚══════════════════════════════════════════════════╝\n");
+    
+    var sw = Stopwatch.StartNew();
+    
+    DefaultFlexibleOptionTest.Run();
+    
+    sw.Stop();
+    Console.WriteLine($"\n✅ 默认 FlexibleOption 测试完成，耗时: {sw.ElapsedMilliseconds} ms\n");
+}
+
+void RunNestedPropertyMappingTest()
+{
+    Console.WriteLine("\n╔═══════════════════════════════════════════════════╗");
+    Console.WriteLine("║  嵌套属性映射测试 (A.B.C.D) 🎯 NEW!             ║");
+    Console.WriteLine("╚═══════════════════════════════════════════════════╝\n");
+    
+    var sw = Stopwatch.StartNew();
+    
+    NestedPropertyMappingTest.Run();
+    
+    sw.Stop();
+    Console.WriteLine($"\n✅ 嵌套属性映射测试完成，耗时: {sw.ElapsedMilliseconds} ms\n");
+}
+
+
+
+
 
 
 void RunPerformanceTests()
@@ -217,8 +286,14 @@ void RunAllTests()
     RunAdvancedTests();
     RunAutoInitializeTest();
     RunCollectionAutoDetectionTest();
+    RunAdaptOptionsFlexibleTest();
+    RunDefaultFlexibleOptionTest();
+    RunNestedPropertyMappingTest();
     RunPerformanceTests();
     RunStressTests();
+    
+    
+    
     
     
     

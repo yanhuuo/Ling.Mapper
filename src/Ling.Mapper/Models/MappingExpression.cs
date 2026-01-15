@@ -103,14 +103,14 @@ namespace Ling.Mapper
         }
 
         /// <summary>
-        /// 从 lambda 表达式中解析出属性名称。
-        /// 只支持简单属性访问：x => x.Property
-        /// 对于复杂表达式（x => x.Property.SubProp）会抛异常。
+        /// 从 lambda 表达式中解析出属性名称（支持多级属性访问）。
+        /// 支持：x => x.Property（单级）
+        /// 支持：x => x.A.B.C（多级）
         /// 自动处理 UnaryExpression（如 Convert）。
         /// </summary>
         /// <param name="expr">属性访问 lambda 表达式。</param>
-        /// <returns>属性名称。</returns>
-        /// <exception cref="InvalidOperationException">当表达式不是简单属性访问时抛出。</exception>
+        /// <returns>属性路径（如 "A.B.C"）。</returns>
+        /// <exception cref="InvalidOperationException">当表达式不是属性访问时抛出。</exception>
         private string GetPropName(LambdaExpression expr)
         {
             if (expr == null)
@@ -127,24 +127,44 @@ namespace Ling.Mapper
             if (body is not MemberExpression memberExpr)
             {
                 throw new InvalidOperationException(
-                    $"表达式无效：{expr}. 期望形式为：x => x.Property");
+                    $"表达式无效：{expr}. 期望形式为：x => x.Property 或 x => x.A.B.C");
             }
 
-            // ③ 目标必须是属性
-            if (memberExpr.Member is not PropertyInfo pi)
+            // ③ 解析属性路径（支持多级）
+            var propertyPath = new List<string>();
+            var currentExpr = memberExpr;
+
+            while (currentExpr != null)
             {
-                throw new InvalidOperationException(
-                    $"表达式 {expr} 不是属性访问。请使用：x => x.Property 格式。");
+                // 必须是属性访问
+                if (currentExpr.Member is not PropertyInfo pi)
+                {
+                    throw new InvalidOperationException(
+                        $"表达式 {expr} 包含非属性成员访问。请使用：x => x.Property 或 x => x.A.B.C 格式。");
+                }
+
+                // 添加到路径（逆序）
+                propertyPath.Insert(0, pi.Name);
+
+                // 继续解析上一级
+                if (currentExpr.Expression is MemberExpression parentMember)
+                {
+                    currentExpr = parentMember;
+                }
+                else if (currentExpr.Expression is ParameterExpression)
+                {
+                    // 到达根参数，结束
+                    break;
+                }
+                else
+                {
+                    throw new InvalidOperationException(
+                        $"表达式 {expr} 包含不支持的表达式类型。");
+                }
             }
 
-            // ④ 必须是直接属性访问，而不是 x => x.A.B.C
-            if (memberExpr.Expression is not ParameterExpression)
-            {
-                throw new InvalidOperationException(
-                    $"表达式 {expr} 为多级访问（如 A.B.C），仅支持一级属性：x => x.Property");
-            }
-
-            return pi.Name;
+            // 返回属性路径（用 "." 连接）
+            return string.Join(".", propertyPath);
         }
     }
 }

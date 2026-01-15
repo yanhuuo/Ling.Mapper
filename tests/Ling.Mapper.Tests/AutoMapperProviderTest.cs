@@ -78,11 +78,19 @@ namespace Ling.Mapper.Tests
                 new SourceDto { Id = 3, Name = "项目3" }
             };
 
-            // 🎉 直接使用 AdaptList，不需要手动设置！
-            var targetList = sourceList.AdaptList<TargetDto, SourceDto>((dest, src, index) =>
+            // 🎉 直接使用 Adapt，自动识别集合类型！
+            var targetList = sourceList.Adapt<List<TargetDto>>((list, src) =>
             {
-                if (dest != null)
-                    dest.DisplayName = $"[{index + 1}] {src.Name}";
+                if (list == null) return;
+                var sources = src as List<SourceDto>;
+                
+                for (int index = 0; index < list.Count; index++)
+                {
+                    var dest = list[index];
+                    var source = sources?[index];
+                    if (dest != null && source != null)
+                        dest.DisplayName = $"[{index + 1}] {source.Name}";
+                }
             });
 
             Console.WriteLine($"✓ 列表映射成功，共 {targetList?.Count} 项:");

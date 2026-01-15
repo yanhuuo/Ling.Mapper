@@ -5,15 +5,15 @@ using System.Collections.Generic;
 namespace TestConsole;
 
 /// <summary>
-/// ÑİÊ¾ Adapt ·½·¨µÄ¶àÑù»¯ÓÃ·¨£¬ÌØ±ğÊÇ List ×ª»»
+/// æ¼”ç¤º Adapt æ–¹æ³•çš„å¤šæ ·åŒ–ç”¨æ³•ï¼Œç‰¹åˆ«æ˜¯ List è½¬æ¢
 /// </summary>
 public static class AdaptListDemo
 {
     public static void Run()
     {
-        Console.WriteLine("\n=== Adapt List ×ª»»ÑİÊ¾ ===\n");
+        Console.WriteLine("\n=== Adapt List è½¬æ¢æ¼”ç¤º ===\n");
 
-        // ×¼±¸²âÊÔÊı¾İ
+        // å‡†å¤‡æµ‹è¯•æ•°æ®
         var sourceCustomers = new List<CustomerEntity>
         {
             new CustomerEntity { Id = 1, FirstName = "Zhang", LastName = "San", Age = 25, Email = "zhangsan@example.com" },
@@ -21,13 +21,13 @@ public static class AdaptListDemo
             new CustomerEntity { Id = 3, FirstName = "Wang", LastName = "Wu", Age = 28, Email = "wangwu@example.com" }
         };
 
-        // ·½Ê½ 1£ºÊ¹ÓÃ AdaptToList<TDest, TSource>() - ¼ò½àÓï·¨ ?
-        Console.WriteLine("·½Ê½ 1: Ê¹ÓÃ AdaptToList<TDest, TSource>() Ö±½Ó×ª»»");
+        // æ–¹å¼ 1ï¼šä½¿ç”¨ AdaptToList<TDest, TSource>() - ç®€æ´è¯­æ³• ?
+        Console.WriteLine("æ–¹å¼ 1: ä½¿ç”¨ AdaptToList<TDest, TSource>() ç›´æ¥è½¬æ¢");
         var customerDtos1 = sourceCustomers.AdaptToList<CustomerDto, CustomerEntity>();
         PrintCustomers(customerDtos1);
 
-        // ·½Ê½ 2£ºÊ¹ÓÃ AdaptToList<TDest, TSource>() ²¢ÔÚ»Øµ÷ÖĞ´¦ÀíÕû¸öÁĞ±í
-        Console.WriteLine("\n·½Ê½ 2: Ê¹ÓÃ AdaptToList<TDest, TSource>() ²¢´¦ÀíÕû¸öÁĞ±í");
+        // æ–¹å¼ 2ï¼šä½¿ç”¨ AdaptToList<TDest, TSource>() å¹¶åœ¨å›è°ƒä¸­å¤„ç†æ•´ä¸ªåˆ—è¡¨
+        Console.WriteLine("\næ–¹å¼ 2: ä½¿ç”¨ AdaptToList<TDest, TSource>() å¹¶å¤„ç†æ•´ä¸ªåˆ—è¡¨");
         var customerDtos2 = sourceCustomers.AdaptToList<CustomerDto, CustomerEntity>((list, source) =>
         {
             if (list == null) return;
@@ -42,20 +42,28 @@ public static class AdaptListDemo
         });
         PrintCustomers(customerDtos2);
 
-        // ·½Ê½ 3£ºÊ¹ÓÃ AdaptList<T>() ¶ÔÃ¿¸öÔªËØµ¥¶À´¦Àí
-        Console.WriteLine("\n·½Ê½ 3: Ê¹ÓÃ AdaptList<T>() Öğ¸ö´¦ÀíÔªËØ");
-        var customerDtos3 = sourceCustomers.AdaptList<CustomerDto, CustomerEntity>((dto, entity, index) =>
+        // æ–¹å¼ 3ï¼šä½¿ç”¨ Adapt<List<T>>() å¯¹æ¯ä¸ªå…ƒç´ å•ç‹¬å¤„ç†
+        Console.WriteLine("\næ–¹å¼ 3: ä½¿ç”¨ Adapt<List<T>>() é€ä¸ªå¤„ç†å…ƒç´ ");
+        var customerDtos3 = sourceCustomers.Adapt<List<CustomerDto>>((dtoList, srcList) =>
         {
-            if (dto == null) return;
+            if (dtoList == null) return;
+            var entities = srcList as List<CustomerEntity>;
             
-            dto.RowNumber = index + 1;
-            dto.DisplayName = $"{entity.FirstName} {entity.LastName}";
-            dto.AgeGroup = entity.Age < 30 ? "ÇàÄê" : "ÖĞÄê";
+            for (int index = 0; index < dtoList.Count; index++)
+            {
+                var dto = dtoList[index];
+                var entity = entities?[index];
+                if (dto == null || entity == null) continue;
+                
+                dto.RowNumber = index + 1;
+                dto.DisplayName = $"{entity.FirstName} {entity.LastName}";
+                dto.AgeGroup = entity.Age < 30 ? "é’å¹´" : "ä¸­å¹´";
+            }
         });
         PrintCustomers(customerDtos3);
 
-        // ·½Ê½ 4£ºÄ£Äâ·ÖÒ³³¡¾° - page.Data.AdaptToList<TDto, TEntity>()
-        Console.WriteLine("\n·½Ê½ 4: Ä£Äâ·ÖÒ³³¡¾° - page.Data.AdaptToList<TDto, TEntity>()");
+        // æ–¹å¼ 4ï¼šæ¨¡æ‹Ÿåˆ†é¡µåœºæ™¯ - page.Data.AdaptToList<TDto, TEntity>()
+        Console.WriteLine("\næ–¹å¼ 4: æ¨¡æ‹Ÿåˆ†é¡µåœºæ™¯ - page.Data.AdaptToList<TDto, TEntity>()");
         var pageResult = new PageResult<CustomerEntity>
         {
             Page = 1,
@@ -64,7 +72,7 @@ public static class AdaptListDemo
             Data = sourceCustomers
         };
 
-        // ÕâÊÇÍÆ¼öµÄÓï·¨£¡
+        // è¿™æ˜¯æ¨èçš„è¯­æ³•ï¼
         var customerDtos4 = pageResult.Data.AdaptToList<CustomerDto, CustomerEntity>((list, src) =>
         {
             if (list == null) return;
@@ -76,45 +84,48 @@ public static class AdaptListDemo
             }
         });
         
-        Console.WriteLine($"·ÖÒ³ĞÅÏ¢: Page={pageResult.Page}, Size={pageResult.Size}, Total={pageResult.Total}");
+        Console.WriteLine($"åˆ†é¡µä¿¡æ¯: Page={pageResult.Page}, Size={pageResult.Size}, Total={pageResult.Total}");
         PrintCustomers(customerDtos4);
 
-        // ·½Ê½ 5£º¼ò»¯Ğ´·¨£¨×Ô¶¯ÍÆ¶ÏÔ´ÀàĞÍ£©
-        Console.WriteLine("\n·½Ê½ 5: Ê¹ÓÃ AdaptList<T>() ×Ô¶¯ÍÆ¶ÏÔ´ÀàĞÍ");
-        var customerDtos5 = sourceCustomers.AdaptList<CustomerDto>((dto, src, index) =>
+        // æ–¹å¼ 5ï¼šç®€åŒ–å†™æ³•ï¼ˆä½¿ç”¨ Adapt è‡ªåŠ¨è¯†åˆ«é›†åˆï¼‰
+        Console.WriteLine("\næ–¹å¼ 5: ä½¿ç”¨ Adapt<List<T>>() è‡ªåŠ¨è¯†åˆ«é›†åˆ");
+        var customerDtos5 = sourceCustomers.Adapt<List<CustomerDto>>((dtoList, srcList) =>
         {
-            if (dto == null) return;
+            if (dtoList == null) return;
             
-            dto.RowNumber = index + 1;
-            dto.DisplayName = $"Customer #{index + 1}";
+            for (int index = 0; index < dtoList.Count; index++)
+            {
+                dtoList[index].RowNumber = index + 1;
+                dtoList[index].DisplayName = $"Customer #{index + 1}";
+            }
         });
         PrintCustomers(customerDtos5);
     }
 
     private static string FormatCustomerName(CustomerDto customer)
     {
-        return $"{customer.FirstName} {customer.LastName} ({customer.Age}Ëê)";
+        return $"{customer.FirstName} {customer.LastName} ({customer.Age}å²)";
     }
 
     private static void PrintCustomers(List<CustomerDto>? customers)
     {
         if (customers == null || customers.Count == 0)
         {
-            Console.WriteLine("  (ÎŞÊı¾İ)");
+            Console.WriteLine("  (æ— æ•°æ®)");
             return;
         }
 
         foreach (var customer in customers)
         {
             Console.WriteLine($"  [{customer.RowNumber}] {customer.DisplayName} - Email: {customer.Email}" +
-                            (customer.IsFirst ? " [Ê×¸ö]" : "") +
-                            (customer.IsLast ? " [×îºó]" : "") +
-                            (customer.AgeGroup != null ? $" - ÄêÁä¶Î: {customer.AgeGroup}" : ""));
+                            (customer.IsFirst ? " [é¦–ä¸ª]" : "") +
+                            (customer.IsLast ? " [æœ€å]" : "") +
+                            (customer.AgeGroup != null ? $" - å¹´é¾„æ®µ: {customer.AgeGroup}" : ""));
         }
     }
 }
 
-// ÊµÌåÀà
+// å®ä½“ç±»
 public class CustomerEntity
 {
     public int Id { get; set; }
@@ -124,7 +135,7 @@ public class CustomerEntity
     public string Email { get; set; } = string.Empty;
 }
 
-// DTO Àà
+// DTO ç±»
 public class CustomerDto
 {
     public int Id { get; set; }
@@ -139,7 +150,7 @@ public class CustomerDto
     public string? AgeGroup { get; set; }
 }
 
-// ·ÖÒ³½á¹ûÀà
+// åˆ†é¡µç»“æœç±»
 public class PageResult<T>
 {
     public int Page { get; set; }
@@ -148,7 +159,7 @@ public class PageResult<T>
     public List<T> Data { get; set; } = new List<T>();
 }
 
-// Mapper ÅäÖÃ
+// Mapper é…ç½®
 public class CustomerDemoProfile : MapperProfile
 {
     public CustomerDemoProfile()

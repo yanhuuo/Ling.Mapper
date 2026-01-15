@@ -9,7 +9,7 @@ using System.Reflection;
 namespace Ling.Mapper
 {
     /// <summary>
-    /// 映射器的内部实现类 v2。
+    /// 映射器的内部实现类
     /// 改进要点：
     /// 1. 无参构造函数检测 - 避免运行时崩溃
     /// 2. 集合映射类型转换 - 修复简单类型映射逻辑
@@ -25,11 +25,11 @@ namespace Ling.Mapper
         private readonly MapperConfiguration _config;
         private readonly ConcurrentDictionary<(Type, Type), Delegate> _compiledMappers = new();
         
-        // v2 FIX: 添加编译期递归保护，防止在编译映射时无限递归
+        // 添加编译期递归保护，防止在编译映射时无限递归
         private readonly ThreadLocal<HashSet<(Type, Type)>> _compilingMappers = 
             new ThreadLocal<HashSet<(Type, Type)>>(() => new HashSet<(Type, Type)>());
         
-        // v2.1.3 FIX: 添加运行时循环引用检测，防止对象实例之间的循环引用
+        // 添加运行时循环引用检测，防止对象实例之间的循环引用
         private readonly ThreadLocal<Dictionary<object, object>> _mappingContext = 
             new ThreadLocal<Dictionary<object, object>>(() => new Dictionary<object, object>(ReferenceEqualityComparer.Instance));
 
@@ -59,13 +59,13 @@ namespace Ling.Mapper
                 return (TDestination?)objFunc(source!);
             }
 
-            // v2: wrapper 应为唯一路径，此处仅作兜底（理论上不应到达）
+            // wrapper 应为唯一路径，此处仅作兜底（理论上不应到达）
             return (TDestination?)del.DynamicInvoke(source!);
         }
 
         public object? Map(object? source, Type sourceType, Type destType)
         {
-            // v2 FIX: 值类型目标 + source == null 行为明确
+            // 值类型目标 + source == null 行为明确
             if (source == null)
             {
                 // 如果目标类型是非可空值类型，返回默认值
@@ -76,8 +76,13 @@ namespace Ling.Mapper
                 return null;
             }
             
-            // v2.1.3 FIX: 运行时循环引用检测（仅对引用类型）
-            if (!sourceType.IsValueType && !TypeUtils.IsSimple(sourceType))
+            // 🚀 性能优化：只对复杂引用类型进行循环引用检测
+            // 简单类型（string, primitive等）和值类型跳过检测
+            var needsCircularCheck = !sourceType.IsValueType && 
+                                    !TypeUtils.IsSimple(sourceType) &&
+                                    !TypeUtils.IsSimple(destType);
+            
+            if (needsCircularCheck)
             {
                 var context = _mappingContext.Value;
                 if (context == null)
@@ -134,13 +139,13 @@ namespace Ling.Mapper
         {
             var key = (src, dest);
             
-            // v2 FIX: 优先从缓存检查（避免不必要的递归检测）
+            // 优先从缓存检查（避免不必要的递归检测）
             if (_compiledMappers.TryGetValue(key, out var existingMapper))
             {
                 return existingMapper;
             }
             
-            // v2 FIX: 递归检查（在 GetOrAdd 之前）
+            // 递归检查（在 GetOrAdd 之前）
             var compilingSet = _compilingMappers.Value;
             if (compilingSet == null)
             {
@@ -193,7 +198,7 @@ namespace Ling.Mapper
                 // 现在才进入 GetOrAdd，此时已经有递归保护
                 return _compiledMappers.GetOrAdd(key, k =>
                 {
-                    // v2: 明确 Source Generator 短路逻辑 - 完全绕过 Expression Tree
+                    // 明确 Source Generator 短路逻辑 - 完全绕过 Expression Tree
                     if (TryGetGeneratedMapper(k.Item1, k.Item2, out var generatedMapper))
                     {
                         return generatedMapper!;
@@ -207,7 +212,7 @@ namespace Ling.Mapper
                     if (MapperRegistry.TryGet(k.Item1, k.Item2, out var reg) && reg != null)
                     {
                         if (reg is Func<object, object?> fo) return fo;
-                        // v2: 创建 wrapper 避免运行时 DynamicInvoke
+                        // 创建 wrapper 避免运行时 DynamicInvoke
                         return new Func<object, object?>(o => (object?)reg!.DynamicInvoke(o));
                     }
 
@@ -226,7 +231,7 @@ namespace Ling.Mapper
         }
 
         /// <summary>
-        /// v2: 提取 Source Generator 查找逻辑为独立方法，明确短路路径
+        /// 提取 Source Generator 查找逻辑为独立方法，明确短路路径
         /// </summary>
         private bool TryGetGeneratedMapper(Type srcType, Type destType, out Delegate? mapper)
         {
@@ -264,7 +269,7 @@ namespace Ling.Mapper
 
         private Delegate CompileMapper(Type srcType, Type destType, IMappingConfig? cfg)
         {
-            // v2 FIX 1: 检测无参构造函数
+            // 检测无参构造函数
             var destCtor = destType.GetConstructor(Type.EmptyTypes);
             if (destCtor == null && !destType.IsValueType)
             {
@@ -297,7 +302,7 @@ namespace Ling.Mapper
                 .Where(p => p.CanRead)
                 .ToList();
 
-            // v2 FIX 4: 构建源属性字典，优化查找性能 O(n) → O(1)
+            // 构建源属性字典，优化查找性能 O(n) → O(1)
             var srcPropMap = BuildSourcePropertyMap(srcProps, options);
 
             MappingExpressionBase? mappingExprBase = null;
@@ -307,7 +312,7 @@ namespace Ling.Mapper
             // 遍历目标属性并为每个属性生成赋值表达式（如果有对应来源或自定义映射）
             foreach (var dp in destProps)
             {
-                // v2 FIX: 跳过索引器属性（如 this[int index]）
+                // 跳过索引器属性（如 this[int index]）
                 if (dp.GetIndexParameters().Length > 0)
                     continue;
                 
@@ -325,54 +330,96 @@ namespace Ling.Mapper
                 {
                     // 根据 Rename 配置或默认同名规则找到源属性
                     var srcName = mappingExprBase?.GetRenamedSource(dp.Name) ?? dp.Name;
-                    // v2: 使用字典查找，性能提升
-                    var sp = FindSourcePropertyFromMap(srcPropMap, srcName, options);
-
-                    if (sp != null)
+                    
+                    // 🆕 支持嵌套属性路径（如 "User.Profile.Name"）
+                    if (srcName.Contains('.'))
                     {
-                        // v2 FIX: 跳过索引器属性
-                        if (sp.GetIndexParameters().Length > 0)
-                            continue;
-                        
-                        var srcAccess = Expression.Property(srcParam, sp);
+                        // 使用反射在运行时获取嵌套属性值
+                        var helperType = typeof(NestedPropertyHelper);
+                        var getMethod = helperType.GetMethod(nameof(NestedPropertyHelper.GetNestedPropertyValue),
+                            BindingFlags.Public | BindingFlags.Static);
 
-                        // 如果存在类型转换器优先调用转换器
-                        if (TypeConverterRegistry.TryGet(sp.PropertyType, dp.PropertyType, out var converterDel))
+                        if (getMethod != null)
                         {
-                            var delConst = Expression.Constant(converterDel);
-                            var invoke = Expression.Invoke(delConst, srcAccess);
-                            valueExpr = Expression.Convert(invoke, dp.PropertyType);
-                        }
-                        else if (TypeUtils.IsSimple(dp.PropertyType) && TypeUtils.IsSimple(sp.PropertyType))
-                        {
-                            // v2 FIX 5: 使用拆分后的类型转换方法
-                            valueExpr = ConvertSimpleType(srcAccess, sp.PropertyType, dp.PropertyType);
-                        }
-                        else if (TypeUtils.IsCollection(dp.PropertyType))
-                        {
-                            // 集合类型使用内部 MapCollectionInternal 来处理元素映射
-                            var mapCollMethod = typeof(Mapper).GetMethod(nameof(MapCollectionInternal), BindingFlags.NonPublic | BindingFlags.Instance);
-                            if (mapCollMethod != null)
-                                valueExpr = Expression.Convert(
-                                    Expression.Call(Expression.Constant(this), mapCollMethod, Expression.Convert(srcAccess, typeof(object)), Expression.Constant(sp.PropertyType, typeof(Type)), Expression.Constant(dp.PropertyType, typeof(Type))),
-                                    dp.PropertyType);
-                        }
-                        else
-                        {
-                            // 复杂类型递归调用 Map(object, Type, Type)
-                            var mapMethod = typeof(Mapper).GetMethod(nameof(Map), new[] { typeof(object), typeof(Type), typeof(Type) });
-                            if (mapMethod != null)
-                                valueExpr = Expression.Convert(
-                                    Expression.Call(Expression.Constant(this), mapMethod, Expression.Convert(srcAccess, typeof(object)), Expression.Constant(sp.PropertyType, typeof(Type)), Expression.Constant(dp.PropertyType, typeof(Type))),
-                                    dp.PropertyType);
+                            var srcObjParam = Expression.Convert(srcParam, typeof(object));
+                            var pathParam = Expression.Constant(srcName, typeof(string));
+                            var callExpr = Expression.Call(getMethod, srcObjParam, pathParam);
+
+                            // 🔧 修复：正确处理 null 值和值类型的转换
+                            if (dp.PropertyType.IsValueType)
+                            {
+                                var underlyingType = Nullable.GetUnderlyingType(dp.PropertyType);
+                                if (underlyingType != null)
+                                {
+                                    // 目标是 Nullable<T>，可以接受 null
+                                    valueExpr = Expression.Convert(callExpr, dp.PropertyType);
+                                }
+                                else
+                                {
+                                    // 目标是非 nullable 值类型，需要提供默认值
+                                    var defaultValue = Expression.Constant(Activator.CreateInstance(dp.PropertyType), dp.PropertyType);
+                                    var nullCheck = Expression.Equal(callExpr, Expression.Constant(null, typeof(object)));
+                                    valueExpr = Expression.Condition(nullCheck, defaultValue, Expression.Convert(callExpr, dp.PropertyType));
+                                }
+                            }
+                            else
+                            {
+                                // 引用类型，直接转换
+                                valueExpr = Expression.Convert(callExpr, dp.PropertyType);
+                            }
                         }
                     }
                     else
                     {
-                        // 未找到源属性且在 StrictMode 下抛出异常以帮助发现映射问题
-                        if (_config.StrictMode)
+                        // 使用字典查找，性能提升
+                        var sp = FindSourcePropertyFromMap(srcPropMap, srcName, options);
+
+                        if (sp != null)
                         {
-                            throw new InvalidOperationException($"No source property found for destination '{dp.Name}' when mapping {srcType} -> {destType}");
+                            // 跳过索引器属性
+                            if (sp.GetIndexParameters().Length > 0)
+                                continue;
+                            
+                            var srcAccess = Expression.Property(srcParam, sp);
+
+                            // 如果存在类型转换器优先调用转换器
+                            if (TypeConverterRegistry.TryGet(sp.PropertyType, dp.PropertyType, out var converterDel))
+                            {
+                                var delConst = Expression.Constant(converterDel);
+                                var invoke = Expression.Invoke(delConst, srcAccess);
+                                valueExpr = Expression.Convert(invoke, dp.PropertyType);
+                            }
+                            else if (TypeUtils.IsSimple(dp.PropertyType) && TypeUtils.IsSimple(sp.PropertyType))
+                            {
+                                // 使用拆分后的类型转换方法
+                                valueExpr = ConvertSimpleType(srcAccess, sp.PropertyType, dp.PropertyType);
+                            }
+                            else if (TypeUtils.IsCollection(dp.PropertyType))
+                            {
+                                // 集合类型使用内部 MapCollectionInternal 来处理元素映射
+                                var mapCollMethod = typeof(Mapper).GetMethod(nameof(MapCollectionInternal), BindingFlags.NonPublic | BindingFlags.Instance);
+                                if (mapCollMethod != null)
+                                    valueExpr = Expression.Convert(
+                                        Expression.Call(Expression.Constant(this), mapCollMethod, Expression.Convert(srcAccess, typeof(object)), Expression.Constant(sp.PropertyType, typeof(Type)), Expression.Constant(dp.PropertyType, typeof(Type))),
+                                        dp.PropertyType);
+                            }
+                            else
+                            {
+                                // 复杂类型递归调用 Map(object, Type, Type)
+                                var mapMethod = typeof(Mapper).GetMethod(nameof(Map), new[] { typeof(object), typeof(Type), typeof(Type) });
+                                if (mapMethod != null)
+                                    valueExpr = Expression.Convert(
+                                        Expression.Call(Expression.Constant(this), mapMethod, Expression.Convert(srcAccess, typeof(object)), Expression.Constant(sp.PropertyType, typeof(Type)), Expression.Constant(dp.PropertyType, typeof(Type))),
+                                        dp.PropertyType);
+                            }
+                        }
+                        else
+                        {
+                            // 未找到源属性且在 StrictMode 下抛出异常以帮助发现映射问题
+                            if (_config.StrictMode)
+                            {
+                                throw new InvalidOperationException($"No source property found for destination '{dp.Name}' when mapping {srcType} -> {destType}");
+                            }
                         }
                     }
                 }
@@ -391,7 +438,7 @@ namespace Ling.Mapper
             // 创建强类型的 Lambda（未指定泛型委托类型，使其通用）
             var typedLambda = Expression.Lambda(typedBody, srcParam);
 
-            // v2: 确保返回 wrapper，统一运行路径
+            // 确保返回 wrapper，统一运行路径
             var objParam = Expression.Parameter(typeof(object), "srcObj");
             var invokeTyped = Expression.Invoke(typedLambda, Expression.Convert(objParam, srcType));
             var convertResult = Expression.Convert(invokeTyped, typeof(object));
@@ -404,7 +451,7 @@ namespace Ling.Mapper
         }
 
         /// <summary>
-        /// v2 NEW: 构建源属性字典，优化查找性能
+        /// 构建源属性字典，优化查找性能
         /// </summary>
         private Dictionary<string, PropertyInfo> BuildSourcePropertyMap(
             List<PropertyInfo> srcProps,
@@ -414,7 +461,7 @@ namespace Ling.Mapper
             
             foreach (var sp in srcProps)
             {
-                // v2 FIX: 跳过索引器属性（如 this[int index]）
+                // 跳过索引器属性（如 this[int index]）
                 if (sp.GetIndexParameters().Length > 0)
                     continue;
                 
@@ -463,7 +510,6 @@ namespace Ling.Mapper
         }
 
         /// <summary>
-        /// v2 FIX 5: 拆分后的类型转换方法，提高可维护性和 JIT 优化
         /// 使用 TypeConversionHelper 处理具体转换逻辑
         /// </summary>
         private Expression ConvertSimpleType(Expression srcAccess, Type srcType, Type destType)
@@ -480,7 +526,7 @@ namespace Ling.Mapper
                 return srcAccess;
             }
 
-            // v2: 尝试枚举转换
+            // 尝试枚举转换
             var enumResult = TypeConversionHelper.TryConvertEnum(
                 srcAccess, srcType, destType,
                 srcUnderlyingType, destUnderlyingType,
@@ -489,7 +535,7 @@ namespace Ling.Mapper
             if (enumResult != null)
                 return enumResult;
 
-            // v2: 尝试可空类型转换
+            // 尝试可空类型转换
             var nullableResult = TypeConversionHelper.TryConvertNullable(
                 srcAccess, srcType, destType,
                 srcUnderlyingType, destUnderlyingType,
@@ -498,7 +544,7 @@ namespace Ling.Mapper
             if (nullableResult != null)
                 return nullableResult;
 
-            // v2: 简单类型之间的直接转换（T -> U）
+            // 简单类型之间的直接转换（T -> U）
             if (!srcIsNullable && !destIsNullable && srcUnderlyingType != destUnderlyingType)
             {
                 return TypeConversionHelper.ConvertSimpleCast(srcAccess, destType);
@@ -509,7 +555,6 @@ namespace Ling.Mapper
         }
 
         /// <summary>
-        /// v2 FIX 2: 修复集合映射中简单类型处理逻辑
         /// 确保所有元素都经过类型转换，与非集合映射行为一致
         /// </summary>
         private object? MapCollectionInternal(object? srcCollection, Type srcType, Type destType)
@@ -532,7 +577,7 @@ namespace Ling.Mapper
                         continue;
                     }
 
-                    // v2 FIX: 即使是简单类型，也需要经过类型转换
+                    // 即使是简单类型，也需要经过类型转换
                     // 例如：int -> long, enum -> int, string -> enum 等
                     if (srcElementType != null)
                     {
@@ -558,7 +603,7 @@ namespace Ling.Mapper
         }
 
         /// <summary>
-        /// v2 FIX 4: 优化后的 MappingExpressionBase，缓存反射字段
+        /// 缓存反射字段
         /// </summary>
         private class MappingExpressionBase
         {
@@ -575,7 +620,7 @@ namespace Ling.Mapper
                 _exprObj = exprObj ?? throw new ArgumentNullException(nameof(exprObj));
                 _exprType = exprObj.GetType();
 
-                // v2: 在构造函数中缓存字段信息
+                // 在构造函数中缓存字段信息
                 _ignoredMembersField = _exprType.GetField("IgnoredMembers", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
                 _customMemberBindingsField = _exprType.GetField("CustomMemberBindings", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
                 _renamedMembersField = _exprType.GetField("RenamedMembers", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
@@ -583,7 +628,7 @@ namespace Ling.Mapper
 
             public bool IsIgnored(string destName)
             {
-                // v2: 使用缓存的字段
+                // 使用缓存的字段
                 var set = _ignoredMembersField?.GetValue(_exprObj) as System.Collections.IEnumerable;
                 if (set == null) return false;
 
@@ -598,7 +643,7 @@ namespace Ling.Mapper
 
             public bool TryGetCustomBinding(string destName, out LambdaExpression? lambda)
             {
-                // v2: 使用缓存的字段
+                // 使用缓存的字段
                 var dict = _customMemberBindingsField?.GetValue(_exprObj) as System.Collections.IDictionary;
                 lambda = null;
                 if (dict == null) return false;
@@ -617,7 +662,7 @@ namespace Ling.Mapper
 
             public string? GetRenamedSource(string destName)
             {
-                // v2: 使用缓存的字段
+                // 使用缓存的字段
                 var dict = _renamedMembersField?.GetValue(_exprObj) as System.Collections.IDictionary;
                 if (dict == null) return null;
 

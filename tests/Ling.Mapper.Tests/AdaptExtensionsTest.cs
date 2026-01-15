@@ -6,16 +6,16 @@ using Ling.Mapper;
 namespace TestConsole
 {
     /// <summary>
-    /// Adapt À©Õ¹·½·¨×ÛºÏ²âÊÔÌ×¼ş
-    /// ¸²¸ÇËùÓĞ Adapt ·½·¨ÖØÔØºÍÊ¹ÓÃ³¡¾°
+    /// Adapt æ‰©å±•æ–¹æ³•ç»¼åˆæµ‹è¯•å¥—ä»¶
+    /// è¦†ç›–æ‰€æœ‰ Adapt æ–¹æ³•é‡è½½å’Œä½¿ç”¨åœºæ™¯
     /// </summary>
     public static class AdaptExtensionsTest
     {
         public static void Run()
         {
-            Console.WriteLine("\n¨X¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨[");
-            Console.WriteLine("¨U         Adapt À©Õ¹·½·¨×ÛºÏ²âÊÔ (Adapt Extensions Test)        ¨U");
-            Console.WriteLine("¨^¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨a\n");
+            Console.WriteLine("\nâ•”â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•—");
+            Console.WriteLine("â•‘         Adapt æ‰©å±•æ–¹æ³•ç»¼åˆæµ‹è¯• (Adapt Extensions Test)        â•‘");
+            Console.WriteLine("â•šâ•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•\n");
 
             TestBasicAdapt();
             TestAdaptWithCallback();
@@ -27,33 +27,33 @@ namespace TestConsole
             TestAdaptWithCircularReference();
             TestAdaptEdgeCases();
 
-            Console.WriteLine("? Adapt À©Õ¹·½·¨²âÊÔÍê³É\n");
+            Console.WriteLine("? Adapt æ‰©å±•æ–¹æ³•æµ‹è¯•å®Œæˆ\n");
         }
 
-        #region 1. »ù´¡ Adapt ²âÊÔ
+        #region 1. åŸºç¡€ Adapt æµ‹è¯•
 
         private static void TestBasicAdapt()
         {
-            Console.WriteLine("1. »ù´¡ Adapt ²âÊÔ");
+            Console.WriteLine("1. åŸºç¡€ Adapt æµ‹è¯•");
 
-            // ¼òµ¥¶ÔÏóÓ³Éä
+            // ç®€å•å¯¹è±¡æ˜ å°„
             var source = new SimpleSource { Id = 1, Name = "Test" };
             var target = source.Adapt<SimpleTarget>();
 
-            AssertEqual(source.Id, target?.Id, "Id Ó³Éä");
-            AssertEqual(source.Name, target?.Name, "Name Ó³Éä");
+            AssertEqual(source.Id, target?.Id, "Id æ˜ å°„");
+            AssertEqual(source.Name, target?.Name, "Name æ˜ å°„");
 
-            Console.WriteLine("  ? »ù´¡ Adapt Ó³Éä³É¹¦");
+            Console.WriteLine("  ? åŸºç¡€ Adapt æ˜ å°„æˆåŠŸ");
             Console.WriteLine();
         }
 
         #endregion
 
-        #region 2. Adapt ´ø»Øµ÷²âÊÔ
+        #region 2. Adapt å¸¦å›è°ƒæµ‹è¯•
 
         private static void TestAdaptWithCallback()
         {
-            Console.WriteLine("2. Adapt ´ø»Øµ÷²âÊÔ");
+            Console.WriteLine("2. Adapt å¸¦å›è°ƒæµ‹è¯•");
 
             var source = new UserSource 
             { 
@@ -63,86 +63,86 @@ namespace TestConsole
                 Age = 30
             };
 
-            // ²âÊÔ 1: (TDestination, TSource) »Øµ÷
+            // æµ‹è¯• 1: (TDestination, TSource) å›è°ƒ
             var target1 = source.Adapt<UserTarget, UserSource>((dest, src) =>
             {
                 dest.FullName = $"{src.FirstName} {src.LastName}";
                 dest.IsAdult = src.Age >= 18;
             });
 
-            AssertEqual("John Doe", target1?.FullName, "FullName »Øµ÷");
-            AssertTrue(target1?.IsAdult == true, "IsAdult »Øµ÷");
-            Console.WriteLine("  ? (TDestination, TSource) »Øµ÷³É¹¦");
+            AssertEqual("John Doe", target1?.FullName, "FullName å›è°ƒ");
+            AssertTrue(target1?.IsAdult == true, "IsAdult å›è°ƒ");
+            Console.WriteLine("  ? (TDestination, TSource) å›è°ƒæˆåŠŸ");
 
-            // ²âÊÔ 2: (TSource, TDestination) »Øµ÷£¨¾É¸ñÊ½£©
+            // æµ‹è¯• 2: (TSource, TDestination) å›è°ƒï¼ˆæ—§æ ¼å¼ï¼‰
             var target2 = source.Adapt<UserTarget, UserSource>((src, dest) =>
             {
                 dest.FullName = $"{src.FirstName} {src.LastName}".ToUpper();
             });
 
-            AssertEqual("JOHN DOE", target2?.FullName, "FullName »Øµ÷£¨¾É¸ñÊ½£©");
-            Console.WriteLine("  ? (TSource, TDestination) »Øµ÷³É¹¦");
+            AssertEqual("JOHN DOE", target2?.FullName, "FullName å›è°ƒï¼ˆæ—§æ ¼å¼ï¼‰");
+            Console.WriteLine("  ? (TSource, TDestination) å›è°ƒæˆåŠŸ");
 
             Console.WriteLine();
         }
 
         #endregion
 
-        #region 3. Adapt Ö¸¶¨ Mapper ²âÊÔ
+        #region 3. Adapt æŒ‡å®š Mapper æµ‹è¯•
 
         private static void TestAdaptWithMapper()
         {
-            Console.WriteLine("3. Adapt Ö¸¶¨ Mapper ²âÊÔ");
+            Console.WriteLine("3. Adapt æŒ‡å®š Mapper æµ‹è¯•");
 
-            // ´´½¨×Ô¶¨Òå Mapper
+            // åˆ›å»ºè‡ªå®šä¹‰ Mapper
             var config = new MapperConfiguration();
             var customMapper = config.CreateMapper();
 
             var source = new SimpleSource { Id = 2, Name = "Custom" };
             
-            // Ê¹ÓÃ×Ô¶¨Òå Mapper
+            // ä½¿ç”¨è‡ªå®šä¹‰ Mapper
             var target = source.Adapt<SimpleTarget>(customMapper);
 
-            AssertEqual(source.Id, target?.Id, "Id Ó³Éä");
-            AssertEqual(source.Name, target?.Name, "Name Ó³Éä");
+            AssertEqual(source.Id, target?.Id, "Id æ˜ å°„");
+            AssertEqual(source.Name, target?.Name, "Name æ˜ å°„");
 
-            Console.WriteLine("  ? ×Ô¶¨Òå Mapper Ó³Éä³É¹¦");
+            Console.WriteLine("  ? è‡ªå®šä¹‰ Mapper æ˜ å°„æˆåŠŸ");
             Console.WriteLine();
         }
 
         #endregion
 
-        #region 4. Adapt ´ø Options ²âÊÔ
+        #region 4. Adapt å¸¦ Options æµ‹è¯•
 
         private static void TestAdaptWithOptions()
         {
-            Console.WriteLine("4. Adapt ´ø Options ²âÊÔ");
+            Console.WriteLine("4. Adapt å¸¦ Options æµ‹è¯•");
 
-            // ²âÊÔ 1: IgnoreCase
+            // æµ‹è¯• 1: IgnoreCase
             var source1 = new { id = 1, name = "Test", user_name = "John" };
             var target1 = source1.Adapt<CaseTestTarget>(AdaptOptions.IgnoreCaseOption);
             
             AssertEqual(1, target1?.Id, "IgnoreCase - Id");
             AssertEqual("Test", target1?.Name, "IgnoreCase - Name");
-            Console.WriteLine("  ? IgnoreCase Ñ¡Ïî³É¹¦");
+            Console.WriteLine("  ? IgnoreCase é€‰é¡¹æˆåŠŸ");
 
-            // ²âÊÔ 2: IgnoreUnderscore
+            // æµ‹è¯• 2: IgnoreUnderscore
             var source2 = new { Id = 2, Name = "Test", user_name = "Jane" };
             var target2 = source2.Adapt<UnderscoreTestTarget>(AdaptOptions.IgnoreUnderscoreOption);
             
             AssertEqual("Jane", target2?.UserName, "IgnoreUnderscore - UserName");
-            Console.WriteLine("  ? IgnoreUnderscore Ñ¡Ïî³É¹¦");
+            Console.WriteLine("  ? IgnoreUnderscore é€‰é¡¹æˆåŠŸ");
 
-            // ²âÊÔ 3: FlexibleOption£¨×éºÏ£©
+            // æµ‹è¯• 3: FlexibleOptionï¼ˆç»„åˆï¼‰
             var source3 = new { id = 3, NAME = "Flexible", User_Name = "Alice" };
             var target3 = source3.Adapt<FlexibleTestTarget>(AdaptOptions.FlexibleOption);
             
             AssertEqual(3, target3?.Id, "FlexibleOption - Id");
             AssertEqual("Flexible", target3?.Name, "FlexibleOption - Name");
             AssertEqual("Alice", target3?.UserName, "FlexibleOption - UserName");
-            Console.WriteLine("  ? FlexibleOption Ñ¡Ïî³É¹¦");
+            Console.WriteLine("  ? FlexibleOption é€‰é¡¹æˆåŠŸ");
 
-            // ²âÊÔ 4: IgnoreNullValues
+            // æµ‹è¯• 4: IgnoreNullValues
             var source4 = new NullTestSource { Id = 4, Name = null, Description = "Test" };
             var target4 = source4.Adapt<NullTestTarget>(new AdaptOptions 
             { 
@@ -150,10 +150,10 @@ namespace TestConsole
             });
             
             AssertEqual(4, target4?.Id, "IgnoreNullValues - Id");
-            AssertEqual("Default", target4?.Name, "IgnoreNullValues - Name (Ó¦±£ÁôÄ¬ÈÏÖµ)");
-            Console.WriteLine("  ? IgnoreNullValues Ñ¡Ïî³É¹¦");
+            AssertEqual("Default", target4?.Name, "IgnoreNullValues - Name (åº”ä¿ç•™é»˜è®¤å€¼)");
+            Console.WriteLine("  ? IgnoreNullValues é€‰é¡¹æˆåŠŸ");
 
-            // ²âÊÔ 5: IgnoreProperties
+            // æµ‹è¯• 5: IgnoreProperties
             var source5 = new { Id = 5, Name = "Test", Password = "secret", Email = "test@test.com" };
             var target5 = source5.Adapt<SecurityTestTarget>(new AdaptOptions
             {
@@ -162,11 +162,11 @@ namespace TestConsole
             
             AssertEqual(5, target5?.Id, "IgnoreProperties - Id");
             AssertEqual("Test", target5?.Name, "IgnoreProperties - Name");
-            AssertNull(target5?.Password, "IgnoreProperties - Password (Ó¦Îª null)");
+            AssertNull(target5?.Password, "IgnoreProperties - Password (åº”ä¸º null)");
             AssertEqual("test@test.com", target5?.Email, "IgnoreProperties - Email");
-            Console.WriteLine("  ? IgnoreProperties Ñ¡Ïî³É¹¦");
+            Console.WriteLine("  ? IgnoreProperties é€‰é¡¹æˆåŠŸ");
 
-            // ²âÊÔ 6: ×éºÏ Options + Callback
+            // æµ‹è¯• 6: ç»„åˆ Options + Callback
             var source6 = new { id = 6, first_NAME = "Bob", last_name = "Smith" };
             var target6 = source6.Adapt<CombinedTestTarget>(
                 AdaptOptions.FlexibleOption,
@@ -175,21 +175,21 @@ namespace TestConsole
                     dest.FullName = $"{dest.FirstName} {dest.LastName}";
                 });
             
-            AssertEqual("Bob", target6?.FirstName, "×éºÏ - FirstName");
-            AssertEqual("Smith", target6?.LastName, "×éºÏ - LastName");
-            AssertEqual("Bob Smith", target6?.FullName, "×éºÏ - FullName");
-            Console.WriteLine("  ? Options + Callback ×éºÏ³É¹¦");
+            AssertEqual("Bob", target6?.FirstName, "ç»„åˆ - FirstName");
+            AssertEqual("Smith", target6?.LastName, "ç»„åˆ - LastName");
+            AssertEqual("Bob Smith", target6?.FullName, "ç»„åˆ - FullName");
+            Console.WriteLine("  ? Options + Callback ç»„åˆæˆåŠŸ");
 
             Console.WriteLine();
         }
 
         #endregion
 
-        #region 5. AdaptList ²âÊÔ
+        #region 5. AdaptList æµ‹è¯•
 
         private static void TestAdaptList()
         {
-            Console.WriteLine("5. AdaptList ²âÊÔ");
+            Console.WriteLine("5. AdaptList æµ‹è¯•");
 
             var sourceList = new List<SimpleSource>
             {
@@ -198,25 +198,25 @@ namespace TestConsole
                 new SimpleSource { Id = 3, Name = "Item 3" }
             };
 
-            // ¼òµ¥ AdaptList
-            var targetList = sourceList.AdaptList<SimpleTarget, SimpleSource>();
+            // ç®€å• AdaptList
+            var targetList = sourceList.Adapt<List<SimpleTarget>>();
 
-            AssertEqual(3, targetList?.Count, "List ³¤¶È");
+            AssertEqual(3, targetList?.Count, "List é•¿åº¦");
             AssertEqual(1, targetList?[0].Id, "Item 0 - Id");
             AssertEqual("Item 1", targetList?[0].Name, "Item 0 - Name");
             AssertEqual(3, targetList?[2].Id, "Item 2 - Id");
 
-            Console.WriteLine("  ? AdaptList Ó³Éä³É¹¦");
+            Console.WriteLine("  ? AdaptList æ˜ å°„æˆåŠŸ");
             Console.WriteLine();
         }
 
         #endregion
 
-        #region 6. AdaptList ´ø»Øµ÷²âÊÔ
+        #region 6. AdaptList å¸¦å›è°ƒæµ‹è¯•
 
         private static void TestAdaptListWithCallback()
         {
-            Console.WriteLine("6. AdaptList ´ø»Øµ÷²âÊÔ");
+            Console.WriteLine("6. AdaptList å¸¦å›è°ƒæµ‹è¯•");
 
             var sourceList = new List<UserSource>
             {
@@ -224,48 +224,59 @@ namespace TestConsole
                 new UserSource { Id = 2, FirstName = "Jane", LastName = "Smith", Age = 25 }
             };
 
-            // AdaptList ´øË÷Òı»Øµ÷
-            var targetList = sourceList.AdaptList<UserTarget, UserSource>((dest, src, index) =>
+            // Adapt è‡ªåŠ¨è¯†åˆ«é›†åˆç±»å‹ï¼Œåœ¨å›è°ƒä¸­å¤„ç†ç´¢å¼•
+            var targetList = sourceList.Adapt<List<UserTarget>>((list, src) =>
             {
-                dest.FullName = $"{src.FirstName} {src.LastName}";
-                dest.RowNumber = index + 1;
-                dest.IsAdult = src.Age >= 18;
+                if (list == null) return;
+                var sources = src as List<UserSource>;
+                
+                for (int index = 0; index < list.Count; index++)
+                {
+                    var dest = list[index];
+                    var source = sources?[index];
+                    if (dest != null && source != null)
+                    {
+                        dest.FullName = $"{source.FirstName} {source.LastName}";
+                        dest.RowNumber = index + 1;
+                        dest.IsAdult = source.Age >= 18;
+                    }
+                }
             });
 
-            AssertEqual(2, targetList?.Count, "List ³¤¶È");
+            AssertEqual(2, targetList?.Count, "List é•¿åº¦");
             AssertEqual("John Doe", targetList?[0].FullName, "Item 0 - FullName");
             AssertEqual(1, targetList?[0].RowNumber, "Item 0 - RowNumber");
             AssertTrue(targetList?[0].IsAdult == true, "Item 0 - IsAdult");
             AssertEqual("Jane Smith", targetList?[1].FullName, "Item 1 - FullName");
             AssertEqual(2, targetList?[1].RowNumber, "Item 1 - RowNumber");
 
-            Console.WriteLine("  ? AdaptList »Øµ÷³É¹¦");
+            Console.WriteLine("  ? AdaptList å›è°ƒæˆåŠŸ");
             Console.WriteLine();
         }
 
         #endregion
 
-        #region 7. Adapt Null ´¦Àí²âÊÔ
+        #region 7. Adapt Null å¤„ç†æµ‹è¯•
 
         private static void TestAdaptWithNullHandling()
         {
-            Console.WriteLine("7. Adapt Null ´¦Àí²âÊÔ");
+            Console.WriteLine("7. Adapt Null å¤„ç†æµ‹è¯•");
 
-            // ²âÊÔ 1: null Ô´¶ÔÏó
+            // æµ‹è¯• 1: null æºå¯¹è±¡
             SimpleSource? nullSource = null;
             var target1 = nullSource.Adapt<SimpleTarget>();
-            AssertNull(target1, "Null Ô´¶ÔÏóÓ¦·µ»Ø null");
-            Console.WriteLine("  ? Null Ô´¶ÔÏó´¦Àí³É¹¦");
+            AssertNull(target1, "Null æºå¯¹è±¡åº”è¿”å› null");
+            Console.WriteLine("  ? Null æºå¯¹è±¡å¤„ç†æˆåŠŸ");
 
-            // ²âÊÔ 2: °üº¬ null ÊôĞÔµÄ¶ÔÏó
+            // æµ‹è¯• 2: åŒ…å« null å±æ€§çš„å¯¹è±¡
             var source2 = new NullTestSource { Id = 1, Name = null, Description = "Test" };
             var target2 = source2.Adapt<NullTestTarget>();
-            AssertEqual(1, target2?.Id, "Id Ó³Éä");
-            AssertNull(target2?.Name, "Null ÊôĞÔ±£Áô");
-            AssertEqual("Test", target2?.Description, "·Ç null ÊôĞÔÓ³Éä");
-            Console.WriteLine("  ? Null ÊôĞÔ´¦Àí³É¹¦");
+            AssertEqual(1, target2?.Id, "Id æ˜ å°„");
+            AssertNull(target2?.Name, "Null å±æ€§ä¿ç•™");
+            AssertEqual("Test", target2?.Description, "é null å±æ€§æ˜ å°„");
+            Console.WriteLine("  ? Null å±æ€§å¤„ç†æˆåŠŸ");
 
-            // ²âÊÔ 3: AdaptList °üº¬ null ÔªËØ
+            // æµ‹è¯• 3: AdaptList åŒ…å« null å…ƒç´ 
             var sourceList = new List<SimpleSource?>
             {
                 new SimpleSource { Id = 1, Name = "Item 1" },
@@ -273,24 +284,24 @@ namespace TestConsole
                 new SimpleSource { Id = 3, Name = "Item 3" }
             };
 
-            // ×¢Òâ£ºAdaptList »áÌø¹ı null ÔªËØ
+            // æ³¨æ„ï¼šAdaptList ä¼šè·³è¿‡ null å…ƒç´ 
             var targetList = sourceList.Where(s => s != null)
-                                      .AdaptList<SimpleTarget, SimpleSource>();
-            AssertEqual(2, targetList?.Count, "List ³¤¶È£¨Ìø¹ı null£©");
-            Console.WriteLine("  ? List Null ÔªËØ´¦Àí³É¹¦");
+                                      .Adapt<List<SimpleTarget>>();
+            AssertEqual(2, targetList?.Count, "List é•¿åº¦ï¼ˆè·³è¿‡ nullï¼‰");
+            Console.WriteLine("  ? List Null å…ƒç´ å¤„ç†æˆåŠŸ");
 
             Console.WriteLine();
         }
 
         #endregion
 
-        #region 8. Adapt Ñ­»·ÒıÓÃ²âÊÔ
+        #region 8. Adapt å¾ªç¯å¼•ç”¨æµ‹è¯•
 
         private static void TestAdaptWithCircularReference()
         {
-            Console.WriteLine("8. Adapt Ñ­»·ÒıÓÃ²âÊÔ");
+            Console.WriteLine("8. Adapt å¾ªç¯å¼•ç”¨æµ‹è¯•");
 
-            // ´´½¨Ñ­»·ÒıÓÃµÄ¶ÔÏó
+            // åˆ›å»ºå¾ªç¯å¼•ç”¨çš„å¯¹è±¡
             var nodeA = new NodeSource { Id = 1, Name = "Node A" };
             var nodeB = new NodeSource { Id = 2, Name = "Node B" };
             nodeA.Related = nodeB;
@@ -298,7 +309,7 @@ namespace TestConsole
 
             try
             {
-                // v2.1.3 Ó¦¸ÃÄÜ¹»´¦ÀíÑ­»·ÒıÓÃ
+                // v2.1.3 åº”è¯¥èƒ½å¤Ÿå¤„ç†å¾ªç¯å¼•ç”¨
                 var targetA = nodeA.Adapt<NodeTarget>();
 
                 AssertEqual(1, targetA?.Id, "Node A - Id");
@@ -306,24 +317,24 @@ namespace TestConsole
                 AssertEqual(2, targetA?.Related?.Id, "Node B - Id");
                 AssertEqual("Node B", targetA?.Related?.Name, "Node B - Name");
 
-                // ¼ì²éÑ­»·ÊÇ·ñ±»´òÆÆ»òÕıÈ·´¦Àí
+                // æ£€æŸ¥å¾ªç¯æ˜¯å¦è¢«æ‰“ç ´æˆ–æ­£ç¡®å¤„ç†
                 if (targetA?.Related?.Related != null)
                 {
                     AssertTrue(
                         ReferenceEquals(targetA, targetA.Related.Related),
-                        "Ñ­»·ÒıÓÃÓ¦¸Ã±»ÕıÈ·´¦Àí£¨ÒıÓÃÏàÍ¬¶ÔÏó£©"
+                        "å¾ªç¯å¼•ç”¨åº”è¯¥è¢«æ­£ç¡®å¤„ç†ï¼ˆå¼•ç”¨ç›¸åŒå¯¹è±¡ï¼‰"
                     );
                 }
 
-                Console.WriteLine("  ? Ñ­»·ÒıÓÃ´¦Àí³É¹¦");
+                Console.WriteLine("  ? å¾ªç¯å¼•ç”¨å¤„ç†æˆåŠŸ");
             }
             catch (StackOverflowException)
             {
-                Console.WriteLine("  ? StackOverflow£ºÑ­»·ÒıÓÃ±£»¤Ê§°Ü");
+                Console.WriteLine("  ? StackOverflowï¼šå¾ªç¯å¼•ç”¨ä¿æŠ¤å¤±è´¥");
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"  ? Òì³£: {ex.Message}");
+                Console.WriteLine($"  ? å¼‚å¸¸: {ex.Message}");
             }
 
             Console.WriteLine();
@@ -331,25 +342,25 @@ namespace TestConsole
 
         #endregion
 
-        #region 9. Adapt ±ß½çÇé¿ö²âÊÔ
+        #region 9. Adapt è¾¹ç•Œæƒ…å†µæµ‹è¯•
 
         private static void TestAdaptEdgeCases()
         {
-            Console.WriteLine("9. Adapt ±ß½çÇé¿ö²âÊÔ");
+            Console.WriteLine("9. Adapt è¾¹ç•Œæƒ…å†µæµ‹è¯•");
 
-            // ²âÊÔ 1: ¿Õ×Ö·û´®
+            // æµ‹è¯• 1: ç©ºå­—ç¬¦ä¸²
             var source1 = new { Id = 1, Name = "" };
             var target1 = source1.Adapt<SimpleTarget>();
-            AssertEqual("", target1?.Name, "¿Õ×Ö·û´®");
-            Console.WriteLine("  ? ¿Õ×Ö·û´®´¦Àí³É¹¦");
+            AssertEqual("", target1?.Name, "ç©ºå­—ç¬¦ä¸²");
+            Console.WriteLine("  ? ç©ºå­—ç¬¦ä¸²å¤„ç†æˆåŠŸ");
 
-            // ²âÊÔ 2: ÌØÊâ×Ö·û
+            // æµ‹è¯• 2: ç‰¹æ®Šå­—ç¬¦
             var source2 = new { Id = 2, Name = "Test\n\r\t" };
             var target2 = source2.Adapt<SimpleTarget>();
-            AssertEqual("Test\n\r\t", target2?.Name, "ÌØÊâ×Ö·û");
-            Console.WriteLine("  ? ÌØÊâ×Ö·û´¦Àí³É¹¦");
+            AssertEqual("Test\n\r\t", target2?.Name, "ç‰¹æ®Šå­—ç¬¦");
+            Console.WriteLine("  ? ç‰¹æ®Šå­—ç¬¦å¤„ç†æˆåŠŸ");
 
-            // ²âÊÔ 3: ´ó¶ÔÏó
+            // æµ‹è¯• 3: å¤§å¯¹è±¡
             var source3 = new LargeSource
             {
                 Id = 1,
@@ -360,11 +371,11 @@ namespace TestConsole
                 Property5 = "Value5"
             };
             var target3 = source3.Adapt<LargeTarget>();
-            AssertEqual(1, target3?.Id, "´ó¶ÔÏó - Id");
-            AssertEqual("Value5", target3?.Property5, "´ó¶ÔÏó - Property5");
-            Console.WriteLine("  ? ´ó¶ÔÏó´¦Àí³É¹¦");
+            AssertEqual(1, target3?.Id, "å¤§å¯¹è±¡ - Id");
+            AssertEqual("Value5", target3?.Property5, "å¤§å¯¹è±¡ - Property5");
+            Console.WriteLine("  ? å¤§å¯¹è±¡å¤„ç†æˆåŠŸ");
 
-            // ²âÊÔ 4: Ç¶Ì×¶ÔÏó
+            // æµ‹è¯• 4: åµŒå¥—å¯¹è±¡
             var source4 = new NestedSource
             {
                 Id = 1,
@@ -372,36 +383,36 @@ namespace TestConsole
                 Child = new ChildSource { Id = 2, Name = "Child" }
             };
             var target4 = source4.Adapt<NestedTarget>();
-            AssertEqual(1, target4?.Id, "Ç¶Ì×¶ÔÏó - Parent Id");
-            AssertEqual(2, target4?.Child?.Id, "Ç¶Ì×¶ÔÏó - Child Id");
-            AssertEqual("Child", target4?.Child?.Name, "Ç¶Ì×¶ÔÏó - Child Name");
-            Console.WriteLine("  ? Ç¶Ì×¶ÔÏó´¦Àí³É¹¦");
+            AssertEqual(1, target4?.Id, "åµŒå¥—å¯¹è±¡ - Parent Id");
+            AssertEqual(2, target4?.Child?.Id, "åµŒå¥—å¯¹è±¡ - Child Id");
+            AssertEqual("Child", target4?.Child?.Name, "åµŒå¥—å¯¹è±¡ - Child Name");
+            Console.WriteLine("  ? åµŒå¥—å¯¹è±¡å¤„ç†æˆåŠŸ");
 
-            // ²âÊÔ 5: ¼¯ºÏÊôĞÔ
+            // æµ‹è¯• 5: é›†åˆå±æ€§
             var source5 = new CollectionSource
             {
                 Id = 1,
                 Items = new List<string> { "Item1", "Item2", "Item3" }
             };
             var target5 = source5.Adapt<CollectionTarget>();
-            AssertEqual(1, target5?.Id, "¼¯ºÏÊôĞÔ - Id");
-            AssertEqual(3, target5?.Items?.Count, "¼¯ºÏÊôĞÔ - Count");
-            AssertEqual("Item2", target5?.Items?[1], "¼¯ºÏÊôĞÔ - Item 1");
-            Console.WriteLine("  ? ¼¯ºÏÊôĞÔ´¦Àí³É¹¦");
+            AssertEqual(1, target5?.Id, "é›†åˆå±æ€§ - Id");
+            AssertEqual(3, target5?.Items?.Count, "é›†åˆå±æ€§ - Count");
+            AssertEqual("Item2", target5?.Items?[1], "é›†åˆå±æ€§ - Item 1");
+            Console.WriteLine("  ? é›†åˆå±æ€§å¤„ç†æˆåŠŸ");
 
             Console.WriteLine();
         }
 
         #endregion
 
-        #region ²âÊÔ¸¨Öú·½·¨
+        #region æµ‹è¯•è¾…åŠ©æ–¹æ³•
 
         private static void AssertEqual<T>(T expected, T actual, string message)
         {
             if (!Equals(expected, actual))
             {
-                Console.WriteLine($"  ? ¶ÏÑÔÊ§°Ü: {message}");
-                Console.WriteLine($"    ÆÚÍû: {expected}, Êµ¼Ê: {actual}");
+                Console.WriteLine($"  ? æ–­è¨€å¤±è´¥: {message}");
+                Console.WriteLine($"    æœŸæœ›: {expected}, å®é™…: {actual}");
             }
         }
 
@@ -409,7 +420,7 @@ namespace TestConsole
         {
             if (!condition)
             {
-                Console.WriteLine($"  ? ¶ÏÑÔÊ§°Ü: {message}");
+                Console.WriteLine($"  ? æ–­è¨€å¤±è´¥: {message}");
             }
         }
 
@@ -417,14 +428,14 @@ namespace TestConsole
         {
             if (obj != null)
             {
-                Console.WriteLine($"  ? ¶ÏÑÔÊ§°Ü: {message}");
-                Console.WriteLine($"    ÆÚÍû: null, Êµ¼Ê: {obj}");
+                Console.WriteLine($"  ? æ–­è¨€å¤±è´¥: {message}");
+                Console.WriteLine($"    æœŸæœ›: null, å®é™…: {obj}");
             }
         }
 
         #endregion
 
-        #region ²âÊÔÄ£ĞÍ
+        #region æµ‹è¯•æ¨¡å‹
 
         private class SimpleSource
         {

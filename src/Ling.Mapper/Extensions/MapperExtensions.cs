@@ -10,11 +10,10 @@ namespace Ling.Mapper
     /// <para>本类提供了丰富的对象映射扩展方法，简化映射操作。</para>
     /// <para><strong>主要功能：</strong></para>
     /// <list type="bullet">
-    /// <item><description><strong>Adapt 系列</strong>：灵活的对象映射，支持回调函数</description></item>
-    /// <item><description><strong>AdaptList 系列</strong>：集合映射，支持元素级处理</description></item>
+    /// <item><description><strong>Adapt 系列</strong>：灵活的对象映射，支持回调函数和自动集合识别</description></item>
     /// <item><description><strong>MapTo / MapInto</strong>：基础映射操作</description></item>
     /// <item><description><strong>TryMap / MapOrDefault / MapOrThrow</strong>：安全的映射方法</description></item>
-    /// <item><description><strong>AdaptOptions</strong>：运行时映射规则配置</description></item>
+    /// <item><description><strong>AdaptOptions</strong>：运行时映射规则配置（默认启用 FlexibleOption）</description></item>
     /// </list>
     /// <para><strong>相关文档：</strong></para>
     /// <list type="bullet">
@@ -41,20 +40,15 @@ namespace Ling.Mapper
         }
 
         /// <summary>
-        /// 映射并允许使用匿名方法对目标对象进行二次加工。
+        /// 映射对象并允许对目标对象进行二次加工
         /// </summary>
         /// <typeparam name="TDestination">目标类型</typeparam>
         /// <typeparam name="TSource">源类型</typeparam>
         /// <param name="source">源对象实例</param>
         /// <param name="mapper">IMapper 实例</param>
-        /// <param name="custom">自定义处理回调</param>
+        /// <param name="custom">自定义处理回调，参数为 (source, destination)</param>
         /// <returns>映射后的目标类型实例</returns>
-        /// <remarks>
-        /// 如果映射结果为 null 且目标类型不是值类型，将尝试创建目标类型的实例。
-        /// 如果实例化失败，将抛出相应的异常，而不是返回 null。
-        /// </remarks>
         /// <exception cref="System.MissingMethodException">目标类型没有无参构造函数</exception>
-        /// <exception cref="System.MemberAccessException">目标类型的构造函数不可访问</exception>
         public static TDestination? Adapt<TDestination, TSource>(
             this TSource source,
             IMapper mapper,
@@ -134,19 +128,14 @@ namespace Ling.Mapper
         }
 
         /// <summary>
-        /// 重新引入一个简单的 Adapt 重载，使用全局的 MapperProvider（源优先形式）
+        /// 使用全局 Mapper 映射对象，支持自定义回调处理
         /// </summary>
         /// <typeparam name="TDestination">目标类型</typeparam>
         /// <typeparam name="TSource">源类型</typeparam>
         /// <param name="source">源对象</param>
-        /// <param name="custom">自定义处理回调</param>
+        /// <param name="custom">自定义处理回调，参数为 (source, destination)</param>
         /// <returns>映射后的目标对象</returns>
         /// <exception cref="System.MissingMethodException">目标类型没有无参构造函数</exception>
-        /// <exception cref="System.MemberAccessException">目标类型的构造函数不可访问</exception>
-        /// <remarks>
-        /// 如果映射结果为 null 且目标类型不是值类型，将尝试创建目标类型的实例。
-        /// 如果实例化失败，将抛出相应的异常，而不是返回 null。
-        /// </remarks>
         public static TDestination? Adapt<TDestination, TSource>(
             this TSource source, System.Action<TSource, TDestination?>? custom)
         {
@@ -179,19 +168,14 @@ namespace Ling.Mapper
         }
 
         /// <summary>
-        /// 新的重载：目标优先的回调签名（参数顺序为 (dest, src)），与旧 API 保持兼容。
+        /// 使用全局 Mapper 映射对象，支持自定义回调处理（回调参数为 destination, source）
         /// </summary>
         /// <typeparam name="TDestination">目标类型</typeparam>
         /// <typeparam name="TSource">源类型</typeparam>
         /// <param name="source">源对象</param>
-        /// <param name="custom">自定义处理回调，参数顺序为 (destination, source)</param>
+        /// <param name="custom">自定义处理回调，参数为 (destination, source)</param>
         /// <returns>映射后的目标对象</returns>
         /// <exception cref="System.MissingMethodException">目标类型没有无参构造函数</exception>
-        /// <exception cref="System.MemberAccessException">目标类型的构造函数不可访问</exception>
-        /// <remarks>
-        /// 如果映射结果为 null 且目标类型不是值类型，将尝试创建目标类型的实例。
-        /// 如果实例化失败，将抛出相应的异常，而不是返回 null。
-        /// </remarks>
         public static TDestination? Adapt<TDestination, TSource>(
             this TSource source, System.Action<TDestination?, TSource>? custom)
         {
@@ -210,20 +194,15 @@ namespace Ling.Mapper
         }
 
         /// <summary>
-        /// 可选的目标优先形式的 Adapt 重载，接受 mapper 参数和回调。
+        /// 使用指定 Mapper 映射对象，支持自定义回调处理（回调参数为 destination, source）
         /// </summary>
         /// <typeparam name="TDestination">目标类型</typeparam>
         /// <typeparam name="TSource">源类型</typeparam>
         /// <param name="source">源对象</param>
         /// <param name="mapper">IMapper 实例</param>
-        /// <param name="custom">自定义处理回调，参数顺序为 (destination, source)</param>
+        /// <param name="custom">自定义处理回调，参数为 (destination, source)</param>
         /// <returns>映射后的目标对象</returns>
         /// <exception cref="System.MissingMethodException">目标类型没有无参构造函数</exception>
-        /// <exception cref="System.MemberAccessException">目标类型的构造函数不可访问</exception>
-        /// <remarks>
-        /// 如果映射结果为 null 且目标类型不是值类型，将尝试创建目标类型的实例。
-        /// 如果实例化失败，将抛出相应的异常，而不是返回 null。
-        /// </remarks>
         public static TDestination? Adapt<TDestination, TSource>(
             this TSource source, IMapper mapper, System.Action<TDestination?, TSource>? custom)
         {
@@ -270,101 +249,24 @@ namespace Ling.Mapper
         }
 
         /// <summary>
-        /// 简化的 Adapt 方法，自动推断源类型，回调参数为 (destination, source)
+        /// 将对象映射为目标类型，支持自定义回调处理
         /// </summary>
         /// <typeparam name="TDestination">目标类型</typeparam>
         /// <param name="source">源对象</param>
-        /// <param name="custom">可选的回调函数，用于对映射结果进行特殊处理。参数为 (destination, source)</param>
+        /// <param name="custom">可选的回调函数，参数为 (destination, source)</param>
         /// <returns>映射后的目标对象</returns>
         /// <remarks>
-        /// <para>此方法使用全局的 MapperProvider.Current 进行映射，并支持在映射完成后通过匿名函数进行额外处理。</para>
-        /// <para>如果映射结果为 null 且目标类型不是值类型，将尝试创建目标类型的实例。</para>
-        /// <para>如果实例化失败（例如没有无参构造函数），将抛出异常。</para>
-        /// <para><strong>🆕 v2.3 自动集合识别：</strong></para>
-        /// <para>现在支持自动识别集合类型（List&lt;T&gt;, IEnumerable&lt;T&gt;, IList&lt;T&gt; 等），无需显式调用 AdaptList。</para>
-        /// <para>特别适用于需要对映射结果进行二次加工的场景，例如：</para>
-        /// <list type="bullet">
-        /// <item><description>循环处理分页结果中的列表项</description></item>
-        /// <item><description>根据原始数据计算派生字段</description></item>
-        /// <item><description>对映射结果进行条件判断和修改</description></item>
-        /// </list>
-        /// <example>
-        /// 示例 1：处理分页结果中的列表数据
-        /// <code>
-        /// var page = await query
-        ///     .ToPageResultAsync(dto.page ?? 1, dto.size ?? 1)
-        ///     .Adapt&lt;PageResult&lt;GetCustomerRewardConditionPageRes&gt;&gt;((res, dis) =>
-        ///     {
-        ///         // res 是映射后的 PageResult&lt;GetCustomerRewardConditionPageRes&gt;
-        ///         // dis 是原始的源对象
-        ///         
-        ///         // 循环处理列表中的每一项
-        ///         if (res.Items != null)
-        ///         {
-        ///             foreach (var item in res.Items)
-        ///             {
-        ///                 // 对每个项进行特殊处理
-        ///                 item.SomeProperty = CalculateValue(item);
-        ///                 item.AnotherProperty = GetExtraData(item.Id);
-        ///             }
-        ///         }
-        ///         
-        ///         // 也可以修改分页信息
-        ///         res.Total = res.Items?.Count ?? 0;
-        ///     });
-        /// </code>
-        /// </example>
-        /// <example>
-        /// 示例 2：使用 LINQ 批量处理
-        /// <code>
-        /// var page = await query
-        ///     .ToPageResultAsync(dto.page ?? 1, dto.size ?? 1)
-        ///     .Adapt&lt;PageResult&lt;CustomerDto&gt;&gt;((res, dis) =>
-        ///     {
-        ///         if (res.Items != null)
-        ///         {
-        ///             res.Items = res.Items
-        ///                 .Select((item, index) => 
-        ///                 {
-        ///                     item.RowNumber = index + 1;
-        ///                     item.DisplayName = FormatName(item);
-        ///                     return item;
-        ///                 })
-        ///                 .ToList();
-        ///         }
-        ///     });
-        /// </code>
-        /// </example>
-        /// <example>
-        /// 示例 3：不需要特殊处理时，省略匿名函数
-        /// <code>
-        /// var page = await query
-        ///     .ToPageResultAsync(dto.page ?? 1, dto.size ?? 1)
-        ///     .Adapt&lt;PageResult&lt;CustomerDto&gt;&gt;();
-        /// </code>
-        /// </example>
-        /// <example>
-        /// 示例 4：🆕 自动集合映射
-        /// <code>
-        /// var entities = GetEntities(); // List&lt;UserEntity&gt;
-        /// 
-        /// // 自动识别为集合映射，无需调用 AdaptList
-        /// var dtos = entities.Adapt&lt;List&lt;UserDto&gt;&gt;();
-        /// 
-        /// // 也支持 IEnumerable, IList 等
-        /// var dtos = entities.Adapt&lt;IEnumerable&lt;UserDto&gt;&gt;();
-        /// </code>
-        /// </example>
+        /// 默认启用 FlexibleOption（忽略大小写和下划线），支持驼峰与下划线互转。
+        /// 支持自动识别集合类型（List, IEnumerable, 数组等）。
         /// </remarks>
         /// <exception cref="System.MissingMethodException">目标类型没有无参构造函数</exception>
-        /// <exception cref="System.MemberAccessException">目标类型的构造函数不可访问</exception>
         public static TDestination? Adapt<TDestination>(
             this object source, System.Action<TDestination?, object>? custom = null)
         {
             var mapper = MapperProvider.Current;
             var destType = typeof(TDestination);
             
-            // 🆕 v2.3: 自动检测集合类型
+            // 自动检测集合类型
             if (IsCollectionType(destType) && source is System.Collections.IEnumerable sourceEnumerable)
             {
                 var result = AdaptCollectionInternal<TDestination>(sourceEnumerable, destType, mapper);
@@ -373,12 +275,30 @@ namespace Ling.Mapper
                 return result;
             }
             
-            // 原有的单对象映射逻辑
+            // 🚀 性能优化：快速路径 - 无自定义回调且无默认选项时
+            if (custom == null)
+            {
+                var config = GetMapperConfiguration(mapper);
+                if (config?.DefaultAdaptOptions == null)
+                {
+                    // 直接返回映射结果，避免额外检查
+                    return mapper.Map<TDestination>(source);
+                }
+            }
+            
+            // 单对象映射
             var dest = mapper.Map<TDestination>(source);
 
             if (dest == null && !typeof(TDestination).IsValueType)
             {
                 dest = CreateInstance<TDestination>();
+            }
+
+            // 自动应用默认 AdaptOptions（仅在有配置时）
+            var config2 = GetMapperConfiguration(mapper);
+            if (config2?.DefaultAdaptOptions != null && dest != null)
+            {
+                ApplyAdaptOptions(source, dest, config2.DefaultAdaptOptions);
             }
 
             if (dest != null)
@@ -388,60 +308,24 @@ namespace Ling.Mapper
         }
 
         /// <summary>
-        /// 带 IMapper 参数的简化 Adapt 方法，回调参数为 (destination, source)
+        /// 使用指定 IMapper 将对象映射为目标类型，支持自定义回调处理
         /// </summary>
         /// <typeparam name="TDestination">目标类型</typeparam>
         /// <param name="source">源对象</param>
         /// <param name="mapper">指定的 IMapper 实例</param>
-        /// <param name="custom">可选的回调函数，用于对映射结果进行特殊处理。参数为 (destination, source)</param>
+        /// <param name="custom">可选的回调函数，参数为 (destination, source)</param>
         /// <returns>映射后的目标对象</returns>
         /// <remarks>
-        /// <para>此方法使用指定的 IMapper 实例进行映射，并支持在映射完成后通过匿名函数进行额外处理。</para>
-        /// <para>与无参数版本的区别是可以指定特定的 Mapper 实例，适用于需要使用非全局 Mapper 的场景。</para>
-        /// <para>如果映射结果为 null 且目标类型不是值类型，将尝试创建目标类型的实例。</para>
-        /// <para>如果实例化失败（例如没有无参构造函数），将抛出异常。</para>
-        /// <para><strong>🆕 v2.3 自动集合识别：</strong></para>
-        /// <para>支持自动识别集合类型（List&lt;T&gt;, IEnumerable&lt;T&gt;, IList&lt;T&gt; 等），无需显式调用 AdaptList。</para>
-        /// <example>
-        /// 示例 1：指定特定的 Mapper 实例
-        /// <code>
-        /// var customMapper = new MapperConfiguration().CreateMapper();
-        /// var result = sourceData
-        ///     .Adapt&lt;TargetDto&gt;(customMapper, (res, dis) =>
-        ///     {
-        ///         // 对结果进行特殊处理
-        ///         res.CalculatedField = res.Value * 2;
-        ///         
-        ///         // 循环处理集合
-        ///         if (res.Items != null)
-        ///         {
-        ///             for (int i = 0; i &lt; res.Items.Count; i++)
-        ///             {
-        ///                 res.Items[i].Index = i + 1;
-        ///             }
-        ///         }
-        ///     });
-        /// </code>
-        /// </example>
-        /// <example>
-        /// 示例 2：🆕 自动集合映射
-        /// <code>
-        /// var customMapper = new MapperConfiguration().CreateMapper();
-        /// var entities = GetEntities();
-        /// 
-        /// // 自动识别为集合映射
-        /// var dtos = entities.Adapt&lt;List&lt;UserDto&gt;&gt;(customMapper);
-        /// </code>
-        /// </example>
+        /// 默认启用 FlexibleOption（忽略大小写和下划线），支持驼峰与下划线互转。
+        /// 支持自动识别集合类型（List, IEnumerable, 数组等）。
         /// </remarks>
         /// <exception cref="System.MissingMethodException">目标类型没有无参构造函数</exception>
-        /// <exception cref="System.MemberAccessException">目标类型的构造函数不可访问</exception>
         public static TDestination? Adapt<TDestination>(
             this object source, IMapper mapper, System.Action<TDestination?, object>? custom = null)
         {
             var destType = typeof(TDestination);
             
-            // 🆕 v2.3: 自动检测集合类型
+            // 自动检测集合类型
             if (IsCollectionType(destType) && source is System.Collections.IEnumerable sourceEnumerable)
             {
                 var result = AdaptCollectionInternal<TDestination>(sourceEnumerable, destType, mapper);
@@ -450,12 +334,30 @@ namespace Ling.Mapper
                 return result;
             }
             
-            // 原有的单对象映射逻辑
+            // 🚀 性能优化：快速路径 - 无自定义回调且无默认选项时
+            if (custom == null)
+            {
+                var config = GetMapperConfiguration(mapper);
+                if (config?.DefaultAdaptOptions == null)
+                {
+                    // 直接返回映射结果，避免额外检查
+                    return mapper.Map<TDestination>(source);
+                }
+            }
+            
+            // 单对象映射
             var dest = mapper.Map<TDestination>(source);
             
             if (dest == null && !typeof(TDestination).IsValueType)
             {
                 dest = CreateInstance<TDestination>();
+            }
+
+            // 自动应用默认 AdaptOptions（仅在有配置时）
+            var config2 = GetMapperConfiguration(mapper);
+            if (config2?.DefaultAdaptOptions != null && dest != null)
+            {
+                ApplyAdaptOptions(source, dest, config2.DefaultAdaptOptions);
             }
 
             if (dest != null)
@@ -465,162 +367,12 @@ namespace Ling.Mapper
         }
 
         /// <summary>
-        /// 将 List 集合映射为目标类型的 List 集合，支持对每个元素进行自定义处理
-        /// </summary>
-        /// <typeparam name="TDestination">目标元素类型</typeparam>
-        /// <typeparam name="TSource">源元素类型</typeparam>
-        /// <param name="source">源 List 集合</param>
-        /// <param name="custom">可选的回调函数，对每个映射后的元素进行处理。参数为 (destination, source, index)</param>
-        /// <returns>映射后的目标 List 集合</returns>
-        /// <remarks>
-        /// <para>此方法使用全局 Mapper 将 List 集合中的每个元素映射为目标类型，并支持对每个元素进行额外处理。</para>
-        /// <example>
-        /// 示例 1：基本 List 转换
-        /// <code>
-        /// var sourceList = new List&lt;SourceDto&gt; { ... };
-        /// var targetList = sourceList.AdaptList&lt;TargetDto, SourceDto&gt;();
-        /// </code>
-        /// </example>
-        /// <example>
-        /// 示例 2：转换时对每个元素进行处理
-        /// <code>
-        /// var targetList = sourceList.AdaptList&lt;TargetDto, SourceDto&gt;((target, source, index) =>
-        /// {
-        ///     target.RowNumber = index + 1;
-        ///     target.DisplayName = $"{source.FirstName} {source.LastName}";
-        /// });
-        /// </code>
-        /// </example>
-        /// <example>
-        /// 示例 3：嵌套对象的 List 转换
-        /// <code>
-        /// var orders = sourceOrders.AdaptList&lt;OrderDto, OrderEntity&gt;((order, source, index) =>
-        /// {
-        ///     // 订单项也会自动映射
-        ///     if (order.Items != null)
-        ///     {
-        ///         foreach (var item in order.Items)
-        ///         {
-        ///             item.ParentOrderId = order.Id;
-        ///         }
-        ///     }
-        /// });
-        /// </code>
-        /// </example>
-        /// </remarks>
-        public static List<TDestination>? AdaptList<TDestination, TSource>(
-            this IEnumerable<TSource>? source,
-            System.Action<TDestination?, TSource, int>? custom = null)
-        {
-            if (source == null) return null;
-
-            var mapper = MapperProvider.Current;
-            
-            var result = new List<TDestination>();
-            int index = 0;
-            
-            foreach (var item in source)
-            {
-                var dest = mapper.Map<TDestination>(item);
-                if (dest != null)
-                {
-                    custom?.Invoke(dest, item, index);
-                    result.Add(dest);
-                }
-                index++;
-            }
-
-            return result;
-        }
-
-        /// <summary>
-        /// 带 IMapper 参数的 List 映射方法，支持对每个元素进行自定义处理
-        /// </summary>
-        /// <typeparam name="TDestination">目标元素类型</typeparam>
-        /// <typeparam name="TSource">源元素类型</typeparam>
-        /// <param name="source">源 List 集合</param>
-        /// <param name="mapper">指定的 IMapper 实例</param>
-        /// <param name="custom">可选的回调函数，对每个映射后的元素进行处理。参数为 (destination, source, index)</param>
-        /// <returns>映射后的目标 List 集合</returns>
-        public static List<TDestination>? AdaptList<TDestination, TSource>(
-            this IEnumerable<TSource>? source,
-            IMapper mapper,
-            System.Action<TDestination?, TSource, int>? custom = null)
-        {
-            if (source == null) return null;
-
-            var result = new List<TDestination>();
-            int index = 0;
-            
-            foreach (var item in source)
-            {
-                var dest = mapper.Map<TDestination>(item);
-                if (dest != null)
-                {
-                    custom?.Invoke(dest, item, index);
-                    result.Add(dest);
-                }
-                index++;
-            }
-
-            return result;
-        }
-
-        /// <summary>
-        /// 简化的 List 映射方法，自动推断源类型
-        /// </summary>
-        /// <typeparam name="TDestination">目标元素类型</typeparam>
-        /// <param name="source">源集合</param>
-        /// <param name="custom">可选的回调函数，对每个映射后的元素进行处理。参数为 (destination, source, index)</param>
-        /// <returns>映射后的目标 List 集合</returns>
-        /// <remarks>
-        /// <example>
-        /// 示例：简化的 List 转换写法
-        /// <code>
-        /// var targetList = sourceList.AdaptList&lt;TargetDto&gt;((target, source, index) =>
-        /// {
-        ///     target.Index = index;
-        /// });
-        /// </code>
-        /// </example>
-        /// </remarks>
-        public static List<TDestination>? AdaptList<TDestination>(
-            this System.Collections.IEnumerable? source,
-            System.Action<TDestination?, object, int>? custom = null)
-        {
-            if (source == null) return null;
-
-            var mapper = MapperProvider.Current;
-            
-            var result = new List<TDestination>();
-            int index = 0;
-            
-            foreach (var item in source)
-            {
-                var dest = mapper.Map<TDestination>(item);
-                if (dest != null)
-                {
-                    custom?.Invoke(dest, item, index);
-                    result.Add(dest);
-                }
-                index++;
-            }
-
-            return result;
-        }
-
-        /// <summary>
-        /// 创建目标类型的实例，失败时抛出异常
+        /// 创建目标类型的实例
         /// </summary>
         /// <typeparam name="T">要创建的类型</typeparam>
         /// <returns>创建的实例</returns>
         /// <exception cref="System.MissingMethodException">类型没有无参构造函数</exception>
-        /// <exception cref="System.MemberAccessException">构造函数不可访问（例如私有构造函数）</exception>
-        /// <exception cref="System.Exception">实例化过程中发生其他异常</exception>
-        /// <remarks>
-        /// 此方法要求目标类型必须有一个可访问的无参构造函数。
-        /// 如果实例化失败，将抛出明确的异常，帮助开发者在调试时快速定位问题。
-        /// </remarks>
+        /// <exception cref="System.MemberAccessException">构造函数不可访问</exception>
         private static T CreateInstance<T>()
         {
             try
@@ -630,55 +382,43 @@ namespace Ling.Mapper
             catch (System.MissingMethodException ex)
             {
                 throw new System.MissingMethodException(
-                    $"无法创建类型 '{typeof(T).FullName}' 的实例：该类型没有无参构造函数。" +
-                    $"请为 DTO 类型添加无参构造函数，或确保 Mapper 配置正确返回非 null 实例。", ex);
+                    $"无法创建类型 '{typeof(T).FullName}' 的实例：该类型没有无参构造函数。", ex);
             }
             catch (System.MemberAccessException ex)
             {
                 throw new System.MemberAccessException(
-                    $"无法创建类型 '{typeof(T).FullName}' 的实例：构造函数不可访问（可能是私有或受保护的）。" +
-                    $"请确保目标类型有一个公共的无参构造函数。", ex);
+                    $"无法创建类型 '{typeof(T).FullName}' 的实例：构造函数不可访问。", ex);
             }
             catch (System.Exception ex)
             {
                 throw new System.InvalidOperationException(
-                    $"创建类型 '{typeof(T).FullName}' 的实例时发生异常：{ex.Message}" +
-                    $"请检查构造函数是否抛出了异常，或目标类型是否可以正常实例化。", ex);
+                    $"创建类型 '{typeof(T).FullName}' 的实例时发生异常：{ex.Message}", ex);
             }
         }
 
-        #region Collection Auto Detection Helpers (v2.3)
+        #region 集合自动识别辅助方法
 
         /// <summary>
-        /// 检测类型是否为支持的集合类型
+        /// 检测类型是否为支持的集合类型（List, IEnumerable, 数组等）
         /// </summary>
-        /// <param name="type">要检测的类型</param>
-        /// <returns>如果是集合类型返回 true，否则返回 false</returns>
-        /// <remarks>
-        /// 支持的集合类型：
-        /// - List&lt;T&gt;
-        /// - IList&lt;T&gt;
-        /// - ICollection&lt;T&gt;
-        /// - IEnumerable&lt;T&gt;
-        /// - T[]
-        /// </remarks>
         private static bool IsCollectionType(System.Type type)
         {
-            // 数组类型
-            if (type.IsArray)
-                return true;
+            // 🚀 性能优化：从缓存中获取结果
+            return _collectionTypeCache.GetOrAdd(type, t =>
+            {
+                if (t.IsArray)
+                    return true;
 
-            // 非泛型集合（如 ArrayList）不支持自动检测
-            if (!type.IsGenericType)
-                return false;
+                if (!t.IsGenericType)
+                    return false;
 
-            var genericDef = type.GetGenericTypeDefinition();
+                var genericDef = t.GetGenericTypeDefinition();
 
-            // 检查常见的泛型集合类型
-            return genericDef == typeof(List<>) ||
-                   genericDef == typeof(IList<>) ||
-                   genericDef == typeof(ICollection<>) ||
-                   genericDef == typeof(IEnumerable<>);
+                return genericDef == typeof(List<>) ||
+                       genericDef == typeof(IList<>) ||
+                       genericDef == typeof(ICollection<>) ||
+                       genericDef == typeof(IEnumerable<>);
+            });
         }
 
         /// <summary>
@@ -761,54 +501,43 @@ namespace Ling.Mapper
 
         #endregion
 
+        #region 默认 AdaptOptions 辅助方法
+
+        // 🚀 性能优化：缓存 FieldInfo 避免重复反射
+        private static readonly System.Reflection.FieldInfo? _cachedConfigField = 
+            typeof(Mapper).GetField("_config", 
+                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+
+        // 🚀 性能优化：缓存集合类型检测结果
+        private static readonly System.Collections.Concurrent.ConcurrentDictionary<System.Type, bool> _collectionTypeCache 
+            = new System.Collections.Concurrent.ConcurrentDictionary<System.Type, bool>();
+
+        /// <summary>
+        /// 从 IMapper 实例获取关联的 MapperConfiguration
+        /// </summary>
+        private static MapperConfiguration? GetMapperConfiguration(IMapper mapper)
+        {
+            if (mapper is Mapper internalMapper && _cachedConfigField != null)
+            {
+                return _cachedConfigField.GetValue(internalMapper) as MapperConfiguration;
+            }
+            return null;
+        }
+
+        #endregion
+
         #region 带 AdaptOptions 的 Adapt 扩展方法
 
         /// <summary>
-        /// 使用映射规则选项进行映射（带 mapper 参数）
+        /// 使用映射规则选项进行映射
         /// </summary>
         /// <typeparam name="TDestination">目标类型</typeparam>
         /// <typeparam name="TSource">源类型</typeparam>
         /// <param name="source">源对象</param>
         /// <param name="mapper">IMapper 实例</param>
-        /// <param name="options">映射规则选项</param>
+        /// <param name="options">映射规则选项（支持忽略大小写、下划线、指定属性等）</param>
         /// <param name="custom">可选的回调函数</param>
         /// <returns>映射后的目标对象</returns>
-        /// <remarks>
-        /// <para>此方法支持在运行时指定映射规则，包括：</para>
-        /// <list type="bullet">
-        /// <item><description>IgnoreCase: 忽略属性名称大小写</description></item>
-        /// <item><description>IgnoreUnderscore: 忽略属性名称中的下划线</description></item>
-        /// <item><description>IgnoreProperties: 忽略指定的属性</description></item>
-        /// <item><description>IgnoreNullValues: 忽略 null 值属性</description></item>
-        /// </list>
-        /// <example>
-        /// 示例 1：忽略大小写匹配
-        /// <code>
-        /// var target = source.Adapt&lt;TargetDto, SourceDto&gt;(mapper, 
-        ///     AdaptOptions.IgnoreCaseOption);
-        /// </code>
-        /// </example>
-        /// <example>
-        /// 示例 2：自定义规则
-        /// <code>
-        /// var target = source.Adapt&lt;TargetDto, SourceDto&gt;(mapper, 
-        ///     new AdaptOptions 
-        ///     { 
-        ///         IgnoreCase = true,
-        ///         IgnoreUnderscore = true,
-        ///         IgnoreProperties = new[] { "Password", "CreditCard" }
-        ///     });
-        /// </code>
-        /// </example>
-        /// <example>
-        /// 示例 3：配合回调函数
-        /// <code>
-        /// var target = source.Adapt&lt;TargetDto, SourceDto&gt;(mapper, 
-        ///     AdaptOptions.FlexibleOption,
-        ///     (dest, src) => dest.FullName = $"{src.FirstName} {src.LastName}");
-        /// </code>
-        /// </example>
-        /// </remarks>
         public static TDestination? Adapt<TDestination, TSource>(
             this TSource source,
             IMapper mapper,
@@ -818,7 +547,6 @@ namespace Ling.Mapper
             if (source == null) return default;
             if (options == null) options = AdaptOptions.Default;
 
-            // 1. 先执行基础映射
             var dest = mapper.Map<TDestination>(source);
 
             if (dest == null && !typeof(TDestination).IsValueType)
@@ -828,10 +556,8 @@ namespace Ling.Mapper
 
             if (dest == null) return default;
 
-            // 2. 应用映射规则
             ApplyAdaptOptions(source, dest, options);
 
-            // 3. 执行自定义回调
             if (dest != null)
                 custom?.Invoke(dest, source);
 
@@ -857,12 +583,12 @@ namespace Ling.Mapper
         }
 
         /// <summary>
-        /// 使用映射规则选项进行映射（简化版本，自动推断源类型）
+        /// 使用映射规则选项进行映射（自动推断源类型）
         /// </summary>
         /// <typeparam name="TDestination">目标类型</typeparam>
         /// <param name="source">源对象</param>
         /// <param name="mapper">IMapper 实例</param>
-        /// <param name="options">映射规则选项</param>
+        /// <param name="options">映射规则选项（支持忽略大小写、下划线、指定属性等）</param>
         /// <param name="custom">可选的回调函数</param>
         /// <returns>映射后的目标对象</returns>
         public static TDestination? Adapt<TDestination>(
@@ -874,7 +600,6 @@ namespace Ling.Mapper
             if (source == null) return default;
             if (options == null) options = AdaptOptions.Default;
 
-            // 1. 先执行基础映射
             var dest = mapper.Map<TDestination>(source);
 
             if (dest == null && !typeof(TDestination).IsValueType)
@@ -884,10 +609,8 @@ namespace Ling.Mapper
 
             if (dest == null) return default;
 
-            // 2. 应用映射规则
             ApplyAdaptOptions(source, dest, options);
 
-            // 3. 执行自定义回调
             if (dest != null)
                 custom?.Invoke(dest, source);
 
@@ -921,8 +644,16 @@ namespace Ling.Mapper
         {
             if (source == null || dest == null || options == null) return;
 
+            // 🔥 如果没有启用特殊匹配规则，直接返回
+            if (!options.IgnoreCase && !options.IgnoreUnderscore && 
+                (options.IgnoreProperties == null || options.IgnoreProperties.Length == 0))
+            {
+                return;
+            }
+
             var destType = typeof(TDestination);
-            var srcType = typeof(TSource);
+            // 🔥 修复：使用 GetType() 获取运行时类型，而不是 typeof(TSource)
+            var srcType = source.GetType();
 
             var destProps = destType.GetProperties(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance);
             var srcProps = srcType.GetProperties(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance)
@@ -973,19 +704,18 @@ namespace Ling.Mapper
 
                 if (srcProp == null || !srcProp.CanRead) continue;
 
-                // 3. 处理 IgnoreNullValues
+                // 3. 获取源值
                 var srcValue = srcProp.GetValue(source);
+                
+                // 4. 处理 IgnoreNullValues
                 if (options.IgnoreNullValues && srcValue == null)
                 {
-                    var defaultValue = destProp.PropertyType.IsValueType
-                        ? System.Activator.CreateInstance(destProp.PropertyType)
-                        : null;
-                    destProp.SetValue(dest, defaultValue);
+                    // 不覆盖目标属性
                     continue;
                 }
 
-                // 4. 如果启用了特殊匹配规则，需要手动赋值（因为 mapper 可能没有匹配）
-                if ((options.IgnoreCase || options.IgnoreUnderscore) && srcValue != null)
+                // 5. 🔥 修复：总是尝试赋值（不仅仅是非 null 时）
+                if (options.IgnoreCase || options.IgnoreUnderscore)
                 {
                     try
                     {
@@ -997,6 +727,12 @@ namespace Ling.Mapper
                         else if (destProp.PropertyType == srcProp.PropertyType)
                         {
                             destProp.SetValue(dest, srcValue);
+                        }
+                        else if (srcValue != null)
+                        {
+                            // 尝试使用 Convert 转换
+                            var converted = System.Convert.ChangeType(srcValue, destProp.PropertyType);
+                            destProp.SetValue(dest, converted);
                         }
                     }
                     catch

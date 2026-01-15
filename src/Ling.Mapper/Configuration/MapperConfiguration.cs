@@ -25,6 +25,26 @@ namespace Ling.Mapper
         internal GlobalConventionOptions GlobalOptions { get; } = new();
 
         /// <summary>
+        /// 🆕 默认的 AdaptOptions，用于所有 Adapt 调用（如果没有显式指定）。
+        /// 默认值：忽略大小写和下划线（FlexibleOption）。
+        /// </summary>
+        /// <remarks>
+        /// 可以在应用启动时配置：
+        /// <code>
+        /// config.DefaultAdaptOptions = new AdaptOptions 
+        /// { 
+        ///     IgnoreCase = true, 
+        ///     IgnoreUnderscore = true 
+        /// };
+        /// </code>
+        /// 或者禁用默认行为：
+        /// <code>
+        /// config.DefaultAdaptOptions = null;  // 精确匹配
+        /// </code>
+        /// </remarks>
+        public AdaptOptions? DefaultAdaptOptions { get; set; } = AdaptOptions.FlexibleOption;
+
+        /// <summary>
         /// 所有注册的映射配置集合。
         /// </summary>
         internal IEnumerable<IMappingConfig> Configs => _configs;

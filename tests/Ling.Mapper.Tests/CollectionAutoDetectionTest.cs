@@ -124,21 +124,26 @@ namespace Ling.Mapper.Tests
                 }
             });
 
-            // 方式 2: AdaptList 显式调用（回调处理每个元素）
-            var dtos2 = entities.AdaptList<UserDto, UserEntity>((dto, entity, index) =>
+            // 方式 2: Adapt 自动识别 + 手动处理索引
+            var dtos2 = entities.Adapt<List<UserDto>>((list, src) =>
             {
-                if (dto != null)
+                if (list != null)
                 {
-                    dto.DisplayName = $"AdaptList[{index}]: {entity.Name}";
+                    var sourceList = src as List<UserEntity>;
+                    for (int index = 0; index < list.Count; index++)
+                    {
+                        var entity = sourceList?[index];
+                        list[index].DisplayName = $"Adapt[{index}]: {entity?.Name}";
+                    }
                 }
             });
 
-            Console.WriteLine($"✓ Adapt 方式: {dtos1?.Count} 项");
-            Console.WriteLine($"✓ AdaptList 方式: {dtos2?.Count} 项");
+            Console.WriteLine($"✓ Adapt 方式1: {dtos1?.Count} 项");
+            Console.WriteLine($"✓ Adapt 方式2（带索引）: {dtos2?.Count} 项");
             Console.WriteLine("\n  对比结果:");
-            Console.WriteLine($"    Adapt 第一项: {dtos1?[0].DisplayName}");
-            Console.WriteLine($"    AdaptList 第一项: {dtos2?[0].DisplayName}");
-            Console.WriteLine("\n  结论: 两种方式回调不同，AdaptList 提供元素级控制");
+            Console.WriteLine($"    方式1 第一项: {dtos1?[0].DisplayName}");
+            Console.WriteLine($"    方式2 第一项: {dtos2?[0].DisplayName}");
+            Console.WriteLine("\n  结论: Adapt 自动识别集合类型，可在回调中灵活处理");
             Console.WriteLine();
         }
 
