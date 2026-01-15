@@ -39,114 +39,104 @@ namespace Ling.Mapper.Extensions
          * 一、最基础入口（无回调）
          * ============================================================ */
 
-        /// <summary>
-        /// 将源对象映射为目标类型的实例（使用默认选项）。
-        /// </summary>
-        /// <typeparam name="TDestination">目标类型。</typeparam>
         /// <param name="source">源对象。</param>
-        /// <returns>映射后的目标类型实例，如果源对象为 null 则返回 default(TDestination)。</returns>
-        /// <example>
-        /// <code>
-        /// var userDto = userEntity.Adapt&lt;UserDto&gt;();
-        /// var productList = products.Adapt&lt;List&lt;ProductDto&gt;&gt;();
-        /// </code>
-        /// </example>
-        public static TDestination? Adapt<TDestination>(this object source)
-            => Adapt<TDestination>(
-                source,
-                MapperProvider.Current,
-                AdaptOptions.Default,
-                null);
+        extension(object source)
+        {
+            /// <summary>
+            /// 将源对象映射为目标类型的实例（使用默认选项）。
+            /// </summary>
+            /// <typeparam name="TDestination">目标类型。</typeparam>
+            /// <returns>映射后的目标类型实例，如果源对象为 null 则返回 default(TDestination)。</returns>
+            /// <example>
+            /// <code>
+            /// var userDto = userEntity.Adapt&lt;UserDto&gt;();
+            /// var productList = products.Adapt&lt;List&lt;ProductDto&gt;&gt;();
+            /// </code>
+            /// </example>
+            public TDestination? Adapt<TDestination>()
+                =>
+                    source.Adapt<TDestination>(MapperProvider.Current,
+                        AdaptOptions.Default,
+                        null);
 
-        /// <summary>
-        /// 将源对象映射为目标类型的实例（使用指定选项）。
-        /// </summary>
-        /// <typeparam name="TDestination">目标类型。</typeparam>
-        /// <param name="source">源对象。</param>
-        /// <param name="options">映射选项，用于控制映射行为（如忽略大小写、忽略下划线等）。</param>
-        /// <returns>映射后的目标类型实例，如果源对象为 null 则返回 default(TDestination)。</returns>
-        /// <example>
-        /// <code>
-        /// // 使用严格模式映射
-        /// var dto = source.Adapt&lt;TargetDto&gt;(AdaptOptions.Strict);
-        /// 
-        /// // 组合多个选项
-        /// var dto = source.Adapt&lt;TargetDto&gt;(AdaptOptions.IgnoreCase | AdaptOptions.IgnoreNullValues);
-        /// </code>
-        /// </example>
-        public static TDestination? Adapt<TDestination>(
-            this object source,
-            AdaptOptions options)
-            => Adapt<TDestination>(
-                source,
-                MapperProvider.Current,
-                options,
-                null);
+            /// <summary>
+            /// 将源对象映射为目标类型的实例（使用指定选项）。
+            /// </summary>
+            /// <typeparam name="TDestination">目标类型。</typeparam>
+            /// <param name="options">映射选项，用于控制映射行为（如忽略大小写、忽略下划线等）。</param>
+            /// <returns>映射后的目标类型实例，如果源对象为 null 则返回 default(TDestination)。</returns>
+            /// <example>
+            /// <code>
+            /// // 使用严格模式映射
+            /// var dto = source.Adapt&lt;TargetDto&gt;(AdaptOptions.Strict);
+            /// 
+            /// // 组合多个选项
+            /// var dto = source.Adapt&lt;TargetDto&gt;(AdaptOptions.IgnoreCase | AdaptOptions.IgnoreNullValues);
+            /// </code>
+            /// </example>
+            public TDestination? Adapt<TDestination>(AdaptOptions options)
+                =>
+                    source.Adapt<TDestination>(MapperProvider.Current,
+                        options,
+                        null);
+
+            /// <summary>
+            /// 将源对象映射为目标类型的实例，并在映射完成后执行弱类型回调。
+            /// 适用于对整个对象或整个集合进行后处理。
+            /// </summary>
+            /// <typeparam name="TDestination">目标类型。</typeparam>
+            /// <param name="afterMap">映射完成后的回调函数，接收目标对象和源对象作为参数。</param>
+            /// <returns>映射后的目标类型实例，如果源对象为 null 则返回 default(TDestination)。</returns>
+            /// <remarks>
+            /// 弱类型回调适合以下场景：
+            /// <list type="bullet">
+            /// <item><description>需要对整个集合进行统一处理</description></item>
+            /// <item><description>源对象类型在编译时不确定</description></item>
+            /// <item><description>需要同时访问源对象和目标对象</description></item>
+            /// </list>
+            /// </remarks>
+            /// <example>
+            /// <code>
+            /// var dto = source.Adapt&lt;TargetDto&gt;((dest, src) =&gt; {
+            ///     if (dest != null) {
+            ///         dest.MappedAt = DateTime.Now;
+            ///     }
+            /// });
+            /// </code>
+            /// </example>
+            public TDestination? Adapt<TDestination>(Action<TDestination?, object>? afterMap)
+                =>
+                    source.Adapt<TDestination>(MapperProvider.Current,
+                        AdaptOptions.Default,
+                        afterMap);
+
+            /// <summary>
+            /// 将源对象映射为目标类型的实例，使用指定选项，并在映射完成后执行弱类型回调。
+            /// </summary>
+            /// <typeparam name="TDestination">目标类型。</typeparam>
+            /// <param name="options">映射选项。</param>
+            /// <param name="afterMap">映射完成后的回调函数。</param>
+            /// <returns>映射后的目标类型实例，如果源对象为 null 则返回 default(TDestination)。</returns>
+            /// <example>
+            /// <code>
+            /// var dto = source.Adapt&lt;TargetDto&gt;(
+            ///     AdaptOptions.IgnoreCase,
+            ///     (dest, src) =&gt; {
+            ///         dest?.Validate();
+            ///     });
+            /// </code>
+            /// </example>
+            public TDestination? Adapt<TDestination>(AdaptOptions options,
+                Action<TDestination?, object>? afterMap)
+                =>
+                    source.Adapt<TDestination>(MapperProvider.Current,
+                        options,
+                        afterMap);
+        }
 
         /* ============================================================
          * 二、弱类型回调（用于整个对象或整个集合的后处理）
          * ============================================================ */
-
-        /// <summary>
-        /// 将源对象映射为目标类型的实例，并在映射完成后执行弱类型回调。
-        /// 适用于对整个对象或整个集合进行后处理。
-        /// </summary>
-        /// <typeparam name="TDestination">目标类型。</typeparam>
-        /// <param name="source">源对象。</param>
-        /// <param name="afterMap">映射完成后的回调函数，接收目标对象和源对象作为参数。</param>
-        /// <returns>映射后的目标类型实例，如果源对象为 null 则返回 default(TDestination)。</returns>
-        /// <remarks>
-        /// 弱类型回调适合以下场景：
-        /// <list type="bullet">
-        /// <item><description>需要对整个集合进行统一处理</description></item>
-        /// <item><description>源对象类型在编译时不确定</description></item>
-        /// <item><description>需要同时访问源对象和目标对象</description></item>
-        /// </list>
-        /// </remarks>
-        /// <example>
-        /// <code>
-        /// var dto = source.Adapt&lt;TargetDto&gt;((dest, src) =&gt; {
-        ///     if (dest != null) {
-        ///         dest.MappedAt = DateTime.Now;
-        ///     }
-        /// });
-        /// </code>
-        /// </example>
-        public static TDestination? Adapt<TDestination>(
-            this object source,
-            Action<TDestination?, object>? afterMap)
-            => Adapt<TDestination>(
-                source,
-                MapperProvider.Current,
-                AdaptOptions.Default,
-                afterMap);
-
-        /// <summary>
-        /// 将源对象映射为目标类型的实例，使用指定选项，并在映射完成后执行弱类型回调。
-        /// </summary>
-        /// <typeparam name="TDestination">目标类型。</typeparam>
-        /// <param name="source">源对象。</param>
-        /// <param name="options">映射选项。</param>
-        /// <param name="afterMap">映射完成后的回调函数。</param>
-        /// <returns>映射后的目标类型实例，如果源对象为 null 则返回 default(TDestination)。</returns>
-        /// <example>
-        /// <code>
-        /// var dto = source.Adapt&lt;TargetDto&gt;(
-        ///     AdaptOptions.IgnoreCase,
-        ///     (dest, src) =&gt; {
-        ///         dest?.Validate();
-        ///     });
-        /// </code>
-        /// </example>
-        public static TDestination? Adapt<TDestination>(
-            this object source,
-            AdaptOptions options,
-            Action<TDestination?, object>? afterMap)
-            => Adapt<TDestination>(
-                source,
-                MapperProvider.Current,
-                options,
-                afterMap);
 
         /* ============================================================
          * 三、强类型回调（核心功能：TDestination, TSource）
@@ -183,9 +173,7 @@ namespace Ling.Mapper.Extensions
             this TSource source,
             Action<TDestination, TSource> afterMap)
         {
-            return Adapt<TDestination, TSource>(
-                source,
-                MapperProvider.Current,
+            return source.Adapt<TDestination, TSource>(MapperProvider.Current,
                 AdaptOptions.Default,
                 afterMap);
         }
@@ -213,9 +201,7 @@ namespace Ling.Mapper.Extensions
             AdaptOptions options,
             Action<TDestination, TSource> afterMap)
         {
-            return Adapt<TDestination, TSource>(
-                source,
-                MapperProvider.Current,
+            return source.Adapt<TDestination, TSource>(MapperProvider.Current,
                 options,
                 afterMap);
         }
@@ -283,7 +269,7 @@ namespace Ling.Mapper.Extensions
         /// <param name="afterMap">映射完成后的回调函数（可选），对整个结果（包括集合）执行。</param>
         /// <returns>映射后的目标类型实例。</returns>
         internal static TDestination? Adapt<TDestination>(
-            this object source,
+            this object? source,
             IMapper mapper,
             AdaptOptions options,
             Action<TDestination?, object>? afterMap)

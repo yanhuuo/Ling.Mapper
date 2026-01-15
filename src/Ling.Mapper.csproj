@@ -2,7 +2,7 @@
 
 	<PropertyGroup>
 		<!-- 包版本 -->
-		<Version>1.0.10</Version>
+		<Version>1.0.11</Version>
 
 		<!-- 多目标框架 -->
 		<TargetFrameworks>net6.0;net8.0;net9.0;net10.0</TargetFrameworks>
@@ -51,7 +51,6 @@
 		<None Include="ling.png" Pack="true" PackagePath="" />
 
 		<!-- 打包 README -->
-		<None Include="..\README.md" Pack="true" PackagePath="\" />
 	</ItemGroup>
 
 	<ItemGroup>

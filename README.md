@@ -2,56 +2,55 @@
 
 [![NuGet](https://img.shields.io/nuget/v/Ling.Mapper.svg)](https://www.nuget.org/packages/Ling.Mapper/)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
-[![.NET](https://img.shields.io/badge/.NET-10.0-blue)](https://dotnet.microsoft.com/)
+[![.NET](https://img.shields.io/badge/.NET-6.0+-blue)](https://dotnet.microsoft.com/)
 
-🚀 **高性能、零配置的 .NET 对象映射库**
+🚀 **轻量级、高性能的 .NET 对象映射库**
 
-Ling.Mapper 是一个专为 .NET 开发者设计的轻量级、高性能对象映射库。它提供了简洁的 API 和强大的功能，让对象之间的转换变得简单高效。
-
----
-
-## ✨ 特性
-
-### 🎯 核心功能
-- ✅ **零配置映射** - 自动识别同名属性，开箱即用
-- ✅ **高性能** - 基于 Expression Tree 编译，接近手写代码的性能
-- ✅ **嵌套对象** - 自动处理复杂的嵌套对象映射
-- ✅ **集合映射** - 支持 List、Array、IEnumerable 等集合类型
-- ✅ **循环引用检测** - 自动处理对象间的循环引用
-- ✅ **类型转换** - 智能处理枚举、可空类型等类型转换
-
-### 🔥 高级功能
-- ✅ **嵌套属性映射** - 支持 `A.B.C.D` 路径映射
-- ✅ **FlexibleOption** - 自动处理驼峰、下划线等命名差异
-- ✅ **自定义映射规则** - 通过 Profile 配置复杂映射逻辑
-- ✅ **类型转换器** - 注册自定义类型转换器
-- ✅ **JSON 转换** - 内置 JSON 属性转换支持
-- ✅ **AdaptOptions** - 运行时动态配置映射规则
-
-### ⚡ 性能指标
-
-| 测试场景 | 吞吐量 | 耗时 (1M 次) |
-|---------|--------|-------------|
-| 简单对象映射 | **975K ops/sec** | 1024 ms |
-| 复杂对象映射 | **148K ops/sec** | 674 ms (100K次) |
-| 集合映射 | **8.5M elements/sec** | 116 ms |
-| 枚举转换 | **2M ops/sec** | 484 ms |
-| 可空类型转换 | **1.5M ops/sec** | 659 ms |
-
-*测试环境: .NET 10.0, 8核 CPU*
+Ling.Mapper 是一个基于 Expression Tree 的对象映射库，提供简洁的 API 和高效的性能。支持复杂对象映射、集合转换、循环引用检测，以及灵活的配置选项。
 
 ---
 
-## 📦 安装
+## ✨ 核心特性
 
-### NuGet Package Manager
-```bash
-Install-Package Ling.Mapper
-```
+### 🎯 基础功能
+- ✅ **简洁的 Adapt API** - 一行代码完成对象映射：`source.Adapt<Target>()`
+- ✅ **高性能编译** - 基于 Expression Tree 编译，接近手写代码性能
+- ✅ **自动属性匹配** - 智能识别同名属性（支持忽略大小写/下划线）
+- ✅ **集合映射** - 支持 List、Array、IEnumerable 等所有集合类型
+- ✅ **嵌套对象映射** - 自动处理对象图中的嵌套对象和集合
 
-### .NET CLI
+### 🔧 高级功能
+- ✅ **Profile 配置** - 支持 ForMember、Ignore、Rename、ReverseMap
+- ✅ **AdaptOptions** - 运行时动态控制映射行为（IgnoreCase、IgnoreUnderscore、IgnoreNullValues）
+- ✅ **循环引用保护** - 运行时自动检测和打破循环引用
+- ✅ **类型转换** - 内置枚举、可空类型等常见类型转换
+- ✅ **自定义转换器** - 通过 TypeConverterRegistry 注册自定义转换逻辑
+- ✅ **强/弱类型回调** - 映射后执行自定义处理逻辑
+
+### ⚡ 性能表现
+
+| 场景 | 吞吐量 | 说明 |
+|------|--------|------|
+| 简单对象映射 | **975K ops/sec** | 属性较少的对象 |
+| 复杂对象映射 | **148K ops/sec** | 嵌套对象、集合 |
+| 集合映射 | **8.5M elements/sec** | 集合元素处理速度 |
+| 枚举转换 | **2M ops/sec** | 枚举类型互转 |
+| 可空类型转换 | **1.5M ops/sec** | 可空类型处理 |
+
+*测试环境: .NET 10.0, 8核 CPU, 支持 .NET 6.0+*
+
+---
+
+## 📦 快速安装
+
+### NuGet CLI
 ```bash
 dotnet add package Ling.Mapper
+```
+
+### Package Manager
+```bash
+Install-Package Ling.Mapper
 ```
 
 ### PackageReference
@@ -61,14 +60,13 @@ dotnet add package Ling.Mapper
 
 ---
 
-## 🚀 快速开始
+## 🚀 五分钟快速开始
 
-### 1. 基础映射
+### 1. 最简单的映射
 
 ```csharp
-using Ling.Mapper;
+using Ling.Mapper.Extensions;
 
-// 定义源对象和目标对象
 public class UserDto
 {
     public int Id { get; set; }
@@ -76,36 +74,38 @@ public class UserDto
     public string Email { get; set; }
 }
 
-public class UserViewModel
+public class UserEntity
 {
     public int Id { get; set; }
     public string Name { get; set; }
     public string Email { get; set; }
 }
 
-// 使用 Adapt 扩展方法进行映射
+// 直接使用 Adapt 扩展方法
 var dto = new UserDto { Id = 1, Name = "张三", Email = "zhangsan@example.com" };
-var viewModel = dto.Adapt<UserViewModel>();
+var entity = dto.Adapt<UserEntity>();
 
-Console.WriteLine($"{viewModel.Name} - {viewModel.Email}");
+Console.WriteLine($"{entity.Name} - {entity.Email}");
 // 输出: 张三 - zhangsan@example.com
 ```
 
 ### 2. 集合映射
 
 ```csharp
-// 自动识别集合类型
+// List 自动映射
 var dtoList = new List<UserDto>
 {
-    new UserDto { Id = 1, Name = "张三", Email = "zhangsan@example.com" },
-    new UserDto { Id = 2, Name = "李四", Email = "lisi@example.com" }
+    new UserDto { Id = 1, Name = "张三" },
+    new UserDto { Id = 2, Name = "李四" }
 };
 
-// 自动映射为 List<UserViewModel>
-var viewModels = dtoList.Adapt<List<UserViewModel>>();
+var entityList = dtoList.Adapt<List<UserEntity>>();
+Console.WriteLine($"映射了 {entityList.Count} 条记录");
+// 输出: 映射了 2 条记录
 
-Console.WriteLine($"映射了 {viewModels.Count} 个对象");
-// 输出: 映射了 2 个对象
+// Array 也支持
+UserDto[] dtoArray = dtoList.ToArray();
+var entityArray = dtoArray.Adapt<UserEntity[]>();
 ```
 
 ### 3. 嵌套对象映射
@@ -114,204 +114,219 @@ Console.WriteLine($"映射了 {viewModels.Count} 个对象");
 public class OrderDto
 {
     public int Id { get; set; }
-    public CustomerDto Customer { get; set; }
-    public List<OrderItemDto> Items { get; set; }
+    public UserDto User { get; set; }
+    public List<ProductDto> Products { get; set; }
 }
 
-public class OrderViewModel
+public class OrderEntity
 {
     public int Id { get; set; }
-    public CustomerViewModel Customer { get; set; }
-    public List<OrderItemViewModel> Items { get; set; }
+    public UserEntity User { get; set; }
+    public List<ProductEntity> Products { get; set; }
 }
-
-var orderDto = new OrderDto
-{
-    Id = 1,
-    Customer = new CustomerDto { Name = "张三", Address = "北京市" },
-    Items = new List<OrderItemDto>
-    {
-        new OrderItemDto { ProductName = "商品A", Quantity = 2 },
-        new OrderItemDto { ProductName = "商品B", Quantity = 1 }
-    }
-};
 
 // 自动处理嵌套对象和集合
-var orderViewModel = orderDto.Adapt<OrderViewModel>();
-```
-
-### 4. 嵌套属性路径映射 (A.B.C.D)
-
-```csharp
-public class SourceModel
+var order = new OrderDto
 {
-    public User User { get; set; }
-}
-
-public class User
-{
-    public Profile Profile { get; set; }
-}
-
-public class Profile
-{
-    public string Name { get; set; }
-}
-
-public class TargetModel
-{
-    public string UserName { get; set; }
-}
-
-// 配置嵌套属性映射
-var config = new MapperConfiguration();
-config.CreateMap<SourceModel, TargetModel>(cfg =>
-{
-    cfg.ForMember(dest => dest.UserName, src => "User.Profile.Name");
-});
-
-var mapper = config.CreateMapper();
-MapperProvider.SetCurrent(mapper);
-
-var source = new SourceModel
-{
-    User = new User
+    Id = 101,
+    User = new UserDto { Id = 1, Name = "张三" },
+    Products = new List<ProductDto>
     {
-        Profile = new Profile { Name = "张三" }
+        new ProductDto { Id = 1, Name = "笔记本" },
+        new ProductDto { Id = 2, Name = "鼠标" }
     }
 };
 
-var target = source.Adapt<TargetModel>();
-Console.WriteLine(target.UserName); // 输出: 张三
+var orderEntity = order.Adapt<OrderEntity>();
+// 整个对象图都被映射了
 ```
 
----
-
-## 🔧 配置与自定义
-
-### 1. 全局配置
+### 4. 配置全局 Mapper（可选）
 
 ```csharp
 using Ling.Mapper;
 
-// 创建配置
+// 应用启动时配置（例如 Program.cs）
 var config = new MapperConfiguration();
+config.AddProfile(new UserProfile());
+config.AddProfile(new OrderProfile());
 
-// 配置命名约定
-config.ConfigureConventions(opt =>
-{
-    opt.CaseInsensitiveNameMatch = true;  // 忽略大小写
-});
-
-// 创建 Mapper 并设置为全局实例
 var mapper = config.CreateMapper();
 MapperProvider.SetCurrent(mapper);
 
-// 现在可以直接使用 Adapt 扩展方法
-var result = source.Adapt<TargetType>();
+// 现在可以在任何地方使用 Adapt
+var entity = dto.Adapt<UserEntity>();
 ```
 
-### 2. 使用 Profile 配置映射规则
+---
+
+## 🔧 高级用法
+
+### 1. 使用 Profile 配置映射
 
 ```csharp
 public class UserProfile : MapperProfile
 {
     public UserProfile()
     {
-        // 配置 UserDto -> UserViewModel 的映射
-        CreateMap<UserDto, UserViewModel>(cfg =>
-        {
+        // 创建映射配置
+        CreateMap<UserDto, UserEntity>()
             // 自定义属性映射
-            cfg.ForMember(dest => dest.FullName, 
-                src => $"{src.FirstName} {src.LastName}");
+            .ForMember(d => d.FullName, s => s.FirstName + " " + s.LastName)
             
-            // 忽略某些属性
-            cfg.Ignore(dest => dest.CreatedAt);
+            // 重命名属性
+            .Rename(d => d.UserId, "Uid")
             
-            // 重命名映射
-            cfg.ForMember(dest => dest.UserName, src => src.Name);
-        });
+            // 忽略属性
+            .Ignore(d => d.Password)
+            
+            // 生成反向映射
+            .ReverseMap();
     }
 }
-
-// 注册 Profile
-var config = new MapperConfiguration();
-config.AddProfile(new UserProfile());
-
-var mapper = config.CreateMapper();
-MapperProvider.SetCurrent(mapper);
 ```
 
-### 3. AdaptOptions - 运行时配置
+### 2. 运行时映射选项
 
 ```csharp
-using Ling.Mapper;
-
-// 使用 FlexibleOption 处理命名差异
-var source = new { user_name = "张三", user_age = 25 };
-var target = source.Adapt<UserInfo>(AdaptOptions.FlexibleOption);
-
-Console.WriteLine(target.UserName);  // 输出: 张三
-Console.WriteLine(target.UserAge);   // 输出: 25
-
-// 自定义 AdaptOptions
-var options = new AdaptOptions
+// 处理命名差异：下划线 -> 驼峰
+public class ApiDto
 {
-    IgnoreCase = true,           // 忽略大小写
-    IgnoreUnderscore = true,     // 忽略下划线
-    IgnoreNullValues = true,     // 忽略 null 值
-    IgnoreProperties = new[] { "Password" }  // 忽略指定属性
-};
+    public string user_name { get; set; }
+    public int user_id { get; set; }
+}
 
-var result = source.Adapt<TargetType>(options);
+public class UserEntity
+{
+    public string UserName { get; set; }
+    public int UserId { get; set; }
+}
+
+// 使用 FlexibleOption 自动处理
+var entity = apiDto.Adapt<UserEntity>(AdaptOptions.FlexibleOption);
 ```
 
-### 4. 自定义类型转换器
+可用的选项：
 
 ```csharp
-using Ling.Mapper;
+AdaptOptions.Strict              // 严格匹配（默认）
+AdaptOptions.IgnoreCase          // 忽略大小写
+AdaptOptions.IgnoreUnderscore    // 忽略下划线
+AdaptOptions.IgnoreNullValues    // null 值不覆盖
+AdaptOptions.Default             // 忽略大小写 + 下划线
+AdaptOptions.FlexibleOption      // 别名，同 Default
 
-// 注册 JSON 转换器
-TypeConverterRegistry.RegisterJson<ExtraInfoModel>();
+// 组合使用
+var result = source.Adapt<Target>(
+    AdaptOptions.IgnoreCase | AdaptOptions.IgnoreNullValues
+);
+```
 
-// 注册自定义转换器
-TypeConverterRegistry.Register<string, DateTime>(str => DateTime.Parse(str));
+### 3. 映射后回调
 
-// 注册双向转换器
+```csharp
+// 强类型回调（编译时类型检查）
+var entity = dto.Adapt<UserEntity, UserDto>((dest, src) => 
+{
+    dest.FullName = $"{src.FirstName} {src.LastName}";
+    dest.CreatedAt = DateTime.Now;
+});
+
+// 弱类型回调（运行时类型）
+var entity = dto.Adapt<UserEntity>((dest, src) => 
+{
+    if (dest != null)
+    {
+        dest.Timestamp = DateTime.Now;
+    }
+});
+
+// 集合回调
+var entityList = dtoList.Adapt<List<UserEntity>>((destList, srcList) => 
+{
+    Console.WriteLine($"映射了 {destList?.Count} 条记录");
+});
+```
+
+### 4. 自定义类型转换
+
+```csharp
+using Ling.Mapper.TypeConverter;
+
+// 注册单向转换
+TypeConverterRegistry.Register<string, DateTime>(
+    str => DateTime.Parse(str)
+);
+
+// 注册双向转换
 TypeConverterRegistry.Register<int, string>(i => i.ToString());
 TypeConverterRegistry.Register<string, int>(s => int.Parse(s));
+
+// 注册 JSON 转换
+TypeConverterRegistry.RegisterJson<ExtraInfoModel>();
+```
+
+### 5. 循环引用处理
+
+```csharp
+public class Node
+{
+    public string Name { get; set; }
+    public Node? Parent { get; set; }
+    public List<Node>? Children { get; set; }
+}
+
+// 创建循环引用
+var root = new Node { Name = "Root" };
+var child = new Node { Name = "Child", Parent = root };
+root.Children = new List<Node> { child };
+
+// Mapper 自动检测并打破循环，不会 StackOverflow
+var target = root.Adapt<Node>();
 ```
 
 ---
 
-## 📚 API 参考
+## 📚 关键类和接口
 
-### Adapt 扩展方法
+### IMapper 接口
 
-| 方法签名 | 说明 |
-|---------|------|
-| `TDest Adapt<TDest>(this object source)` | 基础映射方法 |
-| `TDest Adapt<TDest>(this object source, Action<TDest, object> custom)` | 映射后自定义处理 |
-| `TDest Adapt<TDest>(this object source, IMapper mapper)` | 使用指定 Mapper |
-| `TDest Adapt<TDest>(this object source, AdaptOptions options)` | 使用运行时选项 |
-| `List<TDest> Adapt<TDest>(this IEnumerable source)` | 集合映射 |
+```csharp
+public interface IMapper
+{
+    // 泛型映射（使用默认选项）
+    TDestination? Map<TDestination>(object? source);
+    
+    // 泛型映射（使用自定义选项）
+    TDestination? Map<TDestination>(object source, AdaptOptions options);
+
+    // 非泛型映射
+    object? Map(object? source, Type sourceType, Type destType);
+    object? Map(object? source, Type sourceType, Type destType, AdaptOptions options);
+}
+```
 
 ### MapperConfiguration
 
 ```csharp
 var config = new MapperConfiguration();
 
-// 配置命名约定
+// 添加 Profile
+config.AddProfile(new UserProfile());
+config.AddProfiles(new UserProfile(), new OrderProfile());
+
+// 设置默认选项
+config.DefaultAdaptOptions = AdaptOptions.FlexibleOption;
+
+// 启用严格模式（未匹配属性会抛异常）
+config.StrictMode = true;
+
+// 全局约定配置
 config.ConfigureConventions(opt =>
 {
-    opt.CaseInsensitiveNameMatch = true;
+    opt.IgnoreCase = true;
+    opt.IgnoreUnderscore = true;
 });
-
-// 添加 Profile
-config.AddProfile(new MyProfile());
-
-// 设置默认 AdaptOptions
-config.SetDefaultAdaptOptions(AdaptOptions.FlexibleOption);
 
 // 创建 Mapper
 var mapper = config.CreateMapper();
@@ -320,199 +335,190 @@ var mapper = config.CreateMapper();
 ### MapperProfile
 
 ```csharp
-public class MyProfile : MapperProfile
+public class OrderProfile : MapperProfile
 {
-    public MyProfile()
+    public OrderProfile()
     {
-        CreateMap<Source, Dest>(cfg =>
-        {
-            // 自定义属性映射
-            cfg.ForMember(dest => dest.FullName, src => $"{src.FirstName} {src.LastName}");
+        CreateMap<OrderDto, OrderEntity>()
+            // 计算属性
+            .ForMember(d => d.Total, s => s.Items.Sum(i => i.Price * i.Qty))
+            
+            // 条件映射
+            .ForMember(d => d.Status, s => s.IsPaid ? "已支付" : "未支付")
+            
+            // 嵌套属性
+            .ForMember(d => d.CustomerName, s => s.Customer.Name)
             
             // 忽略属性
-            cfg.Ignore(dest => dest.InternalId);
+            .Ignore(d => d.InternalId)
             
-            // 嵌套属性路径
-            cfg.ForMember(dest => dest.CityName, src => "Address.City.Name");
-        });
+            // 重命名
+            .Rename(d => d.OrderNo, "Id");
     }
 }
 ```
 
+### AdaptOptions
+
+```csharp
+[Flags]
+public enum AdaptOptions
+{
+    Strict = 0,                                    // 严格匹配
+    IgnoreCase = 1 << 0,                          // 忽略大小写
+    IgnoreUnderscore = 1 << 1,                    // 忽略下划线
+    IgnoreNullValues = 1 << 2,                    // 忽略 null 值
+    Default = IgnoreCase | IgnoreUnderscore,      // 默认选项
+    FlexibleOption = IgnoreCase | IgnoreUnderscore // 灵活选项（别名）
+}
+```
+
+### MapperProvider
+
+```csharp
+// 自动初始化（首次访问时）
+var mapper = MapperProvider.Current;
+
+// 手动设置全局 Mapper
+MapperProvider.SetCurrent(mapper);
+
+// 清除全局 Mapper
+MapperProvider.Clear();
+```
+
 ---
 
-## 📖 完整文档
+## 💡 最佳实践
 
-详细文档请查看 [docs](./docs) 目录：
+### 1. 应用启动时统一配置
 
-### 📘 核心文档
-- **[功能概览与快速入门](./docs/功能概览与快速入门.md)** - 完整功能介绍（中文）
+```csharp
+// Program.cs
+public static void Main(string[] args)
+{
+    ConfigureMapper();
+    // ... 其他初始化
+}
 
-### 📗 功能文档
-- [嵌套属性映射](./docs/Nested_Property_Mapping.md) - A.B.C.D 路径映射
-- [集合自动识别](./docs/Adapt_Collection_Auto_Detection.md) - 集合类型自动检测
-- [AdaptOptions 配置](./docs/AdaptOptions_Fix_Final.md) - 运行时配置选项
-- [MapperProvider 自动初始化](./docs/MapperProvider_AutoInitialize.md) - 全局 Mapper 配置
+private static void ConfigureMapper()
+{
+    var config = new MapperConfiguration();
+    
+    // 批量注册 Profile
+    config.AddProfiles(
+        new UserProfile(),
+        new OrderProfile(),
+        new ProductProfile()
+    );
+    
+    // 设置全局选项
+    config.DefaultAdaptOptions = AdaptOptions.FlexibleOption;
+    
+    // 创建并设置
+    MapperProvider.SetCurrent(config.CreateMapper());
+}
+```
 
-### 📕 性能优化文档
-- [性能优化 v2.1.4](./docs/Performance_Optimization_v2.1.4.md) - 最新性能优化详解
-- [循环引用处理](./docs/v2.1.3_Runtime_Circular_Reference.md) - 运行时循环引用检测
-- [StackOverflow 修复](./docs/StackOverflow_Fix.md) - 深度递归问题修复
+### 2. Profile 按业务模块组织
 
-### 📙 测试文档
-- [测试套件概览](./docs/TestSuite_Overview.md) - 完整测试说明
-- [循环测试功能](./docs/TestConsole_循环测试功能.md) - 测试控制台使用
+```
+Profiles/
+├── UserProfile.cs
+├── OrderProfile.cs
+├── ProductProfile.cs
+└── PaymentProfile.cs
+```
+
+### 3. 简单场景直接使用 Adapt
+
+```csharp
+// ✅ 推荐：属性完全一致，直接映射
+var entity = dto.Adapt<UserEntity>();
+
+// ❌ 不推荐：为简单映射添加 Profile 增加复杂度
+CreateMap<UserDto, UserEntity>();  // 没必要
+```
+
+### 4. 复杂映射使用 Profile
+
+```csharp
+// ✅ 推荐：需要自定义时使用 Profile
+CreateMap<OrderDto, OrderEntity>()
+    .ForMember(d => d.Total, s => s.Items.Sum(i => i.Price * i.Qty))
+    .Ignore(d => d.InternalCode);
+```
+
+### 5. 使用后处理而不是分散逻辑
+
+```csharp
+// ✅ 推荐：集中处理映射后逻辑
+var entity = dto.Adapt<UserEntity>((dest, src) =>
+{
+    dest.CreatedAt = DateTime.Now;
+    dest.CreatedBy = CurrentUser.Id;
+});
+
+// ❌ 不推荐：映射后再处理
+var entity = dto.Adapt<UserEntity>();
+entity.CreatedAt = DateTime.Now;
+entity.CreatedBy = CurrentUser.Id;
+```
 
 ---
 
-## 🧪 测试套件
+## 🧪 测试
 
-项目包含全面的测试套件，运行测试：
+项目包含全面的测试套件：
 
 ```bash
 cd tests/Ling.Mapper.Tests
 dotnet run
 ```
 
-### 测试菜单
-```
-请选择测试类型：
-  1 - 基础功能测试 (Basic Tests)
-  2 - 高级功能测试 (Advanced Tests)
-  3 - 性能基准测试 (Performance Tests)
-  4 - 压力测试 (Stress Tests)
-  5 - 自动初始化测试 (Auto Initialize Test) 🆕
-  6 - 集合自动识别测试 (Collection Auto Detection) 🆕
-  7 - AdaptOptions FlexibleOption 测试 🔥
-  8 - 默认 FlexibleOption 测试 ⭐
-  9 - 嵌套属性映射测试 (A.B.C.D) 🎯
-  0 - 运行所有测试 (Run All Tests)
-  q - 退出 (Exit)
-```
+测试涵盖：
+- 基础对象映射
+- 集合映射
+- 嵌套对象映射
+- 循环引用检测
+- 类型转换
+- Profile 配置
+- 性能基准测试
 
-### 性能测试结果示例
-```
---- 性能基准测试 ---
+---
 
-测试配置：
-  - CPU: 8 核
-  - .NET: 10.0.2
+## 📖 完整文档
 
-1. 简单对象映射性能（1,000,000 次）
-  ⏱ 总耗时: 1024 ms
-  📊 平均每次: 0.001024 ms
-  🚀 吞吐量: 975,713 ops/sec
-  ⚠️ 性能警告: 1024 ms
-
-2. 复杂对象映射性能（100,000 次）
-  ⏱ 总耗时: 674 ms
-  📊 平均每次: 0.006740 ms
-  🚀 吞吐量: 148,267 ops/sec
-
-3. 集合映射性能（10,000 次 x 100 元素）
-  ⏱ 总耗时: 116 ms
-  📊 总元素数: 1,000,000
-  🚀 吞吐量: 8,586,794 elements/sec
-  ✅ 性能测试通过 (< 1000ms)
-```
+详见 [docs/使用文档.md](./docs/使用文档.md) 了解：
+- 详细的功能说明
+- 完整的 API 参考
+- 高级场景和最佳实践
+- 常见问题解答
+- 性能优化建议
 
 ---
 
 ## 🔄 版本历史
 
-### v2.1.4 (最新) - 2025年1月
-- ✅ **性能优化：简单对象映射提升 57%** (975K ops/sec)
-- ✅ 优化 ThreadLocal 循环引用检测，跳过简单类型
-- ✅ 缓存反射调用和类型检测结果
-- ✅ 添加快速路径跳过不必要的检查
-- ✅ 测试控制台支持循环测试
-
-### v2.1.3 - 2024年12月
+### v2.1.4 (最新)
+- ✅ 性能优化：简单对象映射提升 57%（975K ops/sec）
 - ✅ 运行时循环引用检测
-- ✅ 修复深度嵌套 StackOverflow 问题
-- ✅ 优化编译期递归保护
-- ✅ 增强错误提示信息
+- ✅ ThreadLocal 缓存优化
+- ✅ 反射调用缓存
 
-### v2.1.2 - 2024年12月
+### v2.1.3
+- ✅ 循环引用保护改进
+- ✅ StackOverflow 问题修复
+- ✅ 深度嵌套优化
+
+### v2.1.2
 - ✅ AdaptOptions FlexibleOption 支持
-- ✅ 集合自动识别功能
+- ✅ 集合自动识别
 - ✅ MapperProvider 自动初始化
-- ✅ 修复命名匹配问题
 
-### v2.1.0 - 2024年11月
-- ✅ 嵌套属性映射 (A.B.C.D)
-- ✅ JSON 属性转换支持
-- ✅ 增强的类型转换器
-- ✅ 改进的异常处理
-
----
-
-## 🎯 高级场景
-
-### 处理循环引用
-
-```csharp
-public class Node
-{
-    public string Name { get; set; }
-    public Node Parent { get; set; }
-    public List<Node> Children { get; set; }
-}
-
-var root = new Node { Name = "Root" };
-var child = new Node { Name = "Child", Parent = root };
-root.Children = new List<Node> { child };
-
-// 自动检测并处理循环引用
-var dto = root.Adapt<NodeDto>();
-```
-
-### 枚举与整数互转
-
-```csharp
-public enum UserStatus { Inactive = 0, Active = 1 }
-
-public class UserDto
-{
-    public UserStatus Status { get; set; }
-}
-
-public class UserViewModel
-{
-    public int Status { get; set; }  // 自动转换为整数
-}
-
-var dto = new UserDto { Status = UserStatus.Active };
-var viewModel = dto.Adapt<UserViewModel>();
-Console.WriteLine(viewModel.Status);  // 输出: 1
-```
-
-### JSON 属性转换
-
-```csharp
-using System.Text.Json;
-
-public class Activity
-{
-    public string ExtraInfoJson { get; set; }  // JSON 字符串
-}
-
-public class ActivityDto
-{
-    public ExtraInfoModel ExtraInfo { get; set; }  // 对象
-}
-
-// 注册 JSON 转换器
-TypeConverterRegistry.RegisterJson<ExtraInfoModel>();
-
-var activity = new Activity
-{
-    ExtraInfoJson = JsonSerializer.Serialize(new ExtraInfoModel { Key = "location", Value = "北京" })
-};
-
-var dto = activity.Adapt<ActivityDto>();
-Console.WriteLine(dto.ExtraInfo.Value);  // 输出: 北京
-```
+### v2.1.0
+- ✅ 嵌套属性映射支持
+- ✅ Profile 配置系统
+- ✅ 基础循环引用检测
 
 ---
 
@@ -521,10 +527,10 @@ Console.WriteLine(dto.ExtraInfo.Value);  // 输出: 北京
 欢迎提交 Issue 和 Pull Request！
 
 1. Fork 本仓库
-2. 创建特性分支 (`git checkout -b feature/AmazingFeature`)
-3. 提交更改 (`git commit -m 'Add some AmazingFeature'`)
-4. 推送到分支 (`git push origin feature/AmazingFeature`)
-5. 开启 Pull Request
+2. 创建特性分支：`git checkout -b feature/amazing-feature`
+3. 提交更改：`git commit -m 'Add amazing feature'`
+4. 推送分支：`git push origin feature/amazing-feature`
+5. 发起 Pull Request
 
 ---
 
@@ -534,21 +540,16 @@ Console.WriteLine(dto.ExtraInfo.Value);  // 输出: 北京
 
 ---
 
-## 🙏 致谢
+## 📧 链接
 
-感谢所有为 Ling.Mapper 做出贡献的开发者！
-
----
-
-## 📧 联系方式
-
-- **GitHub**: [https://github.com/yanhuuo/Ling.Mapper](https://github.com/yanhuuo/Ling.Mapper)
-- **Issues**: [https://github.com/yanhuuo/Ling.Mapper/issues](https://github.com/yanhuuo/Ling.Mapper/issues)
+- **GitHub**: [Ling.Mapper](https://github.com/yanhuuo/Ling.Mapper)
+- **NuGet**: [Ling.Mapper](https://www.nuget.org/packages/Ling.Mapper/)
+- **Issues**: [报告问题](https://github.com/yanhuuo/Ling.Mapper/issues)
 
 ---
 
 <div align="center">
 
-⭐ **如果这个项目对你有帮助，请给我们一个 Star！** ⭐
+**如果这个项目对你有帮助，请给个 ⭐ Star！**
 
 </div>
