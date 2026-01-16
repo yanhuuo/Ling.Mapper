@@ -2,7 +2,8 @@
 
 	<PropertyGroup>
 		<!-- 包版本 -->
-		<Version>1.0.10</Version>
+		<Version>1.1.0</Version>
+
 
 		<!-- 多目标框架 -->
 		<TargetFrameworks>net6.0;net8.0;net9.0;net10.0</TargetFrameworks>
@@ -10,7 +11,7 @@
 		<!-- 编译配置 -->
 		<Nullable>enable</Nullable>
 		<ImplicitUsings>enable</ImplicitUsings>
-		
+
 		<!-- 设置源代码编码为 UTF-8，解决中文注释乱码问题 -->
 		<Utf8Output>true</Utf8Output>
 		<LangVersion>latest</LangVersion>
@@ -51,12 +52,12 @@
 		<None Include="ling.png" Pack="true" PackagePath="" />
 
 		<!-- 打包 README -->
-		<None Include="..\..\README.md" Pack="true" PackagePath="\" />
+    <None Include="..\README.md" Pack="true" PackagePath="" />
 	</ItemGroup>
 
 	<ItemGroup>
 		<!-- 依赖：使用条件版本以兼容不同的 .NET 框架 -->
-		<PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.0" Condition="'$(TargetFramework)' == 'net9.0' or '$(TargetFramework)' == 'net10.0'" />
+		<!--<PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.0" Condition="'$(TargetFramework)' == 'net9.0' or '$(TargetFramework)' == 'net10.0'" />-->
 	</ItemGroup>
 
 </Project>

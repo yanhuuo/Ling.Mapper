@@ -50,6 +50,14 @@ while (true)
         case "9":
             RunNestedPropertyMappingTest();
             break;
+        case "l":
+        case "L":
+            RunListConversionTest();
+            break;
+        case "c":
+        case "C":
+            RunCircularReferenceTest();
+            break;
         case "0":
             RunAllTests();
             break;
@@ -111,9 +119,11 @@ void ShowTestMenu()
     Console.WriteLine("  7 - AdaptOptions FlexibleOption 测试 🔥");
     Console.WriteLine("  8 - 默认 FlexibleOption 测试 ⭐ NEW!");
     Console.WriteLine("  9 - 嵌套属性映射测试 (A.B.C.D) 🎯 NEW!");
+    Console.WriteLine("  l - List 类型转换测试 (List Conversion) 🔧 FIX!");
+    Console.WriteLine("  c - 循环引用详细测试 (Circular Reference) 🔄 FIX!");
     Console.WriteLine("  0 - 运行所有测试 (Run All Tests)");
     Console.WriteLine("  q - 退出 (Exit)");
-    Console.Write("\n选择 (1-9/0/q): ");
+    Console.Write("\n选择 (1-9/l/c/0/q): ");
 }
 
 // ============ 测试套件 ============
@@ -249,6 +259,34 @@ void RunNestedPropertyMappingTest()
     
     sw.Stop();
     Console.WriteLine($"\n✅ 嵌套属性映射测试完成，耗时: {sw.ElapsedMilliseconds} ms\n");
+}
+
+void RunListConversionTest()
+{
+    Console.WriteLine("\n╔═══════════════════════════════════════════════════╗");
+    Console.WriteLine("║  List 类型转换测试 (List Conversion) 🔧 FIX!    ║");
+    Console.WriteLine("╚═══════════════════════════════════════════════════╝\n");
+    
+    var sw = Stopwatch.StartNew();
+    
+    ListConversionTest.Run();
+    
+    sw.Stop();
+    Console.WriteLine($"\n✅ List 类型转换测试完成，耗时: {sw.ElapsedMilliseconds} ms\n");
+}
+
+void RunCircularReferenceTest()
+{
+    Console.WriteLine("\n╔═══════════════════════════════════════════════════╗");
+    Console.WriteLine("║  循环引用详细测试 (Circular Reference) 🔄 FIX!  ║");
+    Console.WriteLine("╚═══════════════════════════════════════════════════╝\n");
+    
+    var sw = Stopwatch.StartNew();
+    
+    CircularReferenceDetailedTest.Run();
+    
+    sw.Stop();
+    Console.WriteLine($"\n✅ 循环引用测试完成，耗时: {sw.ElapsedMilliseconds} ms\n");
 }
 
 

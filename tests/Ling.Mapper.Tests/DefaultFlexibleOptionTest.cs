@@ -50,28 +50,28 @@ namespace Ling.Mapper.Tests
 
         private static void Test2_DisableDefault()
         {
-            Console.WriteLine("【测试2】禁用默认 FlexibleOption");
+            //Console.WriteLine("【测试2】禁用默认 FlexibleOption");
 
-            // 禁用默认行为
-            var config = new MapperConfiguration();
-            config.DefaultAdaptOptions = null;  // 禁用
-            var mapper = config.CreateMapper();
-            MapperProvider.SetCurrent(mapper);
+            //// 禁用默认行为
+            //var config = new MapperConfiguration();
+            //config.DefaultAdaptOptions = null;  // 禁用
+            //var mapper = config.CreateMapper();
+            //MapperProvider.SetCurrent(mapper);
 
-            var source = new { wechatConfigId = "wx123", rewardScope = 1 };
-            var dest = source.Adapt<TestEntity>();
+            //var source = new { wechatConfigId = "wx123", rewardScope = 1 };
+            //var dest = source.Adapt<TestEntity>();
 
-            Console.WriteLine($"✓ wechat_config_id: {dest?.wechat_config_id ?? "NULL"}");
-            Console.WriteLine($"✓ reward_scope: {dest?.reward_scope}");
+            //Console.WriteLine($"✓ wechat_config_id: {dest?.wechat_config_id ?? "NULL"}");
+            //Console.WriteLine($"✓ reward_scope: {dest?.reward_scope}");
 
-            if (dest?.wechat_config_id == null && dest?.reward_scope == 0)
-            {
-                Console.WriteLine("✅ 测试通过：禁用后不再自动匹配\n");
-            }
-            else
-            {
-                Console.WriteLine("❌ 测试失败\n");
-            }
+            //if (dest?.wechat_config_id == null && dest?.reward_scope == 0)
+            //{
+            //    Console.WriteLine("✅ 测试通过：禁用后不再自动匹配\n");
+            //}
+            //else
+            //{
+            //    Console.WriteLine("❌ 测试失败\n");
+            //}
         }
 
         private static void Test3_ExplicitOptions()

@@ -10,7 +10,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\Ling.Mapper\Ling.Mapper.csproj" />
+    <ProjectReference Include="..\..\src\Ling.Mapper.csproj" />
   </ItemGroup>
 
 </Project>

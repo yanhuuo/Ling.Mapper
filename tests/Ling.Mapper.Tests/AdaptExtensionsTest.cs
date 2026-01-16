@@ -13,11 +13,17 @@ namespace TestConsole
     /// </summary>
     public static class AdaptExtensionsTest
     {
+        private static int _passedTests = 0;
+        private static int _failedTests = 0;
+
         public static void Run()
         {
             Console.WriteLine("\n╔═══════════════════════════════════════════════════════════════╗");
             Console.WriteLine("║         Adapt 扩展方法综合测试 (Adapt Extensions Test)        ║");
             Console.WriteLine("╚═══════════════════════════════════════════════════════════════╝\n");
+
+            _passedTests = 0;
+            _failedTests = 0;
 
             TestBasicAdapt();
             TestAdaptWithCallback();
@@ -29,7 +35,15 @@ namespace TestConsole
             TestAdaptWithCircularReference();
             TestAdaptEdgeCases();
 
-            Console.WriteLine("? Adapt 扩展方法测试完成\n");
+            Console.WriteLine($"\n📊 测试统计: ✅ {_passedTests} 通过, ❌ {_failedTests} 失败");
+            if (_failedTests == 0)
+            {
+                Console.WriteLine("✅ Adapt 扩展方法测试完成 - 所有测试通过\n");
+            }
+            else
+            {
+                Console.WriteLine($"⚠️  Adapt 扩展方法测试完成 - {_failedTests} 个测试失败\n");
+            }
         }
 
         #region 1. 基础 Adapt 测试
@@ -45,7 +59,7 @@ namespace TestConsole
             AssertEqual(source.Id, target?.Id, "Id 映射");
             AssertEqual(source.Name, target?.Name, "Name 映射");
 
-            Console.WriteLine("  ? 基础 Adapt 映射成功");
+            Console.WriteLine("  ✓ 基础 Adapt 映射成功");
             Console.WriteLine();
         }
 
@@ -74,7 +88,7 @@ namespace TestConsole
 
             AssertEqual("John Doe", target1?.FullName, "FullName 回调");
             AssertTrue(target1?.IsAdult == true, "IsAdult 回调");
-            Console.WriteLine("  ? (TDestination, TSource) 回调成功");
+            Console.WriteLine("  ✓ (TDestination, TSource) 回调成功");
 
             // 测试 2: (TSource, TDestination) 回调（旧格式）
             var target2 = source.Adapt<UserTarget, UserSource>((src, dest) =>
@@ -83,7 +97,7 @@ namespace TestConsole
             });
 
             AssertEqual("JOHN DOE", target2?.FullName, "FullName 回调（旧格式）");
-            Console.WriteLine("  ? (TSource, TDestination) 回调成功");
+            Console.WriteLine("  ✓ (TSource, TDestination) 回调成功");
 
             Console.WriteLine();
         }
@@ -106,7 +120,7 @@ namespace TestConsole
             AssertEqual(source.Id, target?.Id, "Id 映射");
             AssertEqual(source.Name, target?.Name, "Name 映射");
 
-            Console.WriteLine("  ? 自定义 Mapper 映射成功");
+            Console.WriteLine("  ✓ 自定义 Mapper 映射成功");
             Console.WriteLine();
         }
 
@@ -118,40 +132,63 @@ namespace TestConsole
         {
             Console.WriteLine("4. Adapt 带 Options 测试");
 
-            // 测试 1: IgnoreCase
-            var source1 = new { id = 1, name = "Test", user_name = "John" };
-            var target1 = source1.Adapt<CaseTestTarget>(AdaptOptions.Strict);
+            // 测试 1: IgnoreCase（只忽略大小写，不忽略下划线）
+            var source1 = new { id = 1, name = "Test" };
+            var target1 = source1.Adapt<CaseTestTarget>(AdaptOptions.IgnoreCase);
             
             AssertEqual(1, target1?.Id, "IgnoreCase - Id");
             AssertEqual("Test", target1?.Name, "IgnoreCase - Name");
-            Console.WriteLine("  ? IgnoreCase 选项成功");
+            Console.WriteLine("  ✓ IgnoreCase 选项成功");
 
-            // 测试 2: IgnoreUnderscore
-            var source2 = new { Id = 2, Name = "Test", user_name = "Jane" };
+            // 测试 2: IgnoreUnderscore（只忽略下划线，不忽略大小写）
+            var source2 = new { Id = 2, Name = "Test", User_Name = "Jane" }; // 注意：User_Name 保持大小写
             var target2 = source2.Adapt<UnderscoreTestTarget>(AdaptOptions.IgnoreUnderscoreOption);
             
             AssertEqual("Jane", target2?.UserName, "IgnoreUnderscore - UserName");
-            Console.WriteLine("  ? IgnoreUnderscore 选项成功");
+            Console.WriteLine("  ✓ IgnoreUnderscore 选项成功");
 
-            // 测试 3: FlexibleOption（组合）
-            var source3 = new { id = 3, NAME = "Flexible", User_Name = "Alice" };
+            // 测试 2b: IgnoreUnderscore 但大小写不匹配（应该失败）
+            var source2b = new { Id = 3, Name = "Test", user_name = "Bob" }; // 小写，应该不匹配
+            var target2b = source2b.Adapt<UnderscoreTestTarget>(AdaptOptions.IgnoreUnderscoreOption);
+            
+            if (target2b?.UserName == null || target2b?.UserName == "")
+            {
+                Console.WriteLine("  ✓ IgnoreUnderscore 正确忽略了大小写不匹配的属性");
+                _passedTests++;
+            }
+            else
+            {
+                Console.WriteLine($"  ❌ IgnoreUnderscore 错误地映射了 user_name: {target2b?.UserName}");
+                _failedTests++;
+            }
+
+            // 测试 3: FlexibleOption（组合：忽略大小写 + 忽略下划线）
+            var source3 = new { id = 4, NAME = "Flexible", user_name = "Alice" }; // 小写 + 下划线
             var target3 = source3.Adapt<FlexibleTestTarget>(AdaptOptions.FlexibleOption);
             
-            AssertEqual(3, target3?.Id, "FlexibleOption - Id");
+            AssertEqual(4, target3?.Id, "FlexibleOption - Id");
             AssertEqual("Flexible", target3?.Name, "FlexibleOption - Name");
             AssertEqual("Alice", target3?.UserName, "FlexibleOption - UserName");
-            Console.WriteLine("  ? FlexibleOption 选项成功");
+            Console.WriteLine("  ✓ FlexibleOption 选项成功");
 
             // 测试 4: IgnoreNullValues
-            var source4 = new NullTestSource { Id = 4, Name = null, Description = "Test" };
+            var source4 = new NullTestSource { Id = 5, Name = null, Description = "Test" };
             var target4 = source4.Adapt<NullTestTarget>(AdaptOptions.IgnoreNullValues);
             
-            AssertEqual(4, target4?.Id, "IgnoreNullValues - Id");
+            AssertEqual(5, target4?.Id, "IgnoreNullValues - Id");
             AssertEqual("Default", target4?.Name, "IgnoreNullValues - Name (应保留默认值)");
-            Console.WriteLine("  ? IgnoreNullValues 选项成功");
+            Console.WriteLine("  ✓ IgnoreNullValues 选项成功");
 
-            // 测试 6: 组合 Options + Callback
-            var source6 = new { id = 6, first_NAME = "Bob", last_name = "Smith" };
+            // 测试 5: Strict 模式（精确匹配，不忽略大小写/下划线）
+            var source5 = new { Id = 6, Name = "Strict" }; // 属性名必须精确匹配
+            var target5 = source5.Adapt<CaseTestTarget>(AdaptOptions.Strict);
+            
+            AssertEqual(6, target5?.Id, "Strict - Id");
+            AssertEqual("Strict", target5?.Name, "Strict - Name");
+            Console.WriteLine("  ✓ Strict 选项成功");
+
+            // 测试 6: 组合 Options + Callback（使用 Default 选项）
+            var source6 = new { id = 7, first_NAME = "Bob", last_name = "Smith" };
             var target6 = source6.Adapt<CombinedTestTarget>(
                 (dest, src) =>
                 {
@@ -161,7 +198,7 @@ namespace TestConsole
             AssertEqual("Bob", target6?.FirstName, "组合 - FirstName");
             AssertEqual("Smith", target6?.LastName, "组合 - LastName");
             AssertEqual("Bob Smith", target6?.FullName, "组合 - FullName");
-            Console.WriteLine("  ? Options + Callback 组合成功");
+            Console.WriteLine("  ✓ Options + Callback 组合成功");
 
             Console.WriteLine();
         }
@@ -189,7 +226,7 @@ namespace TestConsole
             AssertEqual("Item 1", targetList?[0].Name, "Item 0 - Name");
             AssertEqual(3, targetList?[2].Id, "Item 2 - Id");
 
-            Console.WriteLine("  ? AdaptList 映射成功");
+            Console.WriteLine("  ✓ AdaptList 映射成功");
             Console.WriteLine();
         }
 
@@ -233,7 +270,7 @@ namespace TestConsole
             AssertEqual("Jane Smith", targetList?[1].FullName, "Item 1 - FullName");
             AssertEqual(2, targetList?[1].RowNumber, "Item 1 - RowNumber");
 
-            Console.WriteLine("  ? AdaptList 回调成功");
+            Console.WriteLine("  ✓ AdaptList 回调成功");
             Console.WriteLine();
         }
 
@@ -249,7 +286,7 @@ namespace TestConsole
             SimpleSource? nullSource = null;
             var target1 = nullSource.Adapt<SimpleTarget>();
             AssertNull(target1, "Null 源对象应返回 null");
-            Console.WriteLine("  ? Null 源对象处理成功");
+            Console.WriteLine("  ✓ Null 源对象处理成功");
 
             // 测试 2: 包含 null 属性的对象
             var source2 = new NullTestSource { Id = 1, Name = null, Description = "Test" };
@@ -257,7 +294,7 @@ namespace TestConsole
             AssertEqual(1, target2?.Id, "Id 映射");
             AssertNull(target2?.Name, "Null 属性保留");
             AssertEqual("Test", target2?.Description, "非 null 属性映射");
-            Console.WriteLine("  ? Null 属性处理成功");
+            Console.WriteLine("  ✓ Null 属性处理成功");
 
             // 测试 3: AdaptList 包含 null 元素
             var sourceList = new List<SimpleSource?>
@@ -271,7 +308,7 @@ namespace TestConsole
             var targetList = sourceList.Where(s => s != null)
                                       .Adapt<List<SimpleTarget>>();
             AssertEqual(2, targetList?.Count, "List 长度（跳过 null）");
-            Console.WriteLine("  ? List Null 元素处理成功");
+            Console.WriteLine("  ✓ List Null 元素处理成功");
 
             Console.WriteLine();
         }
@@ -303,21 +340,33 @@ namespace TestConsole
                 // 检查循环是否被打破或正确处理
                 if (targetA?.Related?.Related != null)
                 {
-                    AssertTrue(
-                        ReferenceEquals(targetA, targetA.Related.Related),
-                        "循环引用应该被正确处理（引用相同对象）"
-                    );
+                    if (ReferenceEquals(targetA, targetA.Related.Related))
+                    {
+                        _passedTests++;
+                    }
+                    else
+                    {
+                        Console.WriteLine("  ❌ 循环引用未正确保持（引用不同对象）");
+                        _failedTests++;
+                    }
+                }
+                else
+                {
+                    Console.WriteLine("  ❌ 循环引用链断裂（Related.Related 为 null）");
+                    _failedTests++;
                 }
 
-                Console.WriteLine("  ? 循环引用处理成功");
+                Console.WriteLine("  ✓ 循环引用处理成功");
             }
             catch (StackOverflowException)
             {
-                Console.WriteLine("  ? StackOverflow：循环引用保护失败");
+                Console.WriteLine("  ❌ StackOverflow：循环引用保护失败");
+                _failedTests++;
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"  ? 异常: {ex.Message}");
+                Console.WriteLine($"  ❌ 异常: {ex.Message}");
+                _failedTests++;
             }
 
             Console.WriteLine();
@@ -335,13 +384,13 @@ namespace TestConsole
             var source1 = new { Id = 1, Name = "" };
             var target1 = source1.Adapt<SimpleTarget>();
             AssertEqual("", target1?.Name, "空字符串");
-            Console.WriteLine("  ? 空字符串处理成功");
+            Console.WriteLine("  ✓ 空字符串处理成功");
 
             // 测试 2: 特殊字符
             var source2 = new { Id = 2, Name = "Test\n\r\t" };
             var target2 = source2.Adapt<SimpleTarget>();
             AssertEqual("Test\n\r\t", target2?.Name, "特殊字符");
-            Console.WriteLine("  ? 特殊字符处理成功");
+            Console.WriteLine("  ✓ 特殊字符处理成功");
 
             // 测试 3: 大对象
             var source3 = new LargeSource
@@ -356,7 +405,7 @@ namespace TestConsole
             var target3 = source3.Adapt<LargeTarget>();
             AssertEqual(1, target3?.Id, "大对象 - Id");
             AssertEqual("Value5", target3?.Property5, "大对象 - Property5");
-            Console.WriteLine("  ? 大对象处理成功");
+            Console.WriteLine("  ✓ 大对象处理成功");
 
             // 测试 4: 嵌套对象
             var source4 = new NestedSource
@@ -369,7 +418,7 @@ namespace TestConsole
             AssertEqual(1, target4?.Id, "嵌套对象 - Parent Id");
             AssertEqual(2, target4?.Child?.Id, "嵌套对象 - Child Id");
             AssertEqual("Child", target4?.Child?.Name, "嵌套对象 - Child Name");
-            Console.WriteLine("  ? 嵌套对象处理成功");
+            Console.WriteLine("  ✓ 嵌套对象处理成功");
 
             // 测试 5: 集合属性
             var source5 = new CollectionSource
@@ -381,7 +430,7 @@ namespace TestConsole
             AssertEqual(1, target5?.Id, "集合属性 - Id");
             AssertEqual(3, target5?.Items?.Count, "集合属性 - Count");
             AssertEqual("Item2", target5?.Items?[1], "集合属性 - Item 1");
-            Console.WriteLine("  ? 集合属性处理成功");
+            Console.WriteLine("  ✓ 集合属性处理成功");
 
             Console.WriteLine();
         }
@@ -394,8 +443,12 @@ namespace TestConsole
         {
             if (!Equals(expected, actual))
             {
-                Console.WriteLine($"  ? 断言失败: {message}");
-                Console.WriteLine($"    期望: {expected}, 实际: {actual}");
+                Console.WriteLine($"  ❌ {message}: 期望 {expected}, 实际 {actual}");
+                _failedTests++;
+            }
+            else
+            {
+                _passedTests++;
             }
         }
 
@@ -403,7 +456,12 @@ namespace TestConsole
         {
             if (!condition)
             {
-                Console.WriteLine($"  ? 断言失败: {message}");
+                Console.WriteLine($"  ❌ {message}");
+                _failedTests++;
+            }
+            else
+            {
+                _passedTests++;
             }
         }
 
@@ -411,8 +469,12 @@ namespace TestConsole
         {
             if (obj != null)
             {
-                Console.WriteLine($"  ? 断言失败: {message}");
-                Console.WriteLine($"    期望: null, 实际: {obj}");
+                Console.WriteLine($"  ❌ {message}: 期望 null, 实际 {obj}");
+                _failedTests++;
+            }
+            else
+            {
+                _passedTests++;
             }
         }
 

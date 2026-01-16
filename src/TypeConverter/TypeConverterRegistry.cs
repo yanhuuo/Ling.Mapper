@@ -22,7 +22,7 @@ namespace Ling.Mapper
     /// <summary>
     /// 类型转换器注册中心。
     /// 用于注册和查找不同类型之间的自定义转换委托。
-    /// 提供 JSON 转换 快捷注册方法。
+    /// 提供 JSON 转换快捷注册方法。
     /// </summary>
     public static class TypeConverterRegistry
     {
