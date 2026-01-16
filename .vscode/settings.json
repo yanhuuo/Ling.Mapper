@@ -62,8 +62,7 @@
   
   // C# 扩展设置
   "omnisharp.enableRoslynAnalyzers": true,
-  "omnisharp.enableEditorConfigSupport": true,
-  "omnisharp.enableImportCompletion": true,
+"omnisharp.enableEditorConfigSupport": true,
   
   // Git 设置
   "git.enabled": true,
@@ -92,5 +91,6 @@
     "*.props": "xml",
     "*.targets": "xml",
     ".editorconfig": "properties"
-  }
+},
+"dotnet.completion.showCompletionItemsFromUnimportedNamespaces": true
 }
