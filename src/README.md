@@ -55,7 +55,7 @@ Install-Package Ling.Mapper
 
 ### PackageReference
 ```xml
-<PackageReference Include="Ling.Mapper" Version="2.1.4" />
+<PackageReference Include="Ling.Mapper" Version="1.1.0" />
 ```
 
 ---
@@ -494,31 +494,6 @@ dotnet run
 - 高级场景和最佳实践
 - 常见问题解答
 - 性能优化建议
-
----
-
-## 🔄 版本历史
-
-### v2.1.4 (最新)
-- ✅ 性能优化：简单对象映射提升 57%（975K ops/sec）
-- ✅ 运行时循环引用检测
-- ✅ ThreadLocal 缓存优化
-- ✅ 反射调用缓存
-
-### v2.1.3
-- ✅ 循环引用保护改进
-- ✅ StackOverflow 问题修复
-- ✅ 深度嵌套优化
-
-### v2.1.2
-- ✅ AdaptOptions FlexibleOption 支持
-- ✅ 集合自动识别
-- ✅ MapperProvider 自动初始化
-
-### v2.1.0
-- ✅ 嵌套属性映射支持
-- ✅ Profile 配置系统
-- ✅ 基础循环引用检测
 
 ---
 
