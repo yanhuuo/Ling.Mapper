@@ -128,7 +128,7 @@ public static class TestHelper
         }
         catch (Exception ex)
         {
-            PrintError($"{testName} 失败");
+            PrintError($"{testName} 失败，{ex.Message}");
             throw;
         }
     }
