@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using Ling.Mapper;
 using Ling.Mapper.Extensions;
 
-namespace TestConsole;
+namespace TestConsole.Test;
 
 /// <summary>
 /// 循环引用测试 - 测试对象之间的循环引用场景

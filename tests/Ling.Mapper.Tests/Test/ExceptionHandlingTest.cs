@@ -1,7 +1,7 @@
 using Ling.Mapper;
 using Ling.Mapper.Extensions;
 
-namespace TestConsole;
+namespace TestConsole.Test;
 
 /// <summary>
 /// 测试异常处理行为

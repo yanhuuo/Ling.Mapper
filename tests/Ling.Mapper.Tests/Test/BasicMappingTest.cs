@@ -2,7 +2,7 @@ using System;
 using Ling.Mapper;
 using Ling.Mapper.Extensions;
 
-namespace TestConsole;
+namespace TestConsole.Test;
 
 /// <summary>
 /// 基础映射测试 - 验证核心映射功能
@@ -46,13 +46,21 @@ public static class BasicMappingTest
             
             if (entity != null)
             {
-                Console.WriteLine($"  ? Name: {entity.Name}");
-                Console.WriteLine($"  ? UserId: {entity.UserId}");
-                Console.WriteLine($"  ? ExtraInfo.Level: {entity.ExtraInfo?.Level}");
-                Console.WriteLine($"  ? ExtraInfo.Tag: {entity.ExtraInfo?.Tag}");
-                Console.WriteLine($"  ? User.NickName: {entity.User?.NickName}");
-                Console.WriteLine($"  ? Items Count: {entity.Items?.Count}");
-                Console.WriteLine($"  ? InternalCode (ignored): {entity.InternalCode ?? "null"}");
+                var expectedName = dto.FirstName + " " + dto.LastName;
+                var expectedUserId = dto.Uid;
+                var expectedExtraLevel = 3;
+                var expectedExtraTag = "VIP";
+                var expectedUserNick = dto.User?.NickName;
+                var expectedItemsCount = dto.Items?.Count ?? 0;
+                var expectedInternalCode = "null";
+
+                Console.WriteLine($"  ? Name: {entity.Name} (期望: {expectedName})");
+                Console.WriteLine($"  ? UserId: {entity.UserId} (期望: {expectedUserId})");
+                Console.WriteLine($"  ? ExtraInfo.Level: {entity.ExtraInfo?.Level} (期望: {expectedExtraLevel})");
+                Console.WriteLine($"  ? ExtraInfo.Tag: {entity.ExtraInfo?.Tag} (期望: {expectedExtraTag})");
+                Console.WriteLine($"  ? User.NickName: {entity.User?.NickName} (期望: {expectedUserNick})");
+                Console.WriteLine($"  ? Items Count: {entity.Items?.Count} (期望: {expectedItemsCount})");
+                Console.WriteLine($"  ? InternalCode (ignored): {entity.InternalCode ?? "null"} (期望: {expectedInternalCode})");
             }
         }
         catch (Exception ex)

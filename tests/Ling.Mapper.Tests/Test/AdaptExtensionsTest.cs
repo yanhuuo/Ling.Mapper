@@ -5,7 +5,7 @@ using Ling.Mapper;
 using Ling.Mapper.Extensions;
 using Ling.Mapper.Models;
 
-namespace TestConsole
+namespace TestConsole.Test
 {
     /// <summary>
     /// Adapt 扩展方法综合测试套件

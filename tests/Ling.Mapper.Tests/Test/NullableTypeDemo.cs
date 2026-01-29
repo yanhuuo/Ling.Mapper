@@ -2,7 +2,7 @@ using Ling.Mapper;
 using System;
 using Ling.Mapper.Extensions;
 
-namespace TestConsole;
+namespace TestConsole.Test;
 
 /// <summary>
 /// 演示可空类型映射功能
@@ -40,12 +40,12 @@ public static class NullableTypeDemo
         // 有值的情况
         var source1 = new NullableSource { NullableId = 100, Name = "Test" };
         var target1 = source1.Adapt<NonNullableTarget>();
-        Console.WriteLine($"有值: NullableId = {source1.NullableId} → Id = {target1?.Id}");
+        TestConsole.Utils.TestHelper.PrintActualExpected("有值: NullableId -> Id", target1?.Id, 100);
 
         // null 的情况（应该转换为默认值 0）
         var source2 = new NullableSource { NullableId = null, Name = "Test" };
         var target2 = source2.Adapt<NonNullableTarget>();
-        Console.WriteLine($"null: NullableId = {source2.NullableId} → Id = {target2?.Id} (期望 0)");
+        TestConsole.Utils.TestHelper.PrintActualExpected("null: NullableId -> Id", target2?.Id, 0);
     }
 
     private static void TestNonNullableToNullable()

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using Ling.Mapper;
 using Ling.Mapper.Extensions;
 
-namespace TestConsole;
+namespace TestConsole.Test;
 
 /// <summary>
 /// 嵌套集合测试 - 测试集合中包含集合的复杂场景

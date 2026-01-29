@@ -1,15 +1,15 @@
 using Ling.Mapper;
 
-namespace TestConsole;
+namespace TestConsole.Test;
 
 /// <summary>
-/// ÓÃ»§Ó³ÉäÅäÖÃ Profile
+/// ç”¨æˆ·æ˜ å°„é…ç½® Profile
 /// </summary>
 public class UserProfile : MapperProfile
 {
     public UserProfile()
     {
-        // ÅäÖÃ UserSourceDto µ½ UserTargetDto µÄÓ³Éä
+        // é…ç½® UserSourceDto åˆ° UserTargetDto çš„æ˜ å°„
         CreateMap<UserSourceDto, UserTargetDto>();
     }
 }

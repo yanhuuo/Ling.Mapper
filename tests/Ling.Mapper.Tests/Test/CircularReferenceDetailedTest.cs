@@ -1,7 +1,7 @@
 using System;
 using Ling.Mapper.Extensions;
 
-namespace Ling.Mapper.Tests
+namespace TestConsole.Test
 {
     /// <summary>
     /// 循环引用详细测试

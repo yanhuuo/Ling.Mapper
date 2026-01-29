@@ -2,7 +2,7 @@ using System;
 using Ling.Mapper;
 using Ling.Mapper.Extensions;
 
-namespace TestConsole;
+namespace TestConsole.Test;
 
 /// <summary>
 /// 演示枚举转换场景

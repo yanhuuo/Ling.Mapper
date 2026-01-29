@@ -2,7 +2,7 @@ using System;
 using Ling.Mapper.Extensions;
 using Ling.Mapper.Models;
 
-namespace TestConsole;
+namespace TestConsole.Test;
 
 /// <summary>
 /// 调试 IgnoreUnderscore 选项

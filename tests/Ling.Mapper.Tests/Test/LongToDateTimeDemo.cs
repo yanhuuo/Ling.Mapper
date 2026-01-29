@@ -1,14 +1,20 @@
 using Ling.Mapper;
 using System;
 
-namespace Ling.Mapper.Tests
+namespace TestConsole.Test
 {
     internal static class LongToDateTimeDemo
     {
         public static void Run()
         {
-            var mapper = MapperProvider.Current;
+            RunBasicTests();
+            RunBoundaryAndCollectionTests();
+            RunIncompatibleTests();
+        }
 
+        private static void RunBasicTests()
+        {
+            var mapper = MapperProvider.Current;
             Console.WriteLine("\n--- Long -> DateTime 映射示例 ---");
 
             var src1 = new { TimeLong = DateTime.Now.Ticks };
@@ -30,7 +36,52 @@ namespace Ling.Mapper.Tests
             var expected4 = src4.Time.HasValue ? src4.Time.Value.Ticks : (long?)null;
             var dest4 = mapper.Map<DestD>(src4);
             Console.WriteLine($"源 DateTime?: {src4.Time} => 目标 long?: {dest4?.TimeLong} (期望: {expected4})");
+        }
 
+        private static void RunBoundaryAndCollectionTests()
+        {
+            var mapper = MapperProvider.Current;
+            Console.WriteLine("\n--- 额外边界与集合测试 ---");
+
+            // 空源对象 -> 目标保持默认
+            var srcEmpty = new { };
+            var destEmpty = mapper.Map<DestA>(srcEmpty);
+            Console.WriteLine($"源 空对象 => 目标 DateTime: {destEmpty?.Time} (期望: {default(DateTime)})");
+
+            // 负 ticks 值 (可能抛出或返回默认，捕获异常并打印)
+            var srcNeg = new { TimeLong = -100L };
+            try
+            {
+                var destNeg = mapper.Map<DestA>(srcNeg);
+                Console.WriteLine($"源 负 ticks: {srcNeg.TimeLong} => 目标 DateTime: {destNeg?.Time}");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"源 负 ticks: {srcNeg.TimeLong} => 映射抛出异常: {ex.GetType().Name} {ex.Message}");
+            }
+
+            // 极大 ticks 值 (超出 DateTime 范围) 测试
+            var srcBig = new { TimeLong = long.MaxValue };
+            try
+            {
+                var destBig = mapper.Map<DestA>(srcBig);
+                Console.WriteLine($"源 大 ticks: {srcBig.TimeLong} => 目标 DateTime: {destBig?.Time}");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"源 大 ticks: {srcBig.TimeLong} => 映射抛出异常: {ex.GetType().Name} {ex.Message}");
+            }
+
+            // 列表/数组映射测试
+            var now = DateTime.Now;
+            var srcList = new { Times = new long[] { now.Ticks, DateTime.UtcNow.Ticks } };
+            var destList = mapper.Map<DestList>(srcList);
+            Console.WriteLine($"源 long[] => 目标 DateTime[]: [{string.Join(',', destList?.Times ?? Array.Empty<DateTime>())}] (期望: ticks -> DateTime)");
+        }
+
+        private static void RunIncompatibleTests()
+        {
+            var mapper = MapperProvider.Current;
             Console.WriteLine("\n--- 不兼容类型映射示例 (应返回 null 或默认值) ---");
 
             // 1) string -> DateTime? (不兼容，应为 null)
@@ -71,5 +122,6 @@ namespace Ling.Mapper.Tests
         private class DestE { public DateTime? Time { get; set; } }
         private class DestF { public DateTime? Time { get; set; } }
         private class DestG { public DateTime? Time { get; set; } }
+        private class DestList { public DateTime[] Times { get; set; } }
     }
 }

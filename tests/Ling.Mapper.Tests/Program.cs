@@ -1,9 +1,9 @@
 // See https://aka.ms/new-console-template for more information
 using Ling.Mapper;
-using Ling.Mapper.Tests;
 using TestConsole;
 using System;
 using System.Diagnostics;
+using TestConsole.Test;
 
 Console.WriteLine("╔═══════════════════════════════════════════════════════════════╗");
 Console.WriteLine("║         Ling.Mapper v2 - Comprehensive Test Suite            ║");

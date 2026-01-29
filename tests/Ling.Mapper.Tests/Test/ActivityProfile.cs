@@ -1,11 +1,11 @@
-﻿using Ling.Mapper;
+using Ling.Mapper;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace TestConsole;
+namespace TestConsole.Test;
 
 public class ActivityProfile : MapperProfile
 {

@@ -2,7 +2,7 @@ using System;
 using Ling.Mapper;
 using Ling.Mapper.Extensions;
 
-namespace Ling.Mapper.Tests
+namespace TestConsole.Test
 {
     /// <summary>
     /// 嵌套属性映射测试（支持 A.B.C.D）

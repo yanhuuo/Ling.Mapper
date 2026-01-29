@@ -6,7 +6,7 @@ using Ling.Mapper;
 using Ling.Mapper.Extensions;
 using TestConsole.Utils;
 
-namespace TestConsole;
+namespace TestConsole.Test;
 
 /// <summary>
 /// 性能基准测试 - 测试不同场景下的映射性能

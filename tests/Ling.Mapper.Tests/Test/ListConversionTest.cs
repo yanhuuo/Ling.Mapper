@@ -1,9 +1,8 @@
 using System;
 using System.Collections.Generic;
-using Ling.Mapper;
 using Ling.Mapper.Extensions;
 
-namespace Ling.Mapper.Tests
+namespace TestConsole.Test
 {
     /// <summary>
     /// List 类型转换测试

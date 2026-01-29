@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using Ling.Mapper;
 using Ling.Mapper.Extensions;
 
-namespace TestConsole;
+namespace TestConsole.Test;
 
 /// <summary>
 /// 压力测试 - 测试 Mapper 在极端场景下的稳定性

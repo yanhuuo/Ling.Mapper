@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using Ling.Mapper;
 using Ling.Mapper.Extensions;
 
-namespace TestConsole;
+namespace TestConsole.Test;
 
 /// <summary>
 /// 复杂对象映射测试 - 测试深层嵌套、多层继承等复杂场景

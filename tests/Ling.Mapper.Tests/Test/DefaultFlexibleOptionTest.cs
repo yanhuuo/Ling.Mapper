@@ -3,7 +3,7 @@ using Ling.Mapper;
 using Ling.Mapper.Extensions;
 using Ling.Mapper.Models;
 
-namespace Ling.Mapper.Tests
+namespace TestConsole.Test
 {
     /// <summary>
     /// 默认 FlexibleOption 测试

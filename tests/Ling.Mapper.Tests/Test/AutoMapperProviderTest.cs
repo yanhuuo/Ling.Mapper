@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using Ling.Mapper;
 using Ling.Mapper.Extensions;
 
-namespace Ling.Mapper.Tests
+namespace TestConsole.Test
 {
     /// <summary>
     /// 自动初始化 MapperProvider 的测试

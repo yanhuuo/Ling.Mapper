@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using Ling.Mapper;
 using Ling.Mapper.Extensions;
 
-namespace TestConsole;
+namespace TestConsole.Test;
 
 /// <summary>
 /// StackOverflow 修复验证测试

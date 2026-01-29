@@ -1,9 +1,8 @@
 using System;
-using Ling.Mapper;
 using Ling.Mapper.Extensions;
 using Ling.Mapper.Models;
 
-namespace Ling.Mapper.Tests
+namespace TestConsole.Test
 {
     /// <summary>
     /// AdaptOptions 下划线和大小写忽略测试
@@ -41,6 +40,10 @@ namespace Ling.Mapper.Tests
             Console.WriteLine($"✓ userEmail: {dest?.userEmail ?? "NULL"}");
             Console.WriteLine($"✓ userAge: {dest?.userAge}");
             
+            // 期望值
+            TestConsole.Utils.TestHelper.PrintActualExpected("userName", dest?.userName, "张三");
+            TestConsole.Utils.TestHelper.PrintActualExpected("userEmail", dest?.userEmail, "zhang@test.com");
+            TestConsole.Utils.TestHelper.PrintActualExpected("userAge", dest?.userAge, 30);
             if (dest?.userName == "张三" && dest?.userEmail == "zhang@test.com" && dest?.userAge == 30)
             {
                 Console.WriteLine("✅ 测试通过\n");
@@ -68,6 +71,10 @@ namespace Ling.Mapper.Tests
             Console.WriteLine($"✓ reward_scope: {dest?.reward_scope}");
             Console.WriteLine($"✓ reward_type: {dest?.reward_type}");
             
+            // 期望值
+            TestConsole.Utils.TestHelper.PrintActualExpected("wechat_config_id", dest?.wechat_config_id, "wx123");
+            TestConsole.Utils.TestHelper.PrintActualExpected("reward_scope", dest?.reward_scope, 1);
+            TestConsole.Utils.TestHelper.PrintActualExpected("reward_type", dest?.reward_type, 0);
             if (dest?.wechat_config_id == "wx123" && dest?.reward_scope == 1 && dest?.reward_type == 0)
             {
                 Console.WriteLine("✅ 测试通过\n");
@@ -95,6 +102,10 @@ namespace Ling.Mapper.Tests
             Console.WriteLine($"✓ useremail: {dest?.useremail ?? "NULL"}");
             Console.WriteLine($"✓ userage: {dest?.userage}");
             
+            // 期望值
+            TestConsole.Utils.TestHelper.PrintActualExpected("username", dest?.username, "李四");
+            TestConsole.Utils.TestHelper.PrintActualExpected("useremail", dest?.useremail, "li@test.com");
+            TestConsole.Utils.TestHelper.PrintActualExpected("userage", dest?.userage, 25);
             if (dest?.username == "李四" && dest?.useremail == "li@test.com" && dest?.userage == 25)
             {
                 Console.WriteLine("✅ 测试通过\n");
@@ -128,6 +139,10 @@ namespace Ling.Mapper.Tests
             Console.WriteLine($"✓ reward_type: {entity?.reward_type}");
             Console.WriteLine($"✓ state: {entity?.state}");
             
+            // 期望值
+            TestConsole.Utils.TestHelper.PrintActualExpected("wechat_config_id", entity?.wechat_config_id, "wx456");
+            TestConsole.Utils.TestHelper.PrintActualExpected("name", entity?.name, "新人礼包");
+            TestConsole.Utils.TestHelper.PrintActualExpected("reward_scope", entity?.reward_scope, 1);
             if (entity?.wechat_config_id == "wx456" && 
                 entity?.name == "新人礼包" && 
                 entity?.reward_scope == 1)
@@ -154,6 +169,7 @@ namespace Ling.Mapper.Tests
             // 不忽略 null
             var dest1 = source.Adapt<DestWithNulls>(AdaptOptions.FlexibleOption);
             Console.WriteLine($"  不忽略 null - email: {dest1?.email ?? "NULL"}");
+            TestConsole.Utils.TestHelper.PrintActualExpected("不忽略 null - email", dest1?.email == null ? "NULL" : dest1?.email, "NULL");
         }
     }
 

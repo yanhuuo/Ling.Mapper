@@ -1,6 +1,6 @@
 using System;
 
-namespace TestConsole;
+namespace TestConsole.Utils;
 
 /// <summary>
 /// 测试辅助工具类
@@ -50,7 +50,7 @@ public static class TestHelper
     /// <summary>
     /// 断言对象为 null
     /// </summary>
-    public static void AssertNull<T>(T obj, string message) where T : class
+    public static void AssertNull<T>(T? obj, string message) where T : class
     {
         if (obj != null)
         {
@@ -79,6 +79,14 @@ public static class TestHelper
     public static void PrintSuccess(string message)
     {
         Console.WriteLine($"  ✅ {message}");
+    }
+
+    /// <summary>
+    /// 帮助打印实际值与期望值对比
+    /// </summary>
+    public static void PrintActualExpected(string label, object? actual, object? expected)
+    {
+        Console.WriteLine($"  ? {label}: {actual} (期望: {expected})");
     }
 
     /// <summary>

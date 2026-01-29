@@ -1,24 +1,24 @@
 using Ling.Mapper;
 using System;
 
-namespace TestConsole;
+namespace TestConsole.Test;
 
 /// <summary>
-/// ÑİÊ¾ MapperExtensions ÖĞĞÂÔöµÄºöÂÔÊôĞÔÓ³Éä¹¦ÄÜ
+/// æ¼”ç¤º MapperExtensions ä¸­æ–°å¢çš„å¿½ç•¥å±æ€§æ˜ å°„åŠŸèƒ½
 /// </summary>
 public static class IgnorePropertiesDemo
 {
     public static void Run()
     {
-        Console.WriteLine("\n=== ºöÂÔÊôĞÔÓ³Éä¹¦ÄÜÑİÊ¾ ===");
+        Console.WriteLine("\n=== å¿½ç•¥å±æ€§æ˜ å°„åŠŸèƒ½æ¼”ç¤º ===");
 
-        var mapper = MapperProvider.Current ?? throw new InvalidOperationException("ÇëÏÈÉèÖÃÈ«¾Ö Mapper");
+        var mapper = MapperProvider.Current ?? throw new InvalidOperationException("è¯·å…ˆè®¾ç½®å…¨å±€ Mapper");
     }
 
     
 }
 
-// ²âÊÔÓÃµÄ DTO Àà
+// æµ‹è¯•ç”¨çš„ DTO ç±»
 public class UserSourceDto
 {
     public string? Name { get; set; }

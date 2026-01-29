@@ -3,7 +3,7 @@ using System;
 using Ling.Mapper.Extensions;
 using Ling.Mapper.Models;
 
-namespace TestConsole;
+namespace TestConsole.Test;
 
 /// <summary>
 /// 演示 Adapt 方法配合 AdaptOptions 的功能
@@ -28,7 +28,7 @@ public static class AdaptOptionsDemo
 
         // 6. 测试组合所有规则
         TestCombinedOptions(mapper);
-    }
+        }
 
     private static void TestFlexibleOption(IMapper mapper)
     {
@@ -44,6 +44,13 @@ public static class AdaptOptionsDemo
         // 使用灵活规则（同时忽略大小写和下划线）
         var target = source.Adapt<UserDto>(AdaptOptions.FlexibleOption);
         Console.WriteLine($"灵活规则 - UserName: {target?.UserName ?? "null"}, UserId: {target?.UserId}, Email: {target?.Email}");
+        // 期望值输出
+        var expectedUserName = "wangwu";
+        var expectedUserId = 3003;
+        var expectedEmail = "wangwu@example.com";
+        TestConsole.Utils.TestHelper.PrintActualExpected("灵活规则 - UserName", target?.UserName, expectedUserName);
+        TestConsole.Utils.TestHelper.PrintActualExpected("灵活规则 - UserId", target?.UserId, expectedUserId);
+        TestConsole.Utils.TestHelper.PrintActualExpected("灵活规则 - Email", target?.Email, expectedEmail);
     }
 
     private static void TestIgnoreProperties(IMapper mapper)

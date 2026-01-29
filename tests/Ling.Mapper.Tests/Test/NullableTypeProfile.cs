@@ -1,29 +1,29 @@
 using Ling.Mapper;
 
-namespace TestConsole;
+namespace TestConsole.Test;
 
 /// <summary>
-/// ¿É¿ÕÀàĞÍÓ³ÉäÅäÖÃ Profile
+/// å¯ç©ºç±»å‹æ˜ å°„é…ç½® Profile
 /// </summary>
 public class NullableTypeProfile : MapperProfile
 {
     public NullableTypeProfile()
     {
-        // int? ¡ú int
+        // int? â†’ int
         CreateMap<NullableSource, NonNullableTarget>()
             .Rename(d => d.Id, "NullableId");
 
-        // int ¡ú int?
+        // int â†’ int?
         CreateMap<NonNullableSource, NullableTarget>()
             .Rename(d => d.NullableId, "Id");
 
-        // int? ¡ú int?
+        // int? â†’ int?
         CreateMap<NullableSource, NullableTarget>();
 
-        // string? Ó³Éä
+        // string? æ˜ å°„
         CreateMap<StringSource, StringTarget>();
 
-        // »ìºÏ³¡¾°
+        // æ··åˆåœºæ™¯
         CreateMap<MixedSource, MixedTarget>();
     }
 }

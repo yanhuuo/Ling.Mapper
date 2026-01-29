@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Ling.Mapper.Extensions;
 
-namespace TestConsole;
+namespace TestConsole.Test;
 
 /// <summary>
 /// 演示 Adapt 方法的多样化用法，特别是 List 转换
@@ -192,7 +192,7 @@ public static class AdaptListDemo
 
     // ========== 断言方法 ==========
 
-    private static void AssertNotNull<T>(T obj, string message) where T : class
+    private static void AssertNotNull<T>(T? obj, string message) where T : class
     {
         if (obj == null)
         {
