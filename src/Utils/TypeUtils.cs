@@ -1,7 +1,4 @@
-using System;
 using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace Ling.Mapper.Utils
 {
@@ -12,20 +9,20 @@ namespace Ling.Mapper.Utils
     internal static class TypeUtils
     {
         // 定义 .NET 中的基元数值类型集合，用于物理转换判定
-        private static readonly HashSet<Type> NumericTypes = new()
-        {
+        private static readonly HashSet<Type> NumericTypes =
+        [
             typeof(byte), typeof(sbyte),
             typeof(short), typeof(ushort),
             typeof(int), typeof(uint),
             typeof(long), typeof(ulong),
             typeof(float), typeof(double),
             typeof(decimal)
-        };
+        ];
 
         /// <summary>
-        /// 判断是否为可空类型 (Nullable<T>)
+        /// 判断是否为可空类型 (Nullable&lt;T&gt;)
         /// </summary>
-        public static bool IsNullable(Type type)
+        public static bool IsNullable(Type? type)
         {
             if (type == null) return false;
             return Nullable.GetUnderlyingType(type) != null;
@@ -48,7 +45,7 @@ namespace Ling.Mapper.Utils
         /// 简单类型包含：原始类型、枚举、string、decimal、DateTime、Guid、TimeSpan。
         /// 简单类型通常直接在 ConvertValueExpression 中处理，而非简单类型则进入递归映射。
         /// </summary>
-        public static bool IsSimple(Type type)
+        public static bool IsSimple(Type? type)
         {
             if (type == null) return false;
             var t = Nullable.GetUnderlyingType(type) ?? type;
@@ -72,7 +69,7 @@ namespace Ling.Mapper.Utils
         /// 支持数组、泛型集合、实现 IEnumerable&lt;T&gt; 的类型。
         /// 如果无法推断，返回 null。
         /// </summary>
-        public static Type? GetElementType(Type collectionType)
+        public static Type? GetElementType(Type? collectionType)
         {
             if (collectionType == null) return null;
 
@@ -88,10 +85,10 @@ namespace Ling.Mapper.Utils
             }
 
             // 3. 查找类实现的 IEnumerable<T> 接口
-            var ienum = collectionType.GetInterfaces()
+            var iEnum = collectionType.GetInterfaces()
                 .FirstOrDefault(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IEnumerable<>));
 
-            return ienum?.GetGenericArguments()[0];
+            return iEnum?.GetGenericArguments()[0];
         }
     }
 }
