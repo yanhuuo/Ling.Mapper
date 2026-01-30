@@ -22,10 +22,11 @@ Ling.Mapper 是一个基于 Expression Tree 的对象映射库，提供简洁的
 ### 🔧 高级功能
 - ✅ **Profile 配置** - 支持 ForMember、Ignore、Rename、ReverseMap
 - ✅ **AdaptOptions** - 运行时动态控制映射行为（IgnoreCase、IgnoreUnderscore、IgnoreNullValues）
+- ✅ **运行时忽略字段** - 支持在 Adapt 时动态指定要忽略的字段名
+- ✅ **映射回调** - 单次循环 1 对 1 回调，性能优化的映射后处理
 - ✅ **循环引用保护** - 运行时自动检测和打破循环引用
 - ✅ **类型转换** - 内置枚举、可空类型等常见类型转换
 - ✅ **自定义转换器** - 通过 TypeConverterRegistry 注册自定义转换逻辑
-- ✅ **强/弱类型回调** - 映射后执行自定义处理逻辑
 
 ### ⚡ 性能表现
 
@@ -37,7 +38,7 @@ Ling.Mapper 是一个基于 Expression Tree 的对象映射库，提供简洁的
 | 枚举转换 | **2M ops/sec** | 枚举类型互转 |
 | 可空类型转换 | **1.5M ops/sec** | 可空类型处理 |
 
-*测试环境: .NET 10.0, 8核 CPU, 支持 .NET 6.0+*
+*测试环境: .NET 10.0, 8核 CPU, 支持 .NET 6.0/8.0/9.0/10.0*
 
 ---
 
@@ -55,7 +56,7 @@ Install-Package Ling.Mapper
 
 ### PackageReference
 ```xml
-<PackageReference Include="Ling.Mapper" Version="1.1.0" />
+<PackageReference Include="Ling.Mapper" Version="1.1.2" />
 ```
 
 ---
@@ -108,7 +109,7 @@ UserDto[] dtoArray = dtoList.ToArray();
 var entityArray = dtoArray.Adapt<UserEntity[]>();
 ```
 
-### 3. 嵌套对象映射
+### 3. 嵌套对象与集合映射
 
 ```csharp
 public class OrderDto
@@ -140,6 +141,13 @@ var order = new OrderDto
 var orderEntity = order.Adapt<OrderEntity>();
 // 整个对象图都被映射了
 ```
+
+**支持的集合类型**：
+- `List<T>`、`T[]` 数组
+- `IEnumerable<T>`、`IList<T>` 接口
+- `ICollection<T>`、`IReadOnlyCollection<T>`
+- 简单类型集合：`List<string>`、`List<int>`
+- 可空类型集合：`List<int?>`、`List<DateTime?>`
 
 ### 4. 配置全局 Mapper（可选）
 
@@ -222,33 +230,159 @@ var result = source.Adapt<Target>(
 );
 ```
 
-### 3. 映射后回调
+### 3. 运行时忽略字段映射
+
+```csharp
+// 在 Adapt 时动态指定要忽略的字段
+public class UserSource
+{
+    public string Name { get; set; }
+    public string Password { get; set; }
+    public string CreditCard { get; set; }
+    public int Age { get; set; }
+}
+
+public class UserTarget
+{
+    public string Name { get; set; }
+    public string Password { get; set; }
+    public string CreditCard { get; set; }
+    public int Age { get; set; }
+}
+
+var source = new UserSource
+{
+    Name = "张三",
+    Password = "secret123",
+    CreditCard = "1111-2222-3333-4444",
+    Age = 30
+};
+
+// 忽略 Password 和 CreditCard 字段
+var target = source.Adapt<UserTarget>("Password", "CreditCard");
+
+Console.WriteLine($"Name: {target.Name}");         // 张三
+Console.WriteLine($"Password: {target.Password}");  // null
+Console.WriteLine($"CreditCard: {target.CreditCard}"); // null
+Console.WriteLine($"Age: {target.Age}");            // 30
+```
+
+**特性说明**：
+- 支持忽略不存在的字段（安全处理，不会抛异常）
+- 可以同时忽略多个字段
+- 灵活的运行时控制，无需预先配置 Profile
+
+### 4. 映射后回调（性能优化版）
 
 ```csharp
 // 强类型回调（编译时类型检查）
-var entity = dto.Adapt<UserEntity, UserDto>((dest, src) => 
+var entity = dto.Adapt<UserEntity, UserDto>((dest, src) =>
 {
     dest.FullName = $"{src.FirstName} {src.LastName}";
     dest.CreatedAt = DateTime.Now;
 });
 
-// 弱类型回调（运行时类型）
-var entity = dto.Adapt<UserEntity>((dest, src) => 
+// 集合项级回调（每个元素映射后执行）
+var entityList = dtoList.Adapt<List<UserEntity>, UserDto>((dest, src) =>
 {
-    if (dest != null)
-    {
-        dest.Timestamp = DateTime.Now;
-    }
+    dest.CreatedAt = DateTime.Now;
+    dest.UpdatedBy = "system";
 });
 
-// 集合回调
-var entityList = dtoList.Adapt<List<UserEntity>>((destList, srcList) => 
+// 集合整体回调（整个集合映射完成后执行）
+var entityList = dtoList.Adapt<List<UserEntity>>((destList, srcList) =>
 {
     Console.WriteLine($"映射了 {destList?.Count} 条记录");
 });
 ```
 
-### 4. 自定义类型转换
+**性能优化**：
+- 回调逻辑已深入到 Mapper 层
+- List 映射采用单次循环 1 对 1 关系
+- 避免了重复遍历，性能更优
+
+### 5. 嵌套属性映射
+
+```csharp
+public class OrderSource
+{
+    public int Id { get; set; }
+    public UserInfo User { get; set; }
+}
+
+public class UserInfo
+{
+    public string Name { get; set; }
+    public int Age { get; set; }
+}
+
+public class OrderDto
+{
+    public int Id { get; set; }
+    public string UserName { get; set; }
+    public int UserAge { get; set; }
+}
+
+// 使用 Rename 配置嵌套属性映射
+public class OrderProfile : MapperProfile
+{
+    public OrderProfile()
+    {
+        CreateMap<OrderSource, OrderDto>()
+            .Rename(d => d.UserName, "User.Name")
+            .Rename(d => d.UserAge, "User.Age");
+    }
+}
+
+// 使用示例
+var source = new OrderSource
+{
+    Id = 1,
+    User = new UserInfo { Name = "张三", Age = 30 }
+};
+
+var dest = source.Adapt<OrderDto>();
+Console.WriteLine($"{dest.UserName} - {dest.UserAge}");
+// 输出: 张三 - 30
+```
+
+**支持深层嵌套**：
+- 支持任意深度的属性路径（如 `Company.Address.City`）
+- 自动处理空引用（null-safe）
+- 支持 ForMember 自定义深层嵌套表达式
+
+### 6. 内置类型转换
+
+```csharp
+// 枚举与字符串互转
+public enum UserStatus
+{
+    Active = 1,
+    Inactive = 2
+}
+
+var status = UserStatus.Active;
+var statusStr = status.Adapt<string>();      // "Active"
+var statusBack = statusStr.Adapt<UserStatus>(); // UserStatus.Active
+
+// 可空类型转换
+int? nullableInt = 42;
+var regularInt = nullableInt.Adapt<int>();   // 42
+
+var regularInt2 = 100;
+var nullableInt2 = regularInt2.Adapt<int?>(); // 100
+
+// 数字类型转换
+var doubleValue = 3.14;
+var intValue = doubleValue.Adapt<int>();     // 3
+
+// long <-> DateTime 转换（时间戳）
+var dateTime = DateTime.Now;
+var timestamp = dateTime.Adapt<long>();      // 转为时间戳
+var backToDateTime = timestamp.Adapt<DateTime>(); // 转回 DateTime
+```
+
+### 7. 自定义类型转换
 
 ```csharp
 using Ling.Mapper.TypeConverter;
@@ -266,7 +400,7 @@ TypeConverterRegistry.Register<string, int>(s => int.Parse(s));
 TypeConverterRegistry.RegisterJson<ExtraInfoModel>();
 ```
 
-### 5. 循环引用处理
+### 8. 循环引用处理
 
 ```csharp
 public class Node
@@ -477,12 +611,17 @@ dotnet run
 
 测试涵盖：
 - 基础对象映射
-- 集合映射
+- 集合映射（List、Array、IEnumerable）
 - 嵌套对象映射
+- 深层嵌套属性（A.B.C.D）
 - 循环引用检测
-- 类型转换
-- Profile 配置
+- 类型转换（枚举、可空类型、数字类型）
+- 运行时忽略字段
+- 映射回调（单个元素、集合、整体回调）
+- Profile 配置（ForMember、Ignore、Rename、ReverseMap）
+- AdaptOptions 灵活选项（IgnoreCase、IgnoreUnderscore、IgnoreNullValues）
 - 性能基准测试
+- 压力测试
 
 ---
 
@@ -513,6 +652,22 @@ dotnet run
 ## 📄 许可证
 
 本项目采用 MIT 许可证 - 详见 [LICENSE](LICENSE) 文件
+
+---
+
+## 📝 更新日志
+
+### v1.1.2 (最新)
+- ✨ 新增运行时忽略字段功能：`source.Adapt<Target>("Field1", "Field2")`
+- 🚀 优化映射回调性能：回调深入到 Mapper 层，避免重复遍历
+- 🔧 修复 List 映射回调：采用单次循环 1 对 1 关系
+- 📚 完善测试覆盖：新增忽略字段、嵌套属性等测试用例
+
+### v1.1.1
+- ✨ 支持深层嵌套属性映射（A.B.C.D）
+- ✨ 新增 IgnoreNullValues 选项
+- 🔧 优化表达式树编译性能
+- 🐛 修复循环引用 StackOverflow 问题
 
 ---
 

@@ -2,7 +2,7 @@
 
 	<PropertyGroup>
 		<!-- 包版本 -->
-		<Version>1.1.1</Version>
+		<Version>1.1.2</Version>
 
 
 		<!-- 多目标框架 -->
