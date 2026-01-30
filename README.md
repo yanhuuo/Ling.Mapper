@@ -4,217 +4,210 @@
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![.NET](https://img.shields.io/badge/.NET-6.0%2b%20-8.0%20-9.0%20-10.0-blue)](https://dotnet.microsoft.com/)
 
-🚀 **轻量级、高性能的 .NET 对象映射库**
+轻量级、高性能的 .NET 对象映射库
 
-Ling.Mapper 是一个基于 Expression Tree 的对象映射库，提供简洁的 API 和高效的性能。支持复杂对象映射、集合转换、循环引用检测，以及灵活的配置选项。
+Ling.Mapper 是一个基于 Expression Tree 的对象映射库，提供简洁的 Adapt API 和高效的性能。支持复杂对象映射、集合转换、循环引用检测，以及灵活的运行时配置选项。
 
 ---
 
-## ✨ 核心特性
+## 核心特性
 
-### 🎯 基础功能
-- ✅ **简洁的 Adapt API** - 一行代码完成对象映射：`source.Adapt<Target>()`
-- ✅ **高性能编译** - 基于 Expression Tree 编译，接近手写代码性能
-- ✅ **自动属性匹配** - 智能识别同名属性（支持忽略大小写/下划线）
-- ✅ **集合映射** - 支持 List、Array、IEnumerable 等所有集合类型
-- ✅ **嵌套对象映射** - 自动处理对象图中的嵌套对象和集合
+- **简洁的 Adapt API** - 一行代码完成对象映射：`source.Adapt<Target>()`
+- **高性能编译** - 基于 Expression Tree 编译，接近手写代码性能
+- **自动属性匹配** - 智能识别同名属性（支持忽略大小写/下划线）
+- **集合映射** - 支持 List、Array、IEnumerable 等所有集合类型
+- **嵌套对象映射** - 自动处理对象图中的嵌套对象和集合
+- **运行时映射选项** - AdaptOptions 动态控制映射行为
+- **运行时忽略字段** - Adapt 时动态指定要忽略的字段名
+- **映射回调** - 支持单个对象和集合的回调处理
 
-### 🔧 高级功能
-- ✅ **Profile 配置** - 支持 ForMember、Ignore、Rename、ReverseMap
-- ✅ **AdaptOptions** - 运行时动态控制映射行为（IgnoreCase、IgnoreUnderscore、IgnoreNullValues）
-- ✅ **运行时忽略字段** - 支持在 Adapt 时动态指定要忽略的字段名
-- ✅ **映射回调** - 单次循环 1 对 1 回调，性能优化的映射后处理
-- ✅ **循环引用保护** - 运行时自动检测和打破循环引用
-- ✅ **类型转换** - 内置枚举、可空类型等常见类型转换
-- ✅ **自定义转换器** - 通过 TypeConverterRegistry 注册自定义转换逻辑
-
-### ⚡ 性能表现
+### 性能表现
 
 | 场景 | 吞吐量 | 说明 |
 |------|--------|------|
 | 简单对象映射 | **975K ops/sec** | 属性较少的对象 |
 | 复杂对象映射 | **148K ops/sec** | 嵌套对象、集合 |
 | 集合映射 | **8.5M elements/sec** | 集合元素处理速度 |
-| 枚举转换 | **2M ops/sec** | 枚举类型互转 |
-| 可空类型转换 | **1.5M ops/sec** | 可空类型处理 |
 
 *测试环境: .NET 10.0, 8核 CPU, 支持 .NET 6.0/8.0/9.0/10.0*
 
 ---
 
-## 📦 快速安装
+## 快速安装
 
-### NuGet CLI
 ```bash
 dotnet add package Ling.Mapper
 ```
 
-### Package Manager
+或
+
 ```bash
 Install-Package Ling.Mapper
 ```
 
-### PackageReference
-```xml
-<PackageReference Include="Ling.Mapper" Version="1.1.2" />
-```
-
 ---
 
-## 🚀 五分钟快速开始
+## 快速开始
 
 ### 1. 最简单的映射
 
 ```csharp
 using Ling.Mapper.Extensions;
 
-public class UserDto
+public class UserSource
 {
     public int Id { get; set; }
     public string Name { get; set; }
-    public string Email { get; set; }
 }
 
-public class UserEntity
+public class UserTarget
 {
     public int Id { get; set; }
     public string Name { get; set; }
-    public string Email { get; set; }
 }
 
-// 直接使用 Adapt 扩展方法
-var dto = new UserDto { Id = 1, Name = "张三", Email = "zhangsan@example.com" };
-var entity = dto.Adapt<UserEntity>();
+// 基础映射
+var source = new UserSource { Id = 1, Name = "张三" };
+var target = source.Adapt<UserTarget>();
 
-Console.WriteLine($"{entity.Name} - {entity.Email}");
-// 输出: 张三 - zhangsan@example.com
+Console.WriteLine($"{target.Id} - {target.Name}");
+// 输出: 1 - 张三
 ```
 
 ### 2. 集合映射
 
 ```csharp
-// List 自动映射
-var dtoList = new List<UserDto>
+// List 映射
+var sourceList = new List<UserSource>
 {
-    new UserDto { Id = 1, Name = "张三" },
-    new UserDto { Id = 2, Name = "李四" }
+    new UserSource { Id = 1, Name = "张三" },
+    new UserSource { Id = 2, Name = "李四" }
 };
 
-var entityList = dtoList.Adapt<List<UserEntity>>();
-Console.WriteLine($"映射了 {entityList.Count} 条记录");
+var targetList = sourceList.Adapt<List<UserTarget>>();
+
+Console.WriteLine($"映射了 {targetList.Count} 条记录");
 // 输出: 映射了 2 条记录
-
-// Array 也支持
-UserDto[] dtoArray = dtoList.ToArray();
-var entityArray = dtoArray.Adapt<UserEntity[]>();
-```
-
-### 3. 嵌套对象与集合映射
-
-```csharp
-public class OrderDto
-{
-    public int Id { get; set; }
-    public UserDto User { get; set; }
-    public List<ProductDto> Products { get; set; }
-}
-
-public class OrderEntity
-{
-    public int Id { get; set; }
-    public UserEntity User { get; set; }
-    public List<ProductEntity> Products { get; set; }
-}
-
-// 自动处理嵌套对象和集合
-var order = new OrderDto
-{
-    Id = 101,
-    User = new UserDto { Id = 1, Name = "张三" },
-    Products = new List<ProductDto>
-    {
-        new ProductDto { Id = 1, Name = "笔记本" },
-        new ProductDto { Id = 2, Name = "鼠标" }
-    }
-};
-
-var orderEntity = order.Adapt<OrderEntity>();
-// 整个对象图都被映射了
-```
-
-**支持的集合类型**：
-- `List<T>`、`T[]` 数组
-- `IEnumerable<T>`、`IList<T>` 接口
-- `ICollection<T>`、`IReadOnlyCollection<T>`
-- 简单类型集合：`List<string>`、`List<int>`
-- 可空类型集合：`List<int?>`、`List<DateTime?>`
-
-### 4. 配置全局 Mapper（可选）
-
-```csharp
-using Ling.Mapper;
-
-// 应用启动时配置（例如 Program.cs）
-var config = new MapperConfiguration();
-config.AddProfile(new UserProfile());
-config.AddProfile(new OrderProfile());
-
-var mapper = config.CreateMapper();
-MapperProvider.SetCurrent(mapper);
-
-// 现在可以在任何地方使用 Adapt
-var entity = dto.Adapt<UserEntity>();
 ```
 
 ---
 
-## 🔧 高级用法
+## 高级用法
 
-### 1. 使用 Profile 配置映射
+### 1. 单个对象映射带回调
 
 ```csharp
-public class UserProfile : MapperProfile
+public class UserSource
 {
-    public UserProfile()
+    public int Id { get; set; }
+    public string FirstName { get; set; }
+    public string LastName { get; set; }
+    public int Age { get; set; }
+}
+
+public class UserTarget
+{
+    public int Id { get; set; }
+    public string FirstName { get; set; }
+    public string LastName { get; set; }
+    public string FullName { get; set; }
+    public bool IsAdult { get; set; }
+}
+
+// 使用回调处理映射后的逻辑
+var source = new UserSource
+{
+    Id = 1,
+    FirstName = "John",
+    LastName = "Doe",
+    Age = 30
+};
+
+var target = source.Adapt<UserTarget, UserSource>((dest, src) =>
+{
+    // dest: 映射后的目标对象
+    // src: 原始源对象
+    dest.FullName = $"{src.FirstName} {src.LastName}";
+    dest.IsAdult = src.Age >= 18;
+});
+
+Console.WriteLine($"{target.FullName}, IsAdult: {target.IsAdult}");
+// 输出: John Doe, IsAdult: True
+```
+
+### 2. 集合映射带项级回调（推荐）
+
+```csharp
+var sourceList = new List<UserSource>
+{
+    new UserSource { Id = 1, FirstName = "John", LastName = "Doe", Age = 30 },
+    new UserSource { Id = 2, FirstName = "Jane", LastName = "Smith", Age = 25 }
+};
+
+// 推荐：使用项级回调，在一次循环内完成映射和回调
+int rowNumber = 0;
+var targetList = sourceList.Adapt<UserTarget, UserSource>((dest, src) =>
+{
+    // 每个元素映射完成后立即执行
+    dest.FullName = $"{src.FirstName} {src.LastName}";
+    dest.IsAdult = src.Age >= 18;
+    dest.RowNumber = ++rowNumber;
+});
+
+// 输出结果
+foreach (var item in targetList)
+{
+    Console.WriteLine($"{item.RowNumber}. {item.FullName}, IsAdult: {item.IsAdult}");
+}
+// 输出:
+// 1. John Doe, IsAdult: True
+// 2. Jane Smith, IsAdult: True
+```
+
+### 3. 集合映射带整体回调
+
+```csharp
+var sourceList = new List<UserSource>
+{
+    new UserSource { Id = 1, FirstName = "John", LastName = "Doe" },
+    new UserSource { Id = 2, FirstName = "Jane", LastName = "Smith" }
+};
+
+// 使用整体回调，在整个集合映射完成后执行
+var targetList = sourceList.Adapt<List<UserTarget>>(list =>
+{
+    // list: 已经映射完成的列表
+    for (int i = 0; i < list.Count; i++)
     {
-        // 创建映射配置
-        CreateMap<UserDto, UserEntity>()
-            // 自定义属性映射
-            .ForMember(d => d.FullName, s => s.FirstName + " " + s.LastName)
-            
-            // 重命名属性
-            .Rename(d => d.UserId, "Uid")
-            
-            // 忽略属性
-            .Ignore(d => d.Password)
-            
-            // 生成反向映射
-            .ReverseMap();
+        list[i].FullName += " (Verified)";
     }
+});
+
+foreach (var item in targetList)
+{
+    Console.WriteLine(item.FullName);
 }
+// 输出:
+// John Doe (Verified)
+// Jane Smith (Verified)
 ```
 
-### 2. 运行时映射选项
+### 4. 运行时映射选项
 
 ```csharp
-// 处理命名差异：下划线 -> 驼峰
-public class ApiDto
+// 处理命名差异
+var source = new
 {
-    public string user_name { get; set; }
-    public int user_id { get; set; }
-}
+    id = 1,
+    user_name = "张三",
+    AGE = 30
+};
 
-public class UserEntity
-{
-    public string UserName { get; set; }
-    public int UserId { get; set; }
-}
-
-// 使用 FlexibleOption 自动处理
-var entity = apiDto.Adapt<UserEntity>(AdaptOptions.FlexibleOption);
+// 使用 FlexibleOption（忽略大小写 + 忽略下划线）
+var target = source.Adapt<UserTarget>(AdaptOptions.FlexibleOption);
 ```
 
-可用的选项：
+**可用的选项**：
 
 ```csharp
 AdaptOptions.Strict              // 严格匹配（默认）
@@ -230,10 +223,9 @@ var result = source.Adapt<Target>(
 );
 ```
 
-### 3. 运行时忽略字段映射
+### 5. 运行时忽略字段
 
 ```csharp
-// 在 Adapt 时动态指定要忽略的字段
 public class UserSource
 {
     public string Name { get; set; }
@@ -261,7 +253,7 @@ var source = new UserSource
 // 忽略 Password 和 CreditCard 字段
 var target = source.Adapt<UserTarget>("Password", "CreditCard");
 
-Console.WriteLine($"Name: {target.Name}");         // 张三
+Console.WriteLine($"Name: {target.Name}");
 Console.WriteLine($"Password: {target.Password}");  // null
 Console.WriteLine($"CreditCard: {target.CreditCard}"); // null
 Console.WriteLine($"Age: {target.Age}");            // 30
@@ -270,229 +262,158 @@ Console.WriteLine($"Age: {target.Age}");            // 30
 **特性说明**：
 - 支持忽略不存在的字段（安全处理，不会抛异常）
 - 可以同时忽略多个字段
-- 灵活的运行时控制，无需预先配置 Profile
+- 灵活的运行时控制
 
-### 4. 映射后回调（性能优化版）
-
-```csharp
-// 强类型回调（编译时类型检查）
-var entity = dto.Adapt<UserEntity, UserDto>((dest, src) =>
-{
-    dest.FullName = $"{src.FirstName} {src.LastName}";
-    dest.CreatedAt = DateTime.Now;
-});
-
-// 集合项级回调（每个元素映射后执行）
-var entityList = dtoList.Adapt<List<UserEntity>, UserDto>((dest, src) =>
-{
-    dest.CreatedAt = DateTime.Now;
-    dest.UpdatedBy = "system";
-});
-
-// 集合整体回调（整个集合映射完成后执行）
-var entityList = dtoList.Adapt<List<UserEntity>>((destList, srcList) =>
-{
-    Console.WriteLine($"映射了 {destList?.Count} 条记录");
-});
-```
-
-**性能优化**：
-- 回调逻辑已深入到 Mapper 层
-- List 映射采用单次循环 1 对 1 关系
-- 避免了重复遍历，性能更优
-
-### 5. 嵌套属性映射
+### 6. 嵌套对象映射
 
 ```csharp
 public class OrderSource
 {
     public int Id { get; set; }
-    public UserInfo User { get; set; }
+    public UserSource User { get; set; }
 }
 
-public class UserInfo
-{
-    public string Name { get; set; }
-    public int Age { get; set; }
-}
-
-public class OrderDto
+public class OrderTarget
 {
     public int Id { get; set; }
-    public string UserName { get; set; }
-    public int UserAge { get; set; }
+    public UserTarget User { get; set; }
 }
 
-// 使用 Rename 配置嵌套属性映射
-public class OrderProfile : MapperProfile
+// 自动处理嵌套对象
+var order = new OrderSource
 {
-    public OrderProfile()
-    {
-        CreateMap<OrderSource, OrderDto>()
-            .Rename(d => d.UserName, "User.Name")
-            .Rename(d => d.UserAge, "User.Age");
-    }
-}
-
-// 使用示例
-var source = new OrderSource
-{
-    Id = 1,
-    User = new UserInfo { Name = "张三", Age = 30 }
+    Id = 101,
+    User = new UserSource { Id = 1, Name = "张三" }
 };
 
-var dest = source.Adapt<OrderDto>();
-Console.WriteLine($"{dest.UserName} - {dest.UserAge}");
-// 输出: 张三 - 30
+var orderTarget = order.Adapt<OrderTarget>();
+
+Console.WriteLine($"Order: {orderTarget.Id}, User: {orderTarget.User.Name}");
+// 输出: Order: 101, User: 张三
 ```
 
-**支持深层嵌套**：
-- 支持任意深度的属性路径（如 `Company.Address.City`）
-- 自动处理空引用（null-safe）
-- 支持 ForMember 自定义深层嵌套表达式
-
-### 6. 内置类型转换
+### 7. 集合属性映射
 
 ```csharp
-// 枚举与字符串互转
-public enum UserStatus
+public class OrderSource
 {
-    Active = 1,
-    Inactive = 2
+    public int Id { get; set; }
+    public List<UserSource> Users { get; set; }
 }
 
-var status = UserStatus.Active;
-var statusStr = status.Adapt<string>();      // "Active"
-var statusBack = statusStr.Adapt<UserStatus>(); // UserStatus.Active
+public class OrderTarget
+{
+    public int Id { get; set; }
+    public List<UserTarget> Users { get; set; }
+}
 
-// 可空类型转换
-int? nullableInt = 42;
-var regularInt = nullableInt.Adapt<int>();   // 42
+// 自动处理集合属性
+var order = new OrderSource
+{
+    Id = 101,
+    Users = new List<UserSource>
+    {
+        new UserSource { Id = 1, Name = "张三" },
+        new UserSource { Id = 2, Name = "李四" }
+    }
+};
 
-var regularInt2 = 100;
-var nullableInt2 = regularInt2.Adapt<int?>(); // 100
+var orderTarget = order.Adapt<OrderTarget>();
 
-// 数字类型转换
-var doubleValue = 3.14;
-var intValue = doubleValue.Adapt<int>();     // 3
-
-// long <-> DateTime 转换（时间戳）
-var dateTime = DateTime.Now;
-var timestamp = dateTime.Adapt<long>();      // 转为时间戳
-var backToDateTime = timestamp.Adapt<DateTime>(); // 转回 DateTime
-```
-
-### 7. 自定义类型转换
-
-```csharp
-using Ling.Mapper.TypeConverter;
-
-// 注册单向转换
-TypeConverterRegistry.Register<string, DateTime>(
-    str => DateTime.Parse(str)
-);
-
-// 注册双向转换
-TypeConverterRegistry.Register<int, string>(i => i.ToString());
-TypeConverterRegistry.Register<string, int>(s => int.Parse(s));
-
-// 注册 JSON 转换
-TypeConverterRegistry.RegisterJson<ExtraInfoModel>();
+Console.WriteLine($"Order: {orderTarget.Id}, Users: {orderTarget.Users.Count}");
+// 输出: Order: 101, Users: 2
 ```
 
 ### 8. 循环引用处理
 
 ```csharp
-public class Node
+public class NodeSource
 {
+    public int Id { get; set; }
     public string Name { get; set; }
-    public Node? Parent { get; set; }
-    public List<Node>? Children { get; set; }
+    public NodeSource Related { get; set; }
+}
+
+public class NodeTarget
+{
+    public int Id { get; set; }
+    public string Name { get; set; }
+    public NodeTarget Related { get; set; }
 }
 
 // 创建循环引用
-var root = new Node { Name = "Root" };
-var child = new Node { Name = "Child", Parent = root };
-root.Children = new List<Node> { child };
+var nodeA = new NodeSource { Id = 1, Name = "Node A" };
+var nodeB = new NodeSource { Id = 2, Name = "Node B" };
+nodeA.Related = nodeB;
+nodeB.Related = nodeA;
 
-// Mapper 自动检测并打破循环，不会 StackOverflow
-var target = root.Adapt<Node>();
+// Mapper 自动检测并处理循环引用
+var targetA = nodeA.Adapt<NodeTarget>();
+
+Console.WriteLine($"{targetA.Name} -> {targetA.Related.Name}");
+// 输出: Node A -> Node B
+```
+
+### 9. 忽略 Null 值
+
+```csharp
+public class UserSource
+{
+    public int Id { get; set; }
+    public string Name { get; set; }
+    public string Description { get; set; }
+}
+
+public class UserTarget
+{
+    public int Id { get; set; }
+    public string Name { get; set; } = "Default";
+    public string Description { get; set; }
+}
+
+var source = new UserSource
+{
+    Id = 1,
+    Name = null,  // null 值
+    Description = "Test"
+};
+
+// 使用 IgnoreNullValues 选项
+var target = source.Adapt<UserTarget>(AdaptOptions.IgnoreNullValues);
+
+Console.WriteLine($"Id: {target.Id}");
+Console.WriteLine($"Name: {target.Name}");  // 输出: Default (保留原值)
+Console.WriteLine($"Description: {target.Description}");  // 输出: Test
 ```
 
 ---
 
-## 📚 关键类和接口
+## API 参考
 
-### IMapper 接口
-
-```csharp
-public interface IMapper
-{
-    // 泛型映射（使用默认选项）
-    TDestination? Map<TDestination>(object? source);
-    
-    // 泛型映射（使用自定义选项）
-    TDestination? Map<TDestination>(object source, AdaptOptions options);
-
-    // 非泛型映射
-    object? Map(object? source, Type sourceType, Type destType);
-    object? Map(object? source, Type sourceType, Type destType, AdaptOptions options);
-}
-```
-
-### MapperConfiguration
+### AdaptExtensions 扩展方法
 
 ```csharp
-var config = new MapperConfiguration();
+// 基础映射
+public static TDestination Adapt<TDestination>(this object? source)
 
-// 添加 Profile
-config.AddProfile(new UserProfile());
-config.AddProfiles(new UserProfile(), new OrderProfile());
+// 带选项映射
+public static TDestination Adapt<TDestination>(this object? source, AdaptOptions options)
 
-// 设置默认选项
-config.DefaultAdaptOptions = AdaptOptions.FlexibleOption;
+// 忽略字段映射
+public static TDestination Adapt<TDestination>(this object? source, string firstIgnore, params string[] otherIgnores)
 
-// 启用严格模式（未匹配属性会抛异常）
-config.StrictMode = true;
+// 单个对象带回调
+public static TDestination Adapt<TDestination, TSource>(this TSource source, Action<TDestination, TSource> afterMapItem)
 
-// 全局约定配置
-config.ConfigureConventions(opt =>
-{
-    opt.IgnoreCase = true;
-    opt.IgnoreUnderscore = true;
-});
+// 集合项级回调（推荐）
+public static List<TTargetItem> Adapt<TTargetItem, TSourceItem>(this IEnumerable<TSourceItem> source, Action<TTargetItem, TSourceItem> afterMapItem)
+    where TTargetItem : class, new()
 
-// 创建 Mapper
-var mapper = config.CreateMapper();
+// 集合整体回调
+public static TDestination Adapt<TDestination>(this object? source, Action<TDestination> afterMap)
 ```
 
-### MapperProfile
-
-```csharp
-public class OrderProfile : MapperProfile
-{
-    public OrderProfile()
-    {
-        CreateMap<OrderDto, OrderEntity>()
-            // 计算属性
-            .ForMember(d => d.Total, s => s.Items.Sum(i => i.Price * i.Qty))
-            
-            // 条件映射
-            .ForMember(d => d.Status, s => s.IsPaid ? "已支付" : "未支付")
-            
-            // 嵌套属性
-            .ForMember(d => d.CustomerName, s => s.Customer.Name)
-            
-            // 忽略属性
-            .Ignore(d => d.InternalId)
-            
-            // 重命名
-            .Rename(d => d.OrderNo, "Id");
-    }
-}
-```
-
-### AdaptOptions
+### AdaptOptions 枚举
 
 ```csharp
 [Flags]
@@ -507,102 +428,11 @@ public enum AdaptOptions
 }
 ```
 
-### MapperProvider
-
-```csharp
-// 自动初始化（首次访问时）
-var mapper = MapperProvider.Current;
-
-// 手动设置全局 Mapper
-MapperProvider.SetCurrent(mapper);
-
-// 清除全局 Mapper
-MapperProvider.Clear();
-```
-
 ---
 
-## 💡 最佳实践
+## 测试
 
-### 1. 应用启动时统一配置
-
-```csharp
-// Program.cs
-public static void Main(string[] args)
-{
-    ConfigureMapper();
-    // ... 其他初始化
-}
-
-private static void ConfigureMapper()
-{
-    var config = new MapperConfiguration();
-    
-    // 批量注册 Profile
-    config.AddProfiles(
-        new UserProfile(),
-        new OrderProfile(),
-        new ProductProfile()
-    );
-    
-    // 设置全局选项
-    config.DefaultAdaptOptions = AdaptOptions.FlexibleOption;
-    
-    // 创建并设置
-    MapperProvider.SetCurrent(config.CreateMapper());
-}
-```
-
-### 2. Profile 按业务模块组织
-
-```
-Profiles/
-├── UserProfile.cs
-├── OrderProfile.cs
-├── ProductProfile.cs
-└── PaymentProfile.cs
-```
-
-### 3. 简单场景直接使用 Adapt
-
-```csharp
-// ✅ 推荐：属性完全一致，直接映射
-var entity = dto.Adapt<UserEntity>();
-
-// ❌ 不推荐：为简单映射添加 Profile 增加复杂度
-CreateMap<UserDto, UserEntity>();  // 没必要
-```
-
-### 4. 复杂映射使用 Profile
-
-```csharp
-// ✅ 推荐：需要自定义时使用 Profile
-CreateMap<OrderDto, OrderEntity>()
-    .ForMember(d => d.Total, s => s.Items.Sum(i => i.Price * i.Qty))
-    .Ignore(d => d.InternalCode);
-```
-
-### 5. 使用后处理而不是分散逻辑
-
-```csharp
-// ✅ 推荐：集中处理映射后逻辑
-var entity = dto.Adapt<UserEntity>((dest, src) =>
-{
-    dest.CreatedAt = DateTime.Now;
-    dest.CreatedBy = CurrentUser.Id;
-});
-
-// ❌ 不推荐：映射后再处理
-var entity = dto.Adapt<UserEntity>();
-entity.CreatedAt = DateTime.Now;
-entity.CreatedBy = CurrentUser.Id;
-```
-
----
-
-## 🧪 测试
-
-项目包含全面的测试套件：
+运行完整测试套件：
 
 ```bash
 cd tests/Ling.Mapper.Tests
@@ -613,65 +443,32 @@ dotnet run
 - 基础对象映射
 - 集合映射（List、Array、IEnumerable）
 - 嵌套对象映射
-- 深层嵌套属性（A.B.C.D）
 - 循环引用检测
-- 类型转换（枚举、可空类型、数字类型）
 - 运行时忽略字段
-- 映射回调（单个元素、集合、整体回调）
-- Profile 配置（ForMember、Ignore、Rename、ReverseMap）
-- AdaptOptions 灵活选项（IgnoreCase、IgnoreUnderscore、IgnoreNullValues）
+- 映射回调（单个对象、集合项级、集合整体）
+- AdaptOptions 各种选项
+- Null 值处理
 - 性能基准测试
-- 压力测试
 
 ---
 
-## 📖 完整文档
-
-详见 [docs/使用文档.md](./docs/使用文档.md) 了解：
-- 详细的功能说明
-- 完整的 API 参考
-- 高级场景和最佳实践
-- 常见问题解答
-- 性能优化建议
-
----
-
-
-## 🤝 贡献
-
-欢迎提交 Issue 和 Pull Request！
-
-1. Fork 本仓库
-2. 创建特性分支：`git checkout -b feature/amazing-feature`
-3. 提交更改：`git commit -m 'Add amazing feature'`
-4. 推送分支：`git push origin feature/amazing-feature`
-5. 发起 Pull Request
-
----
-
-## 📄 许可证
-
-本项目采用 MIT 许可证 - 详见 [LICENSE](LICENSE) 文件
-
----
-
-## 📝 更新日志
+## 更新日志
 
 ### v1.1.2 (最新)
-- ✨ 新增运行时忽略字段功能：`source.Adapt<Target>("Field1", "Field2")`
-- 🚀 优化映射回调性能：回调深入到 Mapper 层，避免重复遍历
-- 🔧 修复 List 映射回调：采用单次循环 1 对 1 关系
-- 📚 完善测试覆盖：新增忽略字段、嵌套属性等测试用例
+- 新增运行时忽略字段功能：`source.Adapt<Target>("Field1", "Field2")`
+- 优化映射回调性能：回调深入到 Mapper 层，避免重复遍历
+- 优化 List 映射回调：采用单次循环 1 对 1 关系
+- 完善测试覆盖：新增忽略字段、嵌套属性等测试用例
 
 ### v1.1.1
-- ✨ 支持深层嵌套属性映射（A.B.C.D）
-- ✨ 新增 IgnoreNullValues 选项
-- 🔧 优化表达式树编译性能
-- 🐛 修复循环引用 StackOverflow 问题
+- 支持深层嵌套属性映射（A.B.C.D）
+- 新增 IgnoreNullValues 选项
+- 优化表达式树编译性能
+- 修复循环引用 StackOverflow 问题
 
 ---
 
-## 📧 链接
+## 链接
 
 - **GitHub**: [Ling.Mapper](https://github.com/yanhuuo/Ling.Mapper)
 - **NuGet**: [Ling.Mapper](https://www.nuget.org/packages/Ling.Mapper/)
@@ -679,8 +476,14 @@ dotnet run
 
 ---
 
+## 许可证
+
+本项目采用 MIT 许可证 - 详见 [LICENSE](LICENSE) 文件
+
+---
+
 <div align="center">
 
-**如果这个项目对你有帮助，请给个 ⭐ Star！**
+**如果这个项目对你有帮助，请给个 Star！**
 
 </div>
