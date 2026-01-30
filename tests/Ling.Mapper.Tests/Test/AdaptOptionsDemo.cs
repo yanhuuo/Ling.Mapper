@@ -1,7 +1,9 @@
 using Ling.Mapper;
 using System;
 using Ling.Mapper.Extensions;
+using Ling.Mapper.Mapper;
 using Ling.Mapper.Models;
+using Ling.Mapper.Provider;
 
 namespace TestConsole.Test;
 

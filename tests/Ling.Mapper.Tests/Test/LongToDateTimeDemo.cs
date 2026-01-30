@@ -1,5 +1,6 @@
 using Ling.Mapper;
 using System;
+using Ling.Mapper.Provider;
 
 namespace TestConsole.Test
 {

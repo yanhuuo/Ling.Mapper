@@ -1,4 +1,5 @@
 using Ling.Mapper;
+using Ling.Mapper.Configuration;
 using Ling.Mapper.Extensions;
 
 namespace TestConsole.Test;

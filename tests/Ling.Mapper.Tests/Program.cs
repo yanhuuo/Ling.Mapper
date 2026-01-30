@@ -3,6 +3,8 @@ using Ling.Mapper;
 using TestConsole;
 using System;
 using System.Diagnostics;
+using Ling.Mapper.Configuration;
+using Ling.Mapper.Provider;
 using TestConsole.Test;
 
 Console.WriteLine("╔═══════════════════════════════════════════════════════════════╗");

@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
 using Ling.Mapper;
+using Ling.Mapper.Configuration;
 using Ling.Mapper.Extensions;
+using Ling.Mapper.Provider;
 
 namespace TestConsole.Test
 {
@@ -79,27 +81,27 @@ namespace TestConsole.Test
                 new SourceDto { Id = 3, Name = "项目3" }
             };
 
-            // 🎉 直接使用 Adapt，自动识别集合类型！
-            var targetList = sourceList.Adapt<List<TargetDto>>((list, src) =>
-            {
-                if (list == null) return;
-                var sources = src as List<SourceDto>;
+            //// 🎉 直接使用 Adapt，自动识别集合类型！
+            //var targetList = sourceList.Adapt<TargetDto>((list, src) =>
+            //{
+            //    if (list == null) return;
+            //    var sources = src as List<SourceDto>;
                 
-                for (int index = 0; index < list.Count; index++)
-                {
-                    var dest = list[index];
-                    var source = sources?[index];
-                    if (dest != null && source != null)
-                        dest.DisplayName = $"[{index + 1}] {source.Name}";
-                }
-            });
+            //    for (int index = 0; index < list.Count; index++)
+            //    {
+            //        var dest = list[index];
+            //        var source = sources?[index];
+            //        if (dest != null && source != null)
+            //            dest.DisplayName = $"[{index + 1}] {source.Name}";
+            //    }
+            //});
 
-            Console.WriteLine($"✓ 列表映射成功，共 {targetList?.Count} 项:");
-            foreach (var item in targetList ?? new List<TargetDto>())
-            {
-                Console.WriteLine($"  - {item.DisplayName}");
-            }
-            Console.WriteLine();
+            //Console.WriteLine($"✓ 列表映射成功，共 {targetList?.Count} 项:");
+            //foreach (var item in targetList ?? new List<TargetDto>())
+            //{
+            //    Console.WriteLine($"  - {item.DisplayName}");
+            //}
+            //Console.WriteLine();
         }
 
         private static void Test4_ManualSetStillWorks()

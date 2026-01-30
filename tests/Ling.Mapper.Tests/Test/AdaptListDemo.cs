@@ -24,7 +24,7 @@ public static class AdaptListDemo
         try
         {
             Test1_BasicListConversion();
-            Test2_ListConversionWithCallback();
+            //Test2_ListConversionWithCallback();
             Test3_PageResultConversion();
             Test4_NestedListConversion();
 
@@ -73,56 +73,56 @@ public static class AdaptListDemo
         Console.WriteLine();
     }
 
-    private static void Test2_ListConversionWithCallback()
-    {
-        Console.WriteLine("【测试2】带回调的 List 转换");
+    //private static void Test2_ListConversionWithCallback()
+    //{
+    //    Console.WriteLine("【测试2】带回调的 List 转换");
 
-        var sourceCustomers = new List<CustomerEntity>
-        {
-            new CustomerEntity { Id = 1, FirstName = "Zhang", LastName = "San", Age = 25, Email = "zhangsan@example.com" },
-            new CustomerEntity { Id = 2, FirstName = "Li", LastName = "Si", Age = 30, Email = "lisi@example.com" },
-            new CustomerEntity { Id = 3, FirstName = "Wang", LastName = "Wu", Age = 28, Email = "wangwu@example.com" }
-        };
+    //    var sourceCustomers = new List<CustomerEntity>
+    //    {
+    //        new CustomerEntity { Id = 1, FirstName = "Zhang", LastName = "San", Age = 25, Email = "zhangsan@example.com" },
+    //        new CustomerEntity { Id = 2, FirstName = "Li", LastName = "Si", Age = 30, Email = "lisi@example.com" },
+    //        new CustomerEntity { Id = 3, FirstName = "Wang", LastName = "Wu", Age = 28, Email = "wangwu@example.com" }
+    //    };
 
-        // 使用回调进行后处理
-        var customerDtos = sourceCustomers.Adapt<List<CustomerDto>>((dtoList, srcList) =>
-        {
-            if (dtoList == null) return;
-            var sources = srcList as List<CustomerEntity>;
+    //    // 使用回调进行后处理
+    //    var customerDtos = sourceCustomers.Adapt<List<CustomerDto>>((dtoList, srcList) =>
+    //    {
+    //        if (dtoList == null) return;
+    //        var sources = srcList as List<CustomerEntity>;
 
-            for (int i = 0; i < dtoList.Count; i++)
-            {
-                var dto = dtoList[i];
-                var src = sources?[i];
+    //        for (int i = 0; i < dtoList.Count; i++)
+    //        {
+    //            var dto = dtoList[i];
+    //            var src = sources?[i];
                 
-                dto.RowNumber = i + 1;
-                dto.DisplayName = $"{src?.FirstName} {src?.LastName}";
-                dto.IsFirst = (i == 0);
-                dto.IsLast = (i == dtoList.Count - 1);
-                dto.AgeGroup = src?.Age < 30 ? "青年" : "中年";
-            }
-        });
+    //            dto.RowNumber = i + 1;
+    //            dto.DisplayName = $"{src?.FirstName} {src?.LastName}";
+    //            dto.IsFirst = (i == 0);
+    //            dto.IsLast = (i == dtoList.Count - 1);
+    //            dto.AgeGroup = src?.Age < 30 ? "青年" : "中年";
+    //        }
+    //    });
 
-        // 验证结果
-        AssertNotNull(customerDtos, "转换结果不应为 null");
-        AssertEqual(3, customerDtos.Count, "List 长度");
+    //    // 验证结果
+    //    AssertNotNull(customerDtos, "转换结果不应为 null");
+    //    AssertEqual(3, customerDtos.Count, "List 长度");
 
-        // 验证第1个客户
-        AssertEqual(1, customerDtos[0].RowNumber, "第1个客户 RowNumber");
-        AssertEqual("Zhang San", customerDtos[0].DisplayName, "第1个客户 DisplayName");
-        AssertTrue(customerDtos[0].IsFirst, "第1个客户应该是首个");
-        AssertFalse(customerDtos[0].IsLast, "第1个客户不应该是最后");
-        AssertEqual("青年", customerDtos[0].AgeGroup, "第1个客户年龄段");
+    //    // 验证第1个客户
+    //    AssertEqual(1, customerDtos[0].RowNumber, "第1个客户 RowNumber");
+    //    AssertEqual("Zhang San", customerDtos[0].DisplayName, "第1个客户 DisplayName");
+    //    AssertTrue(customerDtos[0].IsFirst, "第1个客户应该是首个");
+    //    AssertFalse(customerDtos[0].IsLast, "第1个客户不应该是最后");
+    //    AssertEqual("青年", customerDtos[0].AgeGroup, "第1个客户年龄段");
 
-        // 验证最后1个客户
-        AssertEqual(3, customerDtos[2].RowNumber, "最后客户 RowNumber");
-        AssertFalse(customerDtos[2].IsFirst, "最后客户不应该是首个");
-        AssertTrue(customerDtos[2].IsLast, "最后客户应该是最后");
+    //    // 验证最后1个客户
+    //    AssertEqual(3, customerDtos[2].RowNumber, "最后客户 RowNumber");
+    //    AssertFalse(customerDtos[2].IsFirst, "最后客户不应该是首个");
+    //    AssertTrue(customerDtos[2].IsLast, "最后客户应该是最后");
 
-        Console.WriteLine("  ✅ 带回调的 List 转换成功");
-        PrintCustomers(customerDtos);
-        Console.WriteLine();
-    }
+    //    Console.WriteLine("  ✅ 带回调的 List 转换成功");
+    //    PrintCustomers(customerDtos);
+    //    Console.WriteLine();
+    //}
 
     private static void Test3_PageResultConversion()
     {

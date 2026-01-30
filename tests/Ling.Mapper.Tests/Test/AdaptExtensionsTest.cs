@@ -190,9 +190,9 @@ namespace TestConsole.Test
             // 测试 6: 组合 Options + Callback（使用 Default 选项）
             var source6 = new { id = 7, first_NAME = "Bob", last_name = "Smith" };
             var target6 = source6.Adapt<CombinedTestTarget>(
-                (dest, src) =>
+                (dest) =>
                 {
-                    dest.FullName = $"{dest.FirstName} {dest.LastName}";
+                    dest.FullName = $"{source6.first_NAME} {source6.last_name}";
                 });
             
             AssertEqual("Bob", target6?.FirstName, "组合 - FirstName");
@@ -236,41 +236,53 @@ namespace TestConsole.Test
 
         private static void TestAdaptListWithCallback()
         {
-            Console.WriteLine("6. AdaptList 带回调测试");
+           
+                Console.WriteLine("6. AdaptList 带回调测试 (一次循环方案)");
 
-            var sourceList = new List<UserSource>
-            {
-                new UserSource { Id = 1, FirstName = "John", LastName = "Doe", Age = 30 },
-                new UserSource { Id = 2, FirstName = "Jane", LastName = "Smith", Age = 25 }
-            };
-
-            // Adapt 自动识别集合类型，在回调中处理索引
-            var targetList = sourceList.Adapt<List<UserTarget>>((list, src) =>
-            {
-                if (list == null) return;
-                var sources = src as List<UserSource>;
-                
-                for (int index = 0; index < list.Count; index++)
+                var sourceList = new List<UserSource>
                 {
-                    var dest = list[index];
-                    var source = sources?[index];
-                    if (dest != null && source != null)
-                    {
-                        dest.FullName = $"{source.FirstName} {source.LastName}";
-                        dest.RowNumber = index + 1;
-                        dest.IsAdult = source.Age >= 18;
-                    }
-                }
-            });
+                    new UserSource { Id = 1, FirstName = "John", LastName = "Doe", Age = 30 },
+                    new UserSource { Id = 2, FirstName = "Jane", LastName = "Smith", Age = 25 }
+                };
 
-            AssertEqual(2, targetList?.Count, "List 长度");
-            AssertEqual("John Doe", targetList?[0].FullName, "Item 0 - FullName");
-            AssertEqual(1, targetList?[0].RowNumber, "Item 0 - RowNumber");
-            AssertTrue(targetList?[0].IsAdult == true, "Item 0 - IsAdult");
-            AssertEqual("Jane Smith", targetList?[1].FullName, "Item 1 - FullName");
-            AssertEqual(2, targetList?[1].RowNumber, "Item 1 - RowNumber");
+                // 1. 【推荐方式】使用项级回调：只需传入两个类型。
+                // 底层在一次循环内映射完就立即执行此 Action，性能最高且代码最省。
+                int count = 0;
+                var targetList = sourceList.Adapt<UserTarget, UserSource>((dest, src) =>
+                {
+                    // 这里的 dest 是映射好的项，src 是对应的原始项
+                    dest.FullName = $"{src.FirstName} {src.LastName}";
+                    dest.RowNumber = ++count;
+                    dest.IsAdult = src.Age >= 18;
+                });
+
+                // 2. 【结果级回调】如果你确实想拿到整个 List 再处理：
+                var targetList1 = sourceList.Adapt<List<UserTarget>>(list =>
+                {
+                    // 这里的 list 已经是映射完成的非空列表
+                    for (int i = 0; i < list.Count; i++)
+                    {
+                        list[i].FullName += " (Verified)";
+                    }
+                });
+
+                AssertEqual(2, targetList.Count, "List 长度");
+                AssertEqual("John Doe", targetList[0].FullName, "Item 0 - FullName");
+                AssertEqual(1, targetList[0].RowNumber, "Item 0 - RowNumber");
+                AssertTrue(targetList[0].IsAdult, "Item 0 - IsAdult");
+                AssertEqual("Jane Smith", targetList?[1].FullName, "Item 1 - FullName");
+                AssertEqual(2, targetList?[1].RowNumber, "Item 1 - RowNumber");
 
             Console.WriteLine("  ✓ AdaptList 回调成功");
+            
+
+            //AssertEqual(2, targetList?.Count, "List 长度");
+            //AssertEqual("John Doe", targetList?[0].FullName, "Item 0 - FullName");
+            //AssertEqual(1, targetList?[0].RowNumber, "Item 0 - RowNumber");
+            //AssertTrue(targetList?[0].IsAdult == true, "Item 0 - IsAdult");
+          
+
+            //Console.WriteLine("  ✓ AdaptList 回调成功");
             Console.WriteLine();
         }
 

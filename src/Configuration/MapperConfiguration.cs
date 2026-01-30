@@ -1,8 +1,9 @@
 using System;
 using System.Collections.Generic;
+using Ling.Mapper.Mapper;
 using Ling.Mapper.Models;
 
-namespace Ling.Mapper
+namespace Ling.Mapper.Configuration
 {
     /// <summary>
     /// 映射器全局配置。

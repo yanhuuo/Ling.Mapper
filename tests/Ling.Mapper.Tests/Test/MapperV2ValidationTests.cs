@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Ling.Mapper;
 using Ling.Mapper.Extensions;
+using Ling.Mapper.Provider;
 
 namespace TestConsole.Test;
 

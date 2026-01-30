@@ -1,6 +1,8 @@
 using System;
+using Ling.Mapper.Configuration;
+using Ling.Mapper.Mapper;
 
-namespace Ling.Mapper
+namespace Ling.Mapper.Provider
 {
     /// <summary>
     /// 全局默认映射器提供者（可选组件）。
