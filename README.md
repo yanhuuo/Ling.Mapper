@@ -2,7 +2,7 @@
 
 [![NuGet](https://img.shields.io/nuget/v/Ling.Mapper.svg)](https://www.nuget.org/packages/Ling.Mapper/)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
-[![.NET](https://img.shields.io/badge/.NET-6.0+-blue)](https://dotnet.microsoft.com/)
+[![.NET](https://img.shields.io/badge/.NET-6.0%2b%20-8.0%20-9.0%20-10.0-blue)](https://dotnet.microsoft.com/)
 
 🚀 **轻量级、高性能的 .NET 对象映射库**
 

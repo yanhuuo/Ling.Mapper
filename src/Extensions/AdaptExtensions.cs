@@ -46,9 +46,7 @@ namespace Ling.Mapper.Extensions
          * ============================================================ */
 
         /// <summary>
-        /// 针对【测试 6】：source.Adapt&lt;Target&gt;((dest, src) => { ... })
-        /// 为了让编译器推导出匿名类型 TSource，必须显式声明两个泛型参数。
-        /// 在调用时，请使用：source.Adapt&lt;Target, dynamic&gt;((d, s) => { ... }) 或下面这个重载。
+        /// 匿名函数处理
         /// </summary>
         public static TDestination Adapt<TDestination, TSource>(this TSource source, Action<TDestination, TSource> afterMapItem)
         {

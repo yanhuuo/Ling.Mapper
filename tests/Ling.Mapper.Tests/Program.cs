@@ -60,6 +60,10 @@ while (true)
         case "D":
             LongToDateTimeDemo.Run();
             break;
+        case "i":
+        case "I":
+            IgnorePropertiesDemo.Run();
+            break;
         case "c":
         case "C":
             RunCircularReferenceTest();
@@ -121,10 +125,11 @@ void ShowTestMenu()
     Console.WriteLine("  9  - 嵌套属性映射测试 (A.B.C.D)");
     Console.WriteLine("  l  - List 类型转换测试 (List Conversion)");
     Console.WriteLine("  d  - long <-> DateTime 映射示例 (LongToDateTime Demo)");
+    Console.WriteLine("  i  - 忽略字段映射测试 (Ignore Properties)");
     Console.WriteLine("  c  - 循环引用详细测试 (Circular Reference)");
     Console.WriteLine("  0  - 运行所有测试 (Run All Tests)");
     Console.WriteLine("  q  - 退出 (Exit)");
-    Console.Write("\n选择 (1-9/l/d/c/0/q): ");
+    Console.Write("\n选择 (1-9/l/d/i/c/0/q): ");
 }
 
 // ============ 测试套件 ============
