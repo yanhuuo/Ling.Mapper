@@ -357,11 +357,43 @@ namespace Ling.Mapper.Mapper
             var list = (IList)Activator.CreateInstance(typeof(List<>).MakeGenericType(destElemType))!;
             foreach (var item in (IEnumerable)srcCollection)
             {
-                var mapped = MapObjectWithOptions(item, item?.GetType() ?? destElemType, destElemType, options, afterMapItem);
+                if (item == null)
+                {
+                    list.Add(null);
+                    continue;
+                }
+
+                var itemType = item.GetType();
+                // If the item is already assignable to the destination element type, add directly (covers string, same reference types etc.)
+                if (destElemType.IsAssignableFrom(itemType))
+                {
+                    list.Add(item);
+                    continue;
+                }
+
+                // For simple types try a Convert.ChangeType fallback to handle primitives/nullable conversions
+                if (TypeUtils.IsSimple(itemType) && TypeUtils.IsSimple(destElemType))
+                {
+                    try
+                    {
+                        var targetType = Nullable.GetUnderlyingType(destElemType) ?? destElemType;
+                        var converted = Convert.ChangeType(item, targetType);
+                        list.Add(converted);
+                        continue;
+                    }
+                    catch
+                    {
+                        list.Add(null);
+                        continue;
+                    }
+                }
+
+                var mapped = MapObjectWithOptions(item, itemType, destElemType, options, afterMapItem);
                 list.Add(mapped);
             }
             return destType.IsArray ? EnumerableToArray(list, destElemType) : list;
         }
+
 
         private object EnumerableToArray(IList list, Type elementType)
         {

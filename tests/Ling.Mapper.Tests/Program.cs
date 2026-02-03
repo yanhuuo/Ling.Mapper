@@ -56,6 +56,10 @@ while (true)
         case "L":
             RunListConversionTest();
             break;
+        case "p":
+        case "P":
+            ProductOnShelvesSelectTest.Run();
+            break;
         case "d":
         case "D":
             LongToDateTimeDemo.Run();
@@ -127,6 +131,7 @@ void ShowTestMenu()
     Console.WriteLine("  d  - long <-> DateTime 映射示例 (LongToDateTime Demo)");
     Console.WriteLine("  i  - 忽略字段映射测试 (Ignore Properties)");
     Console.WriteLine("  c  - 循环引用详细测试 (Circular Reference)");
+    Console.WriteLine("  p  - 循环引用详细测试 (Circular Reference)");
     Console.WriteLine("  0  - 运行所有测试 (Run All Tests)");
     Console.WriteLine("  q  - 退出 (Exit)");
     Console.Write("\n选择 (1-9/l/d/i/c/0/q): ");
