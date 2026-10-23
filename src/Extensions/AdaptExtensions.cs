@@ -34,6 +34,10 @@ namespace Ling.Mapper.Extensions
             /// </summary>
             public TDestination Adapt<TDestination>(string firstIgnore, params string[] otherIgnores)
             {
+                ArgumentNullException.ThrowIfNull(firstIgnore);
+                ArgumentNullException.ThrowIfNull(otherIgnores);
+                if (string.IsNullOrWhiteSpace(firstIgnore)) throw new ArgumentException("Ignored property name cannot be empty.", nameof(firstIgnore));
+                if (otherIgnores.Any(string.IsNullOrWhiteSpace)) throw new ArgumentException("Ignored property names cannot be null or empty.", nameof(otherIgnores));
                 var ignores = new string[otherIgnores.Length + 1];
                 ignores[0] = firstIgnore;
                 Array.Copy(otherIgnores, 0, ignores, 1, otherIgnores.Length);
@@ -50,8 +54,8 @@ namespace Ling.Mapper.Extensions
         /// </summary>
         public static TDestination Adapt<TDestination, TSource>(this TSource source, Action<TDestination, TSource> afterMapItem)
         {
-            // 逻辑处理
-            if (source == null) return CreateFallback<TDestination>()!;
+            ArgumentNullException.ThrowIfNull(afterMapItem);
+            if (source == null) return source.InternalAdapt<TDestination>(AdaptOptions.Default, null, null);
 
             var result = MapperProvider.Current.Map<TDestination>(source, AdaptOptions.Default, (d, s) =>
             {
@@ -66,7 +70,12 @@ namespace Ling.Mapper.Extensions
         /// 针对【结果级回调】：source.Adapt&lt;List&lt;Target&gt;&gt;(list => { ... })
         /// </summary>
         public static TDestination Adapt<TDestination>(this object? source, Action<TDestination> afterMap)
-            => source.InternalAdapt<TDestination>(AdaptOptions.Default, (d, _) => afterMap((TDestination)d), null);
+        {
+            ArgumentNullException.ThrowIfNull(afterMap);
+            var result = source.InternalAdapt<TDestination>(AdaptOptions.Default, null, null);
+            afterMap(result);
+            return result;
+        }
 
         /// <summary>
         /// 针对【集合项级回调】：sourceList.Adapt&lt;TargetItem, SourceItem&gt;((d, s) => { ... })
@@ -74,6 +83,7 @@ namespace Ling.Mapper.Extensions
         public static List<TTargetItem> Adapt<TTargetItem, TSourceItem>(this IEnumerable<TSourceItem> source, Action<TTargetItem, TSourceItem> afterMapItem)
             where TTargetItem : class, new()
         {
+            ArgumentNullException.ThrowIfNull(afterMapItem);
             if (source == null) return new List<TTargetItem>();
             return MapperProvider.Current.Map<List<TTargetItem>>(source, AdaptOptions.Default, (d, s) =>
             {
@@ -92,12 +102,10 @@ namespace Ling.Mapper.Extensions
             Action<object, object>? afterMap,
             string[]? ignores)
         {
+            // Generic Adapt shares IMapper's null policy. Only the explicitly typed
+            // collection-item overload above promises an empty list for a null source.
             if (source == null)
-            {
-                var empty = CreateFallback<TDestination>();
-                afterMap?.Invoke(empty!, new object());
-                return empty!;
-            }
+                return MapperProvider.Current.Map<TDestination>(null, options, afterMap, ignores)!;
 
             var result = MapperProvider.Current.Map<TDestination>(source, options, afterMap, ignores);
             return result ?? CreateFallback<TDestination>()!;

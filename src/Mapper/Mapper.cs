@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Collections.Concurrent;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -8,249 +7,274 @@ using Ling.Mapper.Helpers;
 using Ling.Mapper.Models;
 using Ling.Mapper.Utils;
 
-namespace Ling.Mapper.Mapper
+namespace Ling.Mapper.Mapper;
+
+// Reflection is used only while building plans. Interpretation is a fallback, not a
+// guarantee of NativeAOT/trimming compatibility; generated plans must preserve metadata.
+internal sealed partial class Mapper : IMapper
 {
-    /// <summary>
-    /// Ling.Mapper 核心映射器实现
-    /// 采用表达式树编译技术实现高性能对象映射，支持回调织入与动态字段忽略。
-    /// </summary>
-    internal sealed class Mapper : IMapper
+    private delegate object? MappingPlan(object source, Action<object, object>? callback, MappingContext context);
+    private readonly MapperConfiguration _config;
+    private sealed class PlanGeneration(long version)
     {
-        private readonly MapperConfiguration _config;
+        internal readonly long Version = version;
+        internal readonly ConcurrentDictionary<(Type, Type, AdaptOptionsKey), MappingPlan> Plans = new();
+    }
+    private PlanGeneration _generation = new(TypeConverterRegistry.Version);
+    private static readonly MethodInfo MapMemberMethod = typeof(Mapper).GetMethod(nameof(MapMember), BindingFlags.Instance | BindingFlags.NonPublic)!;
 
-        private readonly ConcurrentDictionary<(Type, Type, AdaptOptionsKey), Func<object, Action<object, object>?, object?>> _cache = new();
+    public Mapper(MapperConfiguration config)
+    {
+        _config = config ?? throw new ArgumentNullException(nameof(config));
+        ValidateOptions(GetDefaultOptions());
+        if (config.NullValueHandling is not NullValueHandling.UseDefault and not NullValueHandling.Throw)
+            throw new ArgumentOutOfRangeException(nameof(config.NullValueHandling));
+        if (config.MaxDiagnosticValueLength < 0)
+            throw new ArgumentOutOfRangeException(nameof(config.MaxDiagnosticValueLength));
+        foreach (var cfg in config.Configs)
+            _ = GetOrCompile(cfg.SourceType, cfg.DestType, GetDefaultOptions(), null);
+    }
 
-        private readonly ThreadLocal<HashSet<(Type, Type, AdaptOptionsKey)>> _compiling =
-            new(() => new HashSet<(Type, Type, AdaptOptionsKey)>());
+    public TDestination? Map<TDestination>(object? source) => Map<TDestination>(source, GetDefaultOptions());
+    public TDestination? Map<TDestination>(object? source, AdaptOptions options, Action<object, object>? afterMapItem = null, string[]? ignoreNames = null)
+    {
+        var result = Map(source, source?.GetType() ?? typeof(object), typeof(TDestination), options, afterMapItem, ignoreNames);
+        return result == null ? default : (TDestination)result;
+    }
+    public object? Map(object? source, Type sourceType, Type destType) => Map(source, sourceType, destType, GetDefaultOptions());
+    public object? Map(object? source, Type sourceType, Type destType, AdaptOptions options, Action<object, object>? afterMapItem = null, string[]? ignoreNames = null)
+    {
+        ArgumentNullException.ThrowIfNull(sourceType);
+        ArgumentNullException.ThrowIfNull(destType);
+        ValidateOptions(options);
+        if (source != null && !TypeUtils.IsSafelyAssignableValue(source, sourceType))
+            throw MappingException.Create(sourceType, destType, "$", source,
+                new InvalidCastException("Source value does not match the declared source type."), _config);
+        return MapValue(source, sourceType, destType, options, afterMapItem, ignoreNames, new MappingContext());
+    }
 
-        private readonly ThreadLocal<Dictionary<object, object>> _mappingContext =
-            new(() => new Dictionary<object, object>(ReferenceEqualityComparer.Instance));
+    private static void ValidateOptions(AdaptOptions options)
+    {
+        const AdaptOptions supported = AdaptOptions.IgnoreCase | AdaptOptions.IgnoreUnderscore | AdaptOptions.IgnoreNullValues;
+        if ((options & ~supported) != 0)
+            throw new ArgumentException("Mapping options contain unsupported flags.", nameof(options));
+    }
 
-        private static readonly MethodInfo MapObjectWithOptionsMethod =
-            typeof(Mapper).GetMethod(nameof(MapObjectWithOptions), BindingFlags.Instance | BindingFlags.NonPublic)!;
-        private static readonly MethodInfo MapCollectionWithOptionsMethod =
-            typeof(Mapper).GetMethod(nameof(MapCollectionInternalWithOptions), BindingFlags.Instance | BindingFlags.NonPublic)!;
-        private static readonly MethodInfo RegisterInContextMethod =
-            typeof(Mapper).GetMethod(nameof(RegisterInContext), BindingFlags.Instance | BindingFlags.NonPublic)!;
-
-        public Mapper(MapperConfiguration config)
-        {
-            _config = config ?? throw new ArgumentNullException(nameof(config));
-            PreheatProfiles();
-        }
-
-        private void PreheatProfiles()
-        {
-            var opt = GetDefaultOptions();
-            foreach (var cfg in _config.Configs)
-                _ = GetOrCompile(cfg.SourceType, cfg.DestType, opt, null);
-        }
-
-        #region IMapper 接口实现
-
-        public TDestination? Map<TDestination>(object? source)
-            => Map<TDestination>(source, GetDefaultOptions(), null, null);
-
-        public TDestination? Map<TDestination>(object? source, AdaptOptions options, Action<object, object>? afterMapItem = null, string[]? ignoreNames = null)
-        {
-            if (source == null) return default;
-            var mapper = GetOrCompile(source.GetType(), typeof(TDestination), options, ignoreNames);
-            var result = mapper(source, afterMapItem);
-            return result == null ? default : (TDestination)result;
-        }
-
-        public object? Map(object? source, Type sourceType, Type destType)
-            => Map(source, sourceType, destType, GetDefaultOptions(), null, null);
-
-        public object? Map(object? source, Type sourceType, Type destType, AdaptOptions options, Action<object, object>? afterMapItem = null, string[]? ignoreNames = null)
-        {
-            if (source == null) return null;
-            var mapper = GetOrCompile(sourceType, destType, options, ignoreNames);
-            return mapper(source, afterMapItem);
-        }
-
-        #endregion
-
-        #region 内部映射逻辑
-
-        private object? MapObjectWithOptions(object? source, Type sourceType, Type destType, AdaptOptions options, Action<object, object>? afterMapItem)
+    private object? MapValue(object? source, Type sourceType, Type destType, AdaptOptions options, Action<object, object>? callback, string[]? ignores, MappingContext context)
+    {
+        try
         {
             if (source == null)
             {
-                return destType.IsValueType && Nullable.GetUnderlyingType(destType) == null
-                    ? Activator.CreateInstance(destType) : null;
+                if (!destType.IsValueType || Nullable.GetUnderlyingType(destType) != null) return null;
+                if (_config.NullValueHandling == NullValueHandling.Throw) throw new InvalidCastException();
+                return DefaultValues.GetOrAdd(destType, t => CompileLambda(Expression.Lambda<Func<object>>(Expression.Convert(Expression.Default(t), typeof(object)))))();
             }
+            if (TypeUtils.IsSafelyAssignableValue(source, destType)) sourceType = source.GetType();
+            else if ((sourceType == typeof(object) || sourceType.IsInterface || sourceType.IsAbstract) &&
+                !TypeConverterRegistry.TryGetEffective(sourceType, destType, out _)) sourceType = source.GetType();
+            var result = GetOrCompile(sourceType, destType, options, ignores)(source, callback, context);
+            if (result != null && !(TypeUtils.IsCollection(sourceType) && TypeUtils.IsCollection(destType)))
+                callback?.Invoke(result, source);
+            return result;
+        }
+        catch (MappingException error) when (ReferenceEquals(error.Origin, context.Origin)) { throw; }
+        catch (Exception error) { throw MappingException.Create(sourceType, destType, context.GetPath(), source, error, _config, context.IsSensitive, context.Origin); }
+    }
+    private static readonly ConcurrentDictionary<Type, Func<object>> DefaultValues = new();
 
-            var needCycleCheck = !sourceType.IsValueType && !TypeUtils.IsSimple(sourceType) && !TypeUtils.IsSimple(destType);
-            if (needCycleCheck)
+    private object? MapMember(object? value, Type sourceType, Type destType, AdaptOptions options, string name, bool sensitive, MappingContext context)
+    {
+        context.Push(name, sensitive);
+        try { return MapValue(value, sourceType, destType, options, null, null, context); }
+        finally { context.Pop(); }
+    }
+
+    private MappingPlan GetOrCompile(Type sourceType, Type destType, AdaptOptions options, string[]? ignores)
+    {
+        var generation = System.Threading.Volatile.Read(ref _generation);
+        var version = TypeConverterRegistry.Version;
+        if (generation.Version != version)
+        {
+            var replacement = new PlanGeneration(version);
+            var observed = System.Threading.Interlocked.CompareExchange(ref _generation, replacement, generation);
+            generation = ReferenceEquals(observed, generation) ? replacement : observed;
+        }
+        var key = (sourceType, destType, new AdaptOptionsKey(options, ignores));
+        if (generation.Plans.TryGetValue(key, out var cached)) return cached;
+        return CompileMissingPlan(generation, sourceType, destType, options, ignores);
+    }
+
+    // Keep captured locals out of GetOrCompile entirely: a capturing lambda in its
+    // miss branch would still allocate a display class on every successful cache hit.
+    private MappingPlan CompileMissingPlan(PlanGeneration generation, Type sourceType, Type destType, AdaptOptions options, string[]? ignores)
+    {
+        // Capture only on misses. Retired generations remain alive only for in-flight calls.
+        var snapshot = ignores?.ToArray();
+        var key = (sourceType, destType, new AdaptOptionsKey(options, snapshot));
+        return generation.Plans.GetOrAdd(key, _ => BuildPlan(sourceType, destType, options, snapshot));
+    }
+
+    private MappingPlan BuildPlan(Type sourceType, Type destType, AdaptOptions options, string[]? ignores)
+    {
+        if (TypeUtils.IsSafelyAssignable(sourceType, destType)) return (value, callback, _) =>
+        {
+            if (callback != null && TypeUtils.IsCollection(sourceType) && TypeUtils.IsCollection(destType))
+                foreach (var item in (System.Collections.IEnumerable)value)
+                    if (item != null) callback(item, item);
+            return value;
+        };
+        if (TypeConverterRegistry.TryGetInvoker(sourceType, destType, out var convert)) return (value, _, _) => convert!(value);
+        // KeyValuePair has read-only members: treating dictionaries as ordinary
+        // collections would silently produce default keys and values.
+        if (TypeUtils.IsDictionary(sourceType) || TypeUtils.IsDictionary(destType))
+            return (_, _, _) => throw new NotSupportedException("Cross-type dictionary mapping requires an explicit registered converter.");
+        if (TypeUtils.IsSimple(sourceType) || TypeUtils.IsSimple(destType))
+            return (value, _, _) => ScalarConversion.Convert(value, destType);
+        if (TypeUtils.IsCollection(sourceType) || TypeUtils.IsCollection(destType))
+            return BuildCollectionPlan(sourceType, destType, options, ignores);
+        if (GeneratedMapperFactoryProxy.TryGetMapper(sourceType, destType, out var generated) && generated != null && ignores == null)
+            return (value, _, _) => generated(value);
+        return BuildObjectPlan(sourceType, destType, options, ignores);
+    }
+
+    private MappingPlan BuildObjectPlan(Type srcType, Type destType, AdaptOptions options, string[]? ignoreNames)
+    {
+        if (destType.IsValueType && !destType.GetProperties(BindingFlags.Public | BindingFlags.Instance)
+            .Any(property => property.SetMethod?.IsPublic == true && !property.SetMethod.IsStatic && property.GetIndexParameters().Length == 0))
+            return (_, _, _) => throw new NotSupportedException("Mapping to an immutable or empty struct requires an explicit registered converter.");
+        if (destType.IsAbstract || destType.IsInterface || (!destType.IsValueType && destType.GetConstructor(Type.EmptyTypes) == null))
+            return (_, _, _) => _config.StrictMode
+                ? throw new InvalidOperationException("Destination requires a public parameterless constructor.")
+                : null;
+        var cfg = _config.Configs.FirstOrDefault(c => c.SourceType == srcType && c.DestType == destType);
+        var rules = cfg == null ? null : new MappingExpressionBase(cfg.ExpressionObject);
+        var ignoreCase = options.HasFlag(AdaptOptions.IgnoreCase);
+        var ignoreUnderscore = options.HasFlag(AdaptOptions.IgnoreUnderscore);
+        var srcObj = Expression.Parameter(typeof(object), "source");
+        var callback = Expression.Parameter(typeof(Action<object, object>), "callback");
+        var context = Expression.Parameter(typeof(MappingContext), "context");
+        var src = Expression.Convert(srcObj, srcType);
+        var dest = Expression.Variable(destType, "destination");
+        var body = new List<Expression> { Expression.Assign(dest, Expression.New(destType)) };
+        var needsReferenceTracking = false;
+        var properties = BuildSourcePropertyMap(srcType.GetProperties().Where(p => p.GetMethod?.IsPublic == true && !p.GetMethod.IsStatic && p.GetIndexParameters().Length == 0).ToArray(), ignoreCase, ignoreUnderscore);
+        foreach (var property in destType.GetProperties().Where(p => p.SetMethod?.IsPublic == true && !p.SetMethod.IsStatic && p.GetIndexParameters().Length == 0))
+        {
+            if (rules?.IsIgnored(property.Name) == true || ignoreNames?.Contains(property.Name) == true) continue;
+            Expression? value;
+            Type? valueType;
+            var sensitive = MappingException.IsSensitivePath(property.Name);
+            var custom = rules?.GetCustomBinding(property.Name);
+            if (custom != null)
             {
-                var ctx = _mappingContext.Value!;
-                if (ctx.TryGetValue(source, out var cached)) return cached;
-
-                ctx[source] = null!;
-                var mapper = GetOrCompile(sourceType, destType, options, null);
-                var result = mapper(source, afterMapItem);
-                ctx[source] = result!;
+                value = new ParameterSubstitution(custom.Parameters[0], src).Visit(custom.Body)!;
+                valueType = custom.ReturnType;
+                sensitive |= MappingException.IsSensitivePath(custom.Body.ToString());
+            }
+            else
+            {
+                var name = rules?.GetRenamedSource(property.Name) ?? property.Name;
+                sensitive |= MappingException.IsSensitivePath(name);
+                if (name.Contains('.')) value = BuildNullSafeNestedAccess(src, srcType, name, ignoreCase, ignoreUnderscore, out valueType);
+                else if (properties.TryGetValue(NormalizeNameStatic(name, ignoreCase, ignoreUnderscore), out var sp)) { value = Expression.Property(src, sp); valueType = sp.PropertyType; }
+                else continue;
+                if (value == null) continue;
+            }
+            needsReferenceTracking |= !TypeUtils.IsSafelyAssignable(valueType!, property.PropertyType) &&
+                !TypeUtils.IsSimple(valueType!) && !TypeUtils.IsSimple(property.PropertyType) &&
+                !TypeConverterRegistry.TryGetEffective(valueType!, property.PropertyType, out _);
+            var temporary = Expression.Variable(valueType!, "value");
+            var converted = BuildMemberConversion(temporary, property.PropertyType, options, property.Name, sensitive, context);
+            Expression assignment = Expression.Assign(Expression.Property(dest, property), converted);
+            if (options.HasFlag(AdaptOptions.IgnoreNullValues) && (!valueType!.IsValueType || Nullable.GetUnderlyingType(valueType) != null))
+                assignment = Expression.IfThen(Expression.NotEqual(temporary, Expression.Default(valueType)), assignment);
+            var error = Expression.Parameter(typeof(Exception), "error");
+            var fail = Expression.Call(Expression.Constant(this), nameof(MemberFailure), null, error,
+                Expression.Constant(valueType!, typeof(Type)), Expression.Constant(property.PropertyType),
+                Expression.Constant(property.Name), Expression.Constant(sensitive), Expression.Convert(temporary, typeof(object)), context);
+            // Typed locals avoid boxing on direct assignments and numeric conversions.
+            // Evaluate each getter once; build the full path only when an exception occurs.
+            var readFailure = Expression.Call(Expression.Constant(this), nameof(MemberFailure), null, error,
+                Expression.Constant(custom != null ? srcType : valueType!, typeof(Type)), Expression.Constant(property.PropertyType),
+                Expression.Constant(property.Name), Expression.Constant(sensitive), Expression.Constant(null, typeof(object)), context);
+            var read = Expression.TryCatch(Expression.Assign(temporary, value), Expression.Catch(error, Expression.Throw(readFailure, valueType!)));
+            var operation = Expression.Block(assignment, Expression.Empty());
+            body.Add(Expression.Block(new[] { temporary }, read, Expression.TryCatch(operation,
+                Expression.Catch(error, Expression.Throw(fail)))));
+        }
+        body.Add(Expression.Convert(dest, typeof(object)));
+        if (needsReferenceTracking)
+            body.Insert(1, Expression.Call(context, nameof(MappingContext.Register), null, srcObj, Expression.Constant(destType), Expression.Convert(dest, typeof(object))));
+        var compiled = CompileLambda(Expression.Lambda<MappingPlan>(Expression.Block(new[] { dest }, body), srcObj, callback, context));
+        return needsReferenceTracking
+            ? (source, cb, ctx) => ctx.TryGet(source, destType, out var existing) ? existing : compiled(source, cb, ctx)
+            : (source, cb, ctx) =>
+            {
+                if (ctx.TryGet(source, destType, out var existing)) return existing;
+                var result = compiled(source, cb, ctx);
+                if (ctx.HasReferences && result != null) ctx.Register(source, destType, result);
                 return result;
-            }
-
-            return GetOrCompile(sourceType, destType, options, null)(source, afterMapItem);
-        }
-
-        private void RegisterInContext(object source, object destination, Type sourceType)
+            };
+    }
+    private Expression BuildMemberConversion(Expression value, Type destination, AdaptOptions options, string name, bool sensitive, ParameterExpression context)
+    {
+        var source = value.Type;
+        if (TypeUtils.IsSafelyAssignable(source, destination)) return Expression.Convert(value, destination);
+        var fallback = Expression.Convert(Expression.Call(Expression.Constant(this), MapMemberMethod, Expression.Convert(value, typeof(object)),
+            Expression.Constant(source), Expression.Constant(destination), Expression.Constant(options), Expression.Constant(name), Expression.Constant(sensitive), context), destination);
+        // Runtime assignability wins over rules even when a member is declared object
+        // or an interface. MapValue also resolves its concrete runtime mapping type.
+        if (source == typeof(object) || source.IsInterface || source.IsAbstract) return fallback;
+        Expression converted;
+        if (TypeConverterRegistry.TryGetEffective(source, destination, out var converter))
         {
-            if (source == null || destination == null) return;
-            if (!sourceType.IsValueType && !TypeUtils.IsSimple(sourceType))
-            {
-                var ctx = _mappingContext.Value;
-                if (ctx != null && !ctx.ContainsKey(source)) ctx[source] = destination;
-            }
+            var parameterType = converter!.GetType().GetMethod("Invoke")!.GetParameters()[0].ParameterType;
+            converted = Expression.Convert(Expression.Invoke(Expression.Constant(converter), Expression.Convert(value, parameterType)), destination);
         }
-
-        #endregion
-
-        #region 表达式编译核心
-
-        private Func<object, Action<object, object>?, object?> GetOrCompile(Type srcType, Type destType, AdaptOptions options, string[]? ignoreNames)
+        else if (TypeUtils.IsSimple(source) && TypeUtils.IsSimple(destination))
         {
-            var key = (srcType, destType, new AdaptOptionsKey(options, ignoreNames));
-            if (_cache.TryGetValue(key, out var cached)) return cached;
-
-            var compiling = _compiling.Value!;
-            if (!compiling.Add(key)) return (_, _) => null;
-
-            try
-            {
-                return _cache.GetOrAdd(key, _ =>
-                {
-                    if (ignoreNames == null)
-                    {
-                        if (GeneratedMapperFactoryProxy.TryGetMapper(srcType, destType, out var gen) && gen != null)
-                            return (s, _) => gen(s);
-                    }
-
-                    if (IsCollectionButNotString(srcType) && IsCollectionButNotString(destType))
-                        return (src, cb) => MapCollectionInternalWithOptions(src, srcType, destType, options, cb, ignoreNames);
-
-                    var config = _config.Configs.FirstOrDefault(c => c.SourceType == srcType && c.DestType == destType);
-                    return CompileMapperToObjectFunc(srcType, destType, options, config, ignoreNames);
-                });
-            }
-            finally { compiling.Remove(key); }
+            var actualSource = Nullable.GetUnderlyingType(source) ?? source;
+            var actualDestination = Nullable.GetUnderlyingType(destination) ?? destination;
+            Expression input = Nullable.GetUnderlyingType(source) != null ? Expression.Property(value, "Value") : value;
+            var numericMethod = TypeUtils.IsNumeric(actualSource) && TypeUtils.IsNumeric(actualDestination)
+                ? typeof(Convert).GetMethod("To" + actualDestination.Name, new[] { actualSource }) : null;
+            converted = numericMethod != null
+                ? Expression.Convert(Expression.Call(numericMethod, input), destination)
+                : Expression.Convert(Expression.Call(typeof(ScalarConversion), nameof(ScalarConversion.Convert), null,
+                    Expression.Convert(input, typeof(object)), Expression.Constant(destination)), destination);
         }
-
-        private Func<object, Action<object, object>?, object?> CompileMapperToObjectFunc(Type srcType, Type destType, AdaptOptions options, IMappingConfig? cfg, string[]? ignoreNames)
-        {
-            var ctor = destType.GetConstructor(Type.EmptyTypes);
-            if (ctor == null && !destType.IsValueType)
-            {
-                if (_config.StrictMode) throw new InvalidOperationException($"类型 {destType.FullName} 没有无参构造函数");
-                return (_, _) => null;
-            }
-
-            var ignoreCase = options.HasFlag(AdaptOptions.IgnoreCase);
-            var ignoreUnderscore = options.HasFlag(AdaptOptions.IgnoreUnderscore);
-            var ignoreNullValues = options.HasFlag(AdaptOptions.IgnoreNullValues);
-            var exprBase = cfg != null ? new MappingExpressionBase(cfg.ExpressionObject) : null;
-            var finalIgnores = ignoreNames ?? Array.Empty<string>();
-
-            var srcObj = Expression.Parameter(typeof(object), "srcObj");
-            var callback = Expression.Parameter(typeof(Action<object, object>), "cb");
-            var srcTyped = Expression.Convert(srcObj, srcType);
-            var destVar = Expression.Variable(destType, "dest");
-
-            var body = new List<Expression> { Expression.Assign(destVar, Expression.New(destType)) };
-
-            if (!srcType.IsValueType && !TypeUtils.IsSimple(srcType) && !TypeUtils.IsSimple(destType))
-            {
-                body.Add(Expression.Call(Expression.Constant(this), RegisterInContextMethod,
-                    srcObj, Expression.Convert(destVar, typeof(object)), Expression.Constant(srcType, typeof(Type))));
-            }
-
-            var srcProps = srcType.GetProperties(BindingFlags.Public | BindingFlags.Instance).Where(p => p.CanRead && p.GetIndexParameters().Length == 0).ToArray();
-            var destProps = destType.GetProperties(BindingFlags.Public | BindingFlags.Instance).Where(p => p.CanWrite && p.GetIndexParameters().Length == 0).ToArray();
-            var srcMap = BuildSourcePropertyMap(srcProps, ignoreCase, ignoreUnderscore);
-
-            foreach (var dp in destProps)
-            {
-                if (exprBase?.IsIgnored(dp.Name) == true || finalIgnores.Contains(dp.Name)) continue;
-
-                var srcName = exprBase?.GetRenamedSource(dp.Name) ?? dp.Name;
-                Expression? srcValueExpr;
-                Type srcValueType;
-
-                if (srcName.IndexOf('.') >= 0)
-                {
-                    srcValueExpr = BuildNullSafeNestedAccess(srcTyped, srcType, srcName, ignoreCase, ignoreUnderscore, out var finalType);
-                    if (srcValueExpr == null) continue;
-                    srcValueType = finalType!;
-                }
-                else
-                {
-                    if (!srcMap.TryGetValue(NormalizeNameStatic(srcName, ignoreCase, ignoreUnderscore), out var sp)) continue;
-                    srcValueExpr = Expression.Property(srcTyped, sp);
-                    srcValueType = sp.PropertyType;
-                }
-
-                Expression? valueConverted = null;
-
-                if (IsCollectionButNotString(srcValueType) && IsCollectionButNotString(dp.PropertyType))
-                {
-                    var call = Expression.Call(Expression.Constant(this), MapCollectionWithOptionsMethod,
-                        Expression.Convert(srcValueExpr, typeof(object)),
-                        Expression.Constant(srcValueType, typeof(Type)),
-                        Expression.Constant(dp.PropertyType, typeof(Type)),
-                        Expression.Constant(options),
-                        Expression.Constant(null, typeof(Action<object, object>)),
-                        Expression.Constant(null, typeof(string[])));
-
-                    valueConverted = !srcValueType.IsValueType
-                        ? Expression.Condition(Expression.Equal(Expression.Convert(srcValueExpr, typeof(object)), Expression.Constant(null)), Expression.Default(dp.PropertyType), Expression.Convert(call, dp.PropertyType))
-                        : (Expression)Expression.Convert(call, dp.PropertyType);
-                }
-                else if (TypeUtils.IsSimple(srcValueType) && TypeUtils.IsSimple(dp.PropertyType))
-                {
-                    valueConverted = ConvertValueExpression(srcValueExpr, srcValueType, dp.PropertyType);
-                }
-                else
-                {
-                    valueConverted = Expression.Convert(Expression.Call(Expression.Constant(this), MapObjectWithOptionsMethod,
-                        Expression.Convert(srcValueExpr, typeof(object)),
-                        Expression.Constant(srcValueType, typeof(Type)),
-                        Expression.Constant(dp.PropertyType, typeof(Type)),
-                        Expression.Constant(options),
-                        Expression.Constant(null, typeof(Action<object, object>))), dp.PropertyType);
-                }
-
-                if (valueConverted == null) continue;
-
-                if (ignoreNullValues && !dp.PropertyType.IsValueType)
-                {
-                    var destProp = Expression.Property(destVar, dp);
-                    valueConverted = Expression.Condition(Expression.Equal(Expression.Convert(valueConverted, typeof(object)), Expression.Constant(null, typeof(object))), destProp, valueConverted);
-                }
-
-                body.Add(Expression.Assign(Expression.Property(destVar, dp), valueConverted));
-            }
-
-            body.Add(Expression.IfThen(
-                Expression.NotEqual(callback, Expression.Constant(null)),
-                Expression.Invoke(callback, Expression.Convert(destVar, typeof(object)), srcObj)
-            ));
-            body.Add(destVar);
-
-            var lambda = Expression.Lambda<Func<object, Action<object, object>?, object?>>(
-                Expression.Convert(Expression.Block(new[] { destVar }, body), typeof(object)), srcObj, callback);
-
-            return CompileLambda(lambda);
-        }
-
+        else return fallback;
+        if (!source.IsValueType || Nullable.GetUnderlyingType(source) != null)
+            converted = Expression.Condition(Expression.Equal(value, Expression.Default(source)), fallback, converted);
+        // A concrete base-class member may already contain the requested derived type.
+        // Keep its registered converter inline, but preserve actual-assignment priority.
+        if (!source.IsValueType && !source.IsSealed && !destination.IsValueType)
+            converted = Expression.Condition(Expression.Call(typeof(TypeUtils), nameof(TypeUtils.IsSafelyAssignableValue), null, Expression.Convert(value, typeof(object)), Expression.Constant(destination)),
+                Expression.Convert(Expression.Convert(value, typeof(object)), destination), converted);
+        return converted;
+    }
+    private MappingException MemberFailure(Exception error, Type sourceType, Type destType, string name, bool sensitive, object? value, MappingContext context)
+    {
+        if (error is MappingException mapped && ReferenceEquals(mapped.Origin, context.Origin)) return mapped;
+        context.Push(name, sensitive);
+        try { return MappingException.Create(sourceType, destType, context.GetPath(), value, error, _config, context.IsSensitive, context.Origin); }
+        finally { context.Pop(); }
+    }
+    private sealed class ParameterSubstitution(ParameterExpression parameter, Expression replacement) : ExpressionVisitor
+    {
+        protected override Expression VisitParameter(ParameterExpression node) => node == parameter ? replacement : base.VisitParameter(node);
+    }
+    private static T CompileLambda<T>(Expression<T> lambda) where T : Delegate
+        => RuntimeFeature.IsDynamicCodeSupported ? lambda.Compile() : lambda.Compile(preferInterpretation: true);
         private static Expression? BuildNullSafeNestedAccess(Expression src, Type srcType, string path, bool ignoreCase, bool ignoreUnderscore, out Type? finalType)
         {
             finalType = null;
             Expression currentExpr = src;
             Type currentType = srcType;
             var segments = path.Split('.');
+            var locals = new List<ParameterExpression>();
+            var steps = new List<Expression>();
 
             foreach (var seg in segments)
             {
@@ -269,146 +293,16 @@ namespace Ling.Mapper.Mapper
                         accessExpr
                     );
                 }
-                currentExpr = accessExpr;
+                var local = Expression.Variable(prop.PropertyType, "nested");
+                locals.Add(local);
+                steps.Add(Expression.Assign(local, accessExpr));
+                currentExpr = local;
                 currentType = prop.PropertyType;
             }
             finalType = currentType;
-            return currentExpr;
+            steps.Add(currentExpr);
+            return Expression.Block(locals, steps);
         }
-
-        private static Expression? ConvertValueExpression(Expression value, Type srcType, Type destType)
-        {
-            var srcUnderlying = Nullable.GetUnderlyingType(srcType);
-            var destUnderlying = Nullable.GetUnderlyingType(destType);
-            var actualSrc = srcUnderlying ?? srcType;
-            var actualDest = destUnderlying ?? destType;
-
-            if (destType.IsAssignableFrom(srcType)) return Expression.Convert(value, destType);
-
-            if (TypeUtils.IsNumeric(actualSrc) && TypeUtils.IsNumeric(actualDest))
-            {
-                Expression valExpr = srcUnderlying != null ? Expression.Property(value, "Value") : value;
-                Expression convExpr = Expression.Convert(valExpr, actualDest);
-                if (destUnderlying != null) convExpr = Expression.Convert(convExpr, destType);
-                if (srcUnderlying != null)
-                {
-                    return Expression.Condition(Expression.Property(value, "HasValue"), convExpr, Expression.Default(destType));
-                }
-                return convExpr;
-            }
-
-            if (actualSrc.IsEnum || actualDest.IsEnum)
-            {
-                if (actualSrc == typeof(string) || actualDest == typeof(string))
-                    return BuildEnumStringConversion(value, srcType, destType, actualSrc, actualDest);
-
-                if (TypeUtils.IsNumeric(actualSrc) || TypeUtils.IsNumeric(actualDest))
-                {
-                    Expression val = srcUnderlying != null ? Expression.Property(value, "Value") : value;
-                    Expression conv = Expression.Convert(Expression.Convert(val, actualDest), destType);
-                    if (srcUnderlying != null)
-                    {
-                        return Expression.Condition(Expression.Property(value, "HasValue"), conv, Expression.Default(destType));
-                    }
-                    return conv;
-                }
-            }
-            return null;
-        }
-
-        private static Expression BuildEnumStringConversion(Expression value, Type srcType, Type destType, Type actualSrc, Type actualDest)
-        {
-            var srcIsNullable = Nullable.GetUnderlyingType(srcType) != null;
-            var destIsNullable = Nullable.GetUnderlyingType(destType) != null;
-
-            if (actualSrc.IsEnum && actualDest == typeof(string))
-            {
-                var toStringMethod = typeof(object).GetMethod(nameof(ToString))!;
-                if (srcIsNullable)
-                {
-                    return Expression.Condition(Expression.Property(value, "HasValue"),
-                        Expression.Call(Expression.Convert(Expression.Property(value, "Value"), typeof(object)), toStringMethod),
-                        Expression.Constant(null, typeof(string)));
-                }
-                return Expression.Call(Expression.Convert(value, typeof(object)), toStringMethod);
-            }
-
-            if (actualSrc == typeof(string) && actualDest.IsEnum)
-            {
-                var parseMethod = typeof(Enum).GetMethod(nameof(Enum.Parse), new[] { typeof(Type), typeof(string), typeof(bool) })!;
-                var parseCall = Expression.Convert(Expression.Call(parseMethod, Expression.Constant(actualDest), value, Expression.Constant(true)), actualDest);
-                Expression finalExpr = destIsNullable ? Expression.Convert(parseCall, destType) : parseCall;
-                var isNullOrEmpty = Expression.Call(typeof(string).GetMethod(nameof(string.IsNullOrEmpty))!, value);
-                return Expression.Condition(isNullOrEmpty, Expression.Default(destType), finalExpr);
-            }
-            return Expression.Default(destType);
-        }
-
-        #endregion
-
-        #region 集合映射处理
-
-        private object? MapCollectionInternalWithOptions(object? srcCollection, Type srcType, Type destType, AdaptOptions options, Action<object, object>? afterMapItem, string[]? ignoreNames)
-        {
-            if (srcCollection == null) return null;
-            var destElemType = TypeUtils.GetElementType(destType);
-            if (destElemType == null) return null;
-
-            var list = (IList)Activator.CreateInstance(typeof(List<>).MakeGenericType(destElemType))!;
-            foreach (var item in (IEnumerable)srcCollection)
-            {
-                if (item == null)
-                {
-                    list.Add(null);
-                    continue;
-                }
-
-                var itemType = item.GetType();
-                // If the item is already assignable to the destination element type, add directly (covers string, same reference types etc.)
-                if (destElemType.IsAssignableFrom(itemType))
-                {
-                    list.Add(item);
-                    continue;
-                }
-
-                // For simple types try a Convert.ChangeType fallback to handle primitives/nullable conversions
-                if (TypeUtils.IsSimple(itemType) && TypeUtils.IsSimple(destElemType))
-                {
-                    try
-                    {
-                        var targetType = Nullable.GetUnderlyingType(destElemType) ?? destElemType;
-                        var converted = Convert.ChangeType(item, targetType);
-                        list.Add(converted);
-                        continue;
-                    }
-                    catch
-                    {
-                        list.Add(null);
-                        continue;
-                    }
-                }
-
-                var mapped = MapObjectWithOptions(item, itemType, destElemType, options, afterMapItem);
-                list.Add(mapped);
-            }
-            return destType.IsArray ? EnumerableToArray(list, destElemType) : list;
-        }
-
-
-        private object EnumerableToArray(IList list, Type elementType)
-        {
-            var method = typeof(Enumerable).GetMethod("ToArray")!.MakeGenericMethod(elementType);
-            return method.Invoke(null, new object[] { list })!;
-        }
-
-        #endregion
-
-        #region 辅助工具
-
-        private static bool IsCollectionButNotString(Type type) => type != typeof(string) && typeof(IEnumerable).IsAssignableFrom(type);
-
-        private static T CompileLambda<T>(Expression<T> lambda) where T : Delegate
-            => RuntimeFeature.IsDynamicCodeSupported ? lambda.Compile() : lambda.Compile(preferInterpretation: true);
 
         private static Dictionary<string, PropertyInfo> BuildSourcePropertyMap(PropertyInfo[] props, bool ignoreCase, bool ignoreUnderscore)
         {
@@ -432,6 +326,4 @@ namespace Ling.Mapper.Mapper
 
         private AdaptOptions GetDefaultOptions() => _config.DefaultAdaptOptions ?? AdaptOptions.Default;
 
-        #endregion
-    }
 }

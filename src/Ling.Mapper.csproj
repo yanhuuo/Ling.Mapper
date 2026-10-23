@@ -2,7 +2,7 @@
 
 	<PropertyGroup>
 		<!-- 包版本 -->
-		<Version>1.1.3</Version>
+		<Version>1.2.0</Version>
 
 
 		<!-- 多目标框架 -->
@@ -24,7 +24,7 @@
 		<PackageId>Ling.Mapper</PackageId>
 		<Authors>yanhuuo</Authors>
 		<Company>Mapper</Company>
-		<Description>轻量级 Fluent 风格对象映射器（Fluent Object Mapper），支持多层级映射、链式 API、AOT、DI 注入、运行时映射规则配置。</Description>
+		<Description>轻量级 Fluent 风格对象映射器（Fluent Object Mapper），支持多层级映射、链式 API、DI 注入、运行时映射规则配置。</Description>
 
 		<!-- 仓库地址（建议用 GitHub） -->
 		<RepositoryUrl>https://github.com/yanhuuo/Ling.Mapper</RepositoryUrl>
@@ -41,7 +41,7 @@
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 
 		<!-- Tag 提升 NuGet 搜索曝光 -->
-		<PackageTags>mapper;map;fluent;automapper;object-mapper;AOT;DI;adapt</PackageTags>
+		<PackageTags>mapper;map;fluent;automapper;object-mapper;DI;adapt</PackageTags>
 
 		<!-- 构建时是否自动打包（CI 用 false 正确） -->
 		<GeneratePackageOnBuild>false</GeneratePackageOnBuild>

@@ -53,9 +53,18 @@ namespace Ling.Mapper.Configuration
 
         /// <summary>
         /// 是否启用严格模式，默认为 false。
-        /// 若为 true，未匹配的属性将在映射时抛出异常。
+        /// 若为 true，目标对象缺少可用无参构造函数时抛出映射异常；否则该对象映射返回 null。
+        /// 此选项不改变未匹配属性的默认忽略行为，也不抑制标量转换错误。
         /// </summary>
         public bool StrictMode { get; set; } = false;
+
+        /// <summary>How null values map to non-nullable destinations. Defaults to UseDefault.</summary>
+        public NullValueHandling NullValueHandling { get; set; } = NullValueHandling.UseDefault;
+        /// <summary>Include a bounded safe scalar preview in mapping errors. Defaults to false.
+        /// Sensitive paths, byte arrays and complex values are always redacted.</summary>
+        public bool IncludeSourceValueInExceptions { get; set; }
+        /// <summary>Maximum length of a diagnostic scalar preview. Defaults to 128.</summary>
+        public int MaxDiagnosticValueLength { get; set; } = 128;
 
         /// <summary>
         /// 添加一个映射配置 Profile。
@@ -110,6 +119,10 @@ namespace Ling.Mapper.Configuration
         /// <returns>IMapper 实例。</returns>
         public IMapper CreateMapper()
         {
+            if (NullValueHandling != NullValueHandling.UseDefault && NullValueHandling != NullValueHandling.Throw)
+                throw new ArgumentOutOfRangeException(nameof(NullValueHandling));
+            if (MaxDiagnosticValueLength < 0)
+                throw new ArgumentOutOfRangeException(nameof(MaxDiagnosticValueLength));
             BuildGlobalConventions();
             return new Mapper.Mapper(this);
         }

@@ -8,15 +8,26 @@ namespace TestConsole.Utils;
 /// </summary>
 public static class TestHelper
 {
+    public static int Assertions { get; private set; }
+    public static int FailedAssertions { get; private set; }
+    public static void ResetResults() { Assertions = 0; FailedAssertions = 0; }
+    public static void RecordFailure(string message)
+    {
+        FailedAssertions++;
+        Console.WriteLine($"  ❌ {message}");
+    }
+
     /// <summary>
     /// 断言两个值相等
     /// </summary>
     public static void AssertEqual<T>(T expected, T actual, string message)
     {
+        Assertions++;
         if (!Equals(expected, actual))
         {
             var error = $"断言失败: {message}\n  期望: {expected}\n  实际: {actual}";
             Console.WriteLine($"  ❌ {error}");
+            FailedAssertions++;
             throw new Exception(error);
         }
     }
@@ -26,10 +37,12 @@ public static class TestHelper
     /// </summary>
     public static void AssertTrue(bool condition, string message)
     {
+        Assertions++;
         if (!condition)
         {
             var error = $"断言失败: {message}";
             Console.WriteLine($"  ❌ {error}");
+            FailedAssertions++;
             throw new Exception(error);
         }
     }
@@ -39,10 +52,12 @@ public static class TestHelper
     /// </summary>
     public static void AssertFalse(bool condition, string message)
     {
+        Assertions++;
         if (condition)
         {
             var error = $"断言失败: {message}";
             Console.WriteLine($"  ❌ {error}");
+            FailedAssertions++;
             throw new Exception(error);
         }
     }
@@ -52,10 +67,12 @@ public static class TestHelper
     /// </summary>
     public static void AssertNull<T>(T? obj, string message) where T : class
     {
+        Assertions++;
         if (obj != null)
         {
             var error = $"断言失败: {message}\n  期望: null\n  实际: {obj}";
             Console.WriteLine($"  ❌ {error}");
+            FailedAssertions++;
             throw new Exception(error);
         }
     }
@@ -65,10 +82,12 @@ public static class TestHelper
     /// </summary>
     public static void AssertNotNull<T>(T obj, string message) where T : class
     {
+        Assertions++;
         if (obj == null)
         {
             var error = $"断言失败: {message} - 对象为 null";
             Console.WriteLine($"  ❌ {error}");
+            FailedAssertions++;
             throw new Exception(error);
         }
     }
@@ -87,6 +106,7 @@ public static class TestHelper
     public static void PrintActualExpected(string label, object? actual, object? expected)
     {
         Console.WriteLine($"  ? {label}: {actual} (期望: {expected})");
+        AssertEqual(expected, actual, label);
     }
 
     /// <summary>
@@ -111,6 +131,7 @@ public static class TestHelper
     /// </summary>
     public static bool RunTest(Action testAction, string testName)
     {
+        int failuresBefore = FailedAssertions;
         try
         {
             testAction();
@@ -119,7 +140,8 @@ public static class TestHelper
         }
         catch (Exception ex)
         {
-            PrintError($"{testName} 失败: {ex.Message}");
+            if (FailedAssertions == failuresBefore) RecordFailure($"{testName} 失败: {ex.Message}");
+            else PrintError($"{testName} 失败: {ex.Message}");
             return false;
         }
     }

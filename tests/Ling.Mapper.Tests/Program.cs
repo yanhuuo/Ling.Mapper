@@ -7,6 +7,12 @@ using Ling.Mapper.Configuration;
 using Ling.Mapper.Provider;
 using TestConsole.Test;
 
+if (args.Length > 0)
+{
+    Environment.ExitCode = TestConsole.Utils.RegressionRunner.Run(args, InitializeMapper);
+    return;
+}
+
 Console.WriteLine("╔═══════════════════════════════════════════════════════════════╗");
 Console.WriteLine("║         Ling.Mapper v2 - Comprehensive Test Suite            ║");
 Console.WriteLine("╚═══════════════════════════════════════════════════════════════╝");
@@ -22,6 +28,7 @@ while (true)
     ShowTestMenu();
 
     var choice = Console.ReadLine();
+    if (choice == null) return;
 
     switch (choice)
     {
@@ -325,33 +332,5 @@ void RunStressTests()
 
 void RunAllTests()
 {
-    Console.WriteLine("\n╔═══════════════════════════════════════╗");
-    Console.WriteLine("║    运行所有测试 (Run All Tests)        ║");
-    Console.WriteLine("╚═══════════════════════════════════════╝\n");
-
-    var totalSw = Stopwatch.StartNew();
-
-    RunBasicTests();
-    RunAdvancedTests();
-    RunAutoInitializeTest();
-    RunCollectionAutoDetectionTest();
-    RunAdaptOptionsFlexibleTest();
-    RunDefaultFlexibleOptionTest();
-    RunNestedPropertyMappingTest();
-    RunPerformanceTests();
-    RunStressTests();
-
-
-
-
-
-
-    totalSw.Stop();
-
-    Console.WriteLine("\n╔═══════════════════════════════════════╗");
-    Console.WriteLine("║           测试总结 (Summary)           ║");
-    Console.WriteLine("╚═══════════════════════════════════════╝");
-    Console.WriteLine($"  总耗时: {totalSw.ElapsedMilliseconds} ms");
-    Console.WriteLine($"  状态: ✅ 所有测试完成");
-    Console.WriteLine();
+    Environment.ExitCode = TestConsole.Utils.RegressionRunner.Run(new[] { "--all" }, InitializeMapper);
 }

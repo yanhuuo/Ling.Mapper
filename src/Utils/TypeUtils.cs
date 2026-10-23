@@ -54,6 +54,9 @@ namespace Ling.Mapper.Utils
                    t == typeof(string) ||
                    t == typeof(decimal) ||
                    t == typeof(DateTime) ||
+                   t == typeof(DateTimeOffset) ||
+                   t == typeof(DateOnly) ||
+                   t == typeof(TimeOnly) ||
                    t == typeof(Guid) ||
                    t == typeof(TimeSpan);
         }
@@ -63,6 +66,42 @@ namespace Ling.Mapper.Utils
         /// </summary>
         public static bool IsCollection(Type type)
             => typeof(IEnumerable).IsAssignableFrom(type) && type != typeof(string);
+
+        /// <summary>Assignment compatibility without CLR signed/unsigned array aliasing.
+        /// Collection covariance must also preserve its element conversion semantics.</summary>
+        public static bool IsSafelyAssignable(Type source, Type destination)
+            => IsSafelyAssignableCore(source, destination, null);
+
+        private static bool IsSafelyAssignableCore(Type source, Type destination, HashSet<(Type, Type)>? visited)
+        {
+            if (source == destination) return true;
+            if (!destination.IsAssignableFrom(source)) return false;
+            if (!IsCollection(source) || !IsCollection(destination)) return true;
+            var sourceElement = GetElementType(source);
+            var destinationElement = GetElementType(destination);
+            if (sourceElement == null || destinationElement == null) return true;
+            if (sourceElement == destinationElement) return true;
+            if (sourceElement.IsValueType || destinationElement.IsValueType) return false;
+            if (!IsCollection(sourceElement) || !IsCollection(destinationElement))
+                return destinationElement.IsAssignableFrom(sourceElement);
+            visited ??= new HashSet<(Type, Type)>();
+            if (!visited.Add((source, destination))) return true;
+            return IsSafelyAssignableCore(sourceElement, destinationElement, visited);
+        }
+
+        /// <summary>Check actual-value assignment using the same collection safety rules.</summary>
+        public static bool IsSafelyAssignableValue(object? value, Type destination)
+            => value != null && IsSafelyAssignable(value.GetType(), destination);
+
+        /// <summary>Whether a type exposes dictionary key/value semantics.</summary>
+        public static bool IsDictionary(Type type)
+        {
+            if (typeof(IDictionary).IsAssignableFrom(type)) return true;
+            static bool IsDictionaryInterface(Type candidate) => candidate.IsGenericType &&
+                (candidate.GetGenericTypeDefinition() == typeof(IDictionary<,>) ||
+                 candidate.GetGenericTypeDefinition() == typeof(IReadOnlyDictionary<,>));
+            return IsDictionaryInterface(type) || type.GetInterfaces().Any(IsDictionaryInterface);
+        }
 
         /// <summary>
         /// 获取集合类型的元素类型。
@@ -77,12 +116,10 @@ namespace Ling.Mapper.Utils
             if (collectionType.IsArray)
                 return collectionType.GetElementType();
 
-            // 2. 泛型接口/类直接获取 (如 List<T>)
-            if (collectionType.IsGenericType && collectionType.GetGenericArguments().Length == 1)
-            {
-                // 如果是接口本身如 IEnumerable<T>
+            // Generic class arguments do not necessarily describe its enumerable
+            // elements (for example Wrapper<T> may implement IEnumerable<int[]>).
+            if (collectionType.IsGenericType && collectionType.GetGenericTypeDefinition() == typeof(IEnumerable<>))
                 return collectionType.GetGenericArguments()[0];
-            }
 
             // 3. 查找类实现的 IEnumerable<T> 接口
             var iEnum = collectionType.GetInterfaces()

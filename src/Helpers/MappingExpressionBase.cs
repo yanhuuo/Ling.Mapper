@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -18,15 +19,19 @@ namespace Ling.Mapper.Helpers
         private readonly object _expr;
         private readonly FieldInfo? _ignored;
         private readonly FieldInfo? _renamed;
+        private readonly IDictionary<string, LambdaExpression>? _bindings;
 
         public MappingExpressionBase(object expr)
         {
             _expr = expr;
+            _bindings = expr.GetType().GetField("CustomMemberBindings", BindingFlags.Instance | BindingFlags.NonPublic)?.GetValue(expr) as IDictionary<string, LambdaExpression>;
             var t = expr.GetType();
 
             _ignored = t.GetField("IgnoredMembers", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
             _renamed = t.GetField("RenamedMembers", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
         }
+
+        public LambdaExpression? GetCustomBinding(string name) => _bindings != null && _bindings.TryGetValue(name, out var binding) ? binding : null;
 
         public bool IsIgnored(string name)
         {

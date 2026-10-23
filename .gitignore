@@ -22,3 +22,6 @@ obj/
 
 # Others
 .DS_Store
+
+# Local regression logs and experiment artifacts
+.work/

@@ -52,6 +52,7 @@ namespace Ling.Mapper
             Expression<Func<TDestination, TMember>> destMember,
             Expression<Func<TSource, TMember>> srcExpr)
         {
+            ArgumentNullException.ThrowIfNull(srcExpr);
             var name = GetPropName(destMember);
             CustomMemberBindings[name] = srcExpr;
             return this;
@@ -83,6 +84,8 @@ namespace Ling.Mapper
             Expression<Func<TDestination, object>> destMember,
             string srcName)
         {
+            ArgumentNullException.ThrowIfNull(srcName);
+            if (string.IsNullOrWhiteSpace(srcName)) throw new ArgumentException("Source property name cannot be empty.", nameof(srcName));
             var name = GetPropName(destMember);
             RenamedMembers[name] = srcName;
             return this;
@@ -103,9 +106,9 @@ namespace Ling.Mapper
         }
 
         /// <summary>
-        /// 从 lambda 表达式中解析出属性名称（支持多级属性访问）。
-        /// 支持：x => x.Property（单级）
-        /// 支持：x => x.A.B.C（多级）
+        /// 从 lambda 表达式中解析直接目标属性名称。
+        /// 支持：x => x.Property；嵌套目标路径不受支持并立即抛出异常。
+        /// Rename 的源属性字符串仍可使用 A.B.C 路径。
         /// 自动处理 UnaryExpression（如 Convert）。
         /// </summary>
         /// <param name="expr">属性访问 lambda 表达式。</param>
@@ -163,8 +166,9 @@ namespace Ling.Mapper
                 }
             }
 
-            // 返回属性路径（用 "." 连接）
-            return string.Join(".", propertyPath);
+            if (propertyPath.Count != 1)
+                throw new NotSupportedException("Nested destination member paths are not supported. Configure the containing member or register an explicit converter.");
+            return propertyPath[0];
         }
     }
 }

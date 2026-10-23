@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Concurrent;
+using System.Linq.Expressions;
+using System.Runtime.CompilerServices;
 
 namespace Ling.Mapper
 {
@@ -29,7 +31,24 @@ namespace Ling.Mapper
         /// <summary>
         /// 内部转换器字典，键为 (源类型, 目标类型)，值为对应的委托。
         /// </summary>
-        private static readonly ConcurrentDictionary<(Type, Type), Delegate> _registry = new();
+        private sealed record Entry(Delegate Original, Func<object, object?> Invoke);
+        private static readonly ConcurrentDictionary<(Type, Type), Entry> _registry = new();
+        private static long _version;
+        internal static long Version => System.Threading.Interlocked.Read(ref _version);
+        internal static bool TryGetInvoker(Type source, Type destination, out Func<object, object?>? invoke)
+        {
+            if (_registry.TryGetValue((source, destination), out var entry) ||
+                _registry.TryGetValue((Nullable.GetUnderlyingType(source) ?? source, Nullable.GetUnderlyingType(destination) ?? destination), out entry))
+            { invoke = entry.Invoke; return true; }
+            invoke = null;
+            return false;
+        }
+
+        internal static bool TryGetEffective(Type source, Type destination, out Delegate? converter)
+        {
+            if (TryGet(source, destination, out converter)) return true;
+            return TryGet(Nullable.GetUnderlyingType(source) ?? source, Nullable.GetUnderlyingType(destination) ?? destination, out converter);
+        }
 
         /// <summary>
         /// 注册一个类型转换器。
@@ -43,7 +62,16 @@ namespace Ling.Mapper
             if (dest == null) throw new ArgumentNullException(nameof(dest));
             if (converter == null) throw new ArgumentNullException(nameof(converter));
 
-            _registry[(src, dest)] = converter;
+            var method = converter.GetType().GetMethod("Invoke")!;
+            var parameters = method.GetParameters();
+            if (parameters.Length != 1 || parameters[0].ParameterType != src || method.ReturnType != dest)
+                throw new ArgumentException("Converter must take the registered source type and return the registered destination type.", nameof(converter));
+            var value = Expression.Parameter(typeof(object));
+            var lambda = Expression.Lambda<Func<object, object?>>(Expression.Convert(
+                Expression.Invoke(Expression.Constant(converter), Expression.Convert(value, src)), typeof(object)), value);
+            var invoke = RuntimeFeature.IsDynamicCodeSupported ? lambda.Compile() : lambda.Compile(preferInterpretation: true);
+            _registry[(src, dest)] = new Entry(converter, invoke);
+            System.Threading.Interlocked.Increment(ref _version);
         }
 
         /// <summary>
@@ -58,7 +86,9 @@ namespace Ling.Mapper
             if (src == null) throw new ArgumentNullException(nameof(src));
             if (dest == null) throw new ArgumentNullException(nameof(dest));
 
-            return _registry.TryGetValue((src, dest), out converter);
+            if (_registry.TryGetValue((src, dest), out var entry)) { converter = entry.Original; return true; }
+            converter = null;
+            return false;
         }
 
         /// <summary>

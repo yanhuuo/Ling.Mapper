@@ -117,9 +117,9 @@ public static class DebugIgnoreUnderscoreTest
     {
         Console.WriteLine("【测试3】多个下划线");
 
-        var source = new { user___name = "Multiple", _prefix = "Pre", suffix_ = "Post" };
+        var source = new { User___Name = "Multiple", _Prefix = "Pre", Suffix_ = "Post" };
         
-        Console.WriteLine($"源属性: user___name={source.user___name}, _prefix={source._prefix}, suffix_={source.suffix_}");
+        Console.WriteLine($"源属性: user___name={source.User___Name}, _prefix={source._Prefix}, suffix_={source.Suffix_}");
 
         var target = source.Adapt<TestTarget3>(AdaptOptions.IgnoreUnderscore);
         Console.WriteLine($"结果: UserName={target?.UserName ?? "null"}, Prefix={target?.Prefix ?? "null"}, Suffix={target?.Suffix ?? "null"}");
