@@ -1,4 +1,8 @@
 <Solution>
   <Project Path="src/Ling.Mapper.csproj" />
   <Project Path="tests/Ling.Mapper.Tests/TestConsole.csproj" />
+  <Project Path="generators/Ling.Mapper.Generator/Ling.Mapper.Generator.csproj" />
+  <Project Path="tests/Ling.Mapper.AotSmoke/Ling.Mapper.AotSmoke.csproj" />
+  <Project Path="tests/Ling.Mapper.AutoMapperParity/AutoMapperParity.csproj" />
+  <!-- GeneratorDiagnostics intentionally fails compilation and is tested separately. -->
 </Solution>

@@ -122,10 +122,16 @@ namespace Ling.Mapper.Utils
                 return collectionType.GetGenericArguments()[0];
 
             // 3. 查找类实现的 IEnumerable<T> 接口
-            var iEnum = collectionType.GetInterfaces()
-                .FirstOrDefault(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IEnumerable<>));
-
-            return iEnum?.GetGenericArguments()[0];
+            Type? element = null;
+            foreach (var candidate in collectionType.GetInterfaces())
+            {
+                if (!candidate.IsGenericType || candidate.GetGenericTypeDefinition() != typeof(IEnumerable<>)) continue;
+                var candidateElement = candidate.GetGenericArguments()[0];
+                if (element != null && element != candidateElement)
+                    throw new NotSupportedException("Collection exposes multiple distinct IEnumerable<T> element types. Register an explicit converter.");
+                element = candidateElement;
+            }
+            return element;
         }
     }
 }

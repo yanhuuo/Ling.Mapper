@@ -114,6 +114,8 @@ void InitializeMapper()
     cfg.ConfigureConventions(opt =>
     {
         opt.CaseInsensitiveNameMatch = true;
+        // The legacy console fixtures intentionally use flexible underscore matching.
+        opt.IgnoreSpecialCharacters = true;
     });
 
     var mapper = cfg.CreateMapper();

@@ -39,6 +39,12 @@ namespace Ling.Mapper
         /// 目前仅做标记，你可以在后续扩展里使用它来自动生成反向配置。
         /// </summary>
         internal bool ReverseMapRequested;
+        private readonly Action<IMappingConfig>? _register;
+        private MappingExpression<TDestination, TSource>? _reverse;
+
+        /// <summary>Create an independent mapping expression. Profile-created expressions also register reverse maps.</summary>
+        public MappingExpression() { }
+        internal MappingExpression(Action<IMappingConfig> register) => _register = register;
 
         /// <summary>
         /// 为指定目标属性配置一个自定义映射表达式。
@@ -93,16 +99,36 @@ namespace Ling.Mapper
 
         /// <summary>
         /// 声明为当前映射生成反向映射配置。
-        /// 当前实现仅将标志位设置为 true，返回一个新的反向映射表达式对象，
-        /// 方便后续扩展更多配置。
+        /// Profile 中自动登记反向配置；Rename 和纯属性 ForMember 可反转，计算表达式需显式反向配置。
         /// </summary>
         /// <returns>从 TDestination 到 TSource 的反向映射表达式，永不为 null。</returns>
         [return: NotNull]
         public MappingExpression<TDestination, TSource> ReverseMap()
         {
+            if (_reverse != null) return _reverse;
+            var reverse = _register == null ? new MappingExpression<TDestination, TSource>() : new MappingExpression<TDestination, TSource>(_register);
+            foreach (var pair in RenamedMembers) reverse.RenamedMembers.Add(pair.Value, pair.Key);
+            foreach (var pair in CustomMemberBindings)
+            {
+                Expression memberBody = pair.Value.Body;
+                while (memberBody is UnaryExpression conversion &&
+                    (conversion.NodeType == ExpressionType.Convert || conversion.NodeType == ExpressionType.ConvertChecked) &&
+                    conversion.Type.IsAssignableFrom(conversion.Operand.Type)) memberBody = conversion.Operand;
+                if (memberBody is not MemberExpression)
+                    throw new NotSupportedException("ReverseMap cannot invert a computed ForMember expression. Configure the reverse mapping explicitly.");
+                string sourcePath;
+                try { sourcePath = GetPropName(Expression.Lambda(memberBody, pair.Value.Parameters)); }
+                catch (InvalidOperationException) { throw new NotSupportedException("ReverseMap requires a pure source property path. Configure the reverse mapping explicitly."); }
+                if (reverse.RenamedMembers.TryGetValue(sourcePath, out var existing) && existing != pair.Key)
+                    throw new NotSupportedException("ReverseMap has multiple destinations for one source path.");
+                reverse.RenamedMembers[sourcePath] = pair.Key;
+            }
+            foreach (var ignored in IgnoredMembers)
+                reverse.IgnoredMembers.Add(RenamedMembers.TryGetValue(ignored, out var sourceName) ? sourceName : ignored);
             ReverseMapRequested = true;
-            // 当前简单返回一个新的反向表达式实例，如需真正使用可扩展。
-            return new MappingExpression<TDestination, TSource>();
+            _reverse = reverse;
+            _register?.Invoke(new MappingConfig<TDestination, TSource>(reverse, true));
+            return reverse;
         }
 
         /// <summary>
@@ -166,9 +192,7 @@ namespace Ling.Mapper
                 }
             }
 
-            if (propertyPath.Count != 1)
-                throw new NotSupportedException("Nested destination member paths are not supported. Configure the containing member or register an explicit converter.");
-            return propertyPath[0];
+            return string.Join(".", propertyPath);
         }
     }
 }

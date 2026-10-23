@@ -119,9 +119,10 @@ public static class ConversionRegressionTests
         var offset = new DateTimeOffset(2026, 10, 23, 7, 30, 45, TimeSpan.FromHours(5.5));
         var day = new DateOnly(2026, 10, 23); var time = new TimeOnly(7, 30, 45).Add(TimeSpan.FromTicks(1234));
         var span = TimeSpan.FromDays(2) + TimeSpan.FromMinutes(17);
-        foreach (var value in new object[] { guid, date, offset, day, time, span })
-            Case($"{value.GetType().Name} string roundtrip", () => Equal(value, mapper.Map(mapper.Map<string>(value), typeof(string), value.GetType())));
-        Case("DateTime preserves Kind", () => Equal(DateTimeKind.Utc, mapper.Map<DateTime>(mapper.Map<string>(date)).Kind));
+        Case("Guid string roundtrip", () => Equal(guid, mapper.Map<Guid>(mapper.Map<string>(guid))));
+        foreach (var value in new object[] { date, offset, day, time, span })
+            Case($"{value.GetType().Name} AutoMapper-compatible default string", () => Equal(value.ToString(), mapper.Map<string>(value)));
+        Case("DateTime default text does not preserve Kind", () => Equal(Convert.ToDateTime(date.ToString()).Kind, mapper.Map<DateTime>(mapper.Map<string>(date)).Kind));
         Case("DateTimeOffset preserves offset", () => Equal(offset.Offset, mapper.Map<DateTimeOffset>(mapper.Map<string>(offset)).Offset));
         Case("DateTime to DateOnly", () => Equal(day, mapper.Map<DateOnly>(date)));
         Case("DateTime to TimeOnly", () => Equal(TimeOnly.FromDateTime(date), mapper.Map<TimeOnly>(date)));
@@ -135,7 +136,7 @@ public static class ConversionRegressionTests
                 var old = CultureInfo.CurrentCulture; var oldUI = CultureInfo.CurrentUICulture;
                 try { CultureInfo.CurrentCulture = CultureInfo.GetCultureInfo(culture); CultureInfo.CurrentUICulture = CultureInfo.GetCultureInfo(culture);
                     Equal(1234.56m, mapper.Map<decimal>("1234.56")); Equal("1234.56", mapper.Map<string>(1234.56m));
-                    Equal(date, mapper.Map<DateTime>(date.ToString("O", CultureInfo.InvariantCulture))); Equal(EInt.Two, mapper.Map<EInt>("two")); }
+                    Equal(Convert.ToDateTime(date.ToString("O", CultureInfo.InvariantCulture)), mapper.Map<DateTime>(date.ToString("O", CultureInfo.InvariantCulture))); Equal(EInt.Two, mapper.Map<EInt>("two")); }
                 finally { CultureInfo.CurrentCulture = old; CultureInfo.CurrentUICulture = oldUI; }
             });
         Case("null root default and nullable", () => { Equal(0, mapper.Map<int>(null)); Equal(null, mapper.Map<int?>(null)); Equal(null, mapper.Map<string>(null)); });
@@ -303,26 +304,28 @@ public static class ConversionRegressionTests
         foreach (var wallTime in unspecifiedTimes)
         {
             var text = wallTime.ToString("yyyy-MM-dd'T'HH:mm:ss", CultureInfo.InvariantCulture);
-            Case($"timezone-independent unspecified DateTime {text}", () => {
+            Case($"AutoMapper unspecified DateTime {text}", () => {
                 var actual = mapper.Map<DateTime>(text); Equal(DateTimeKind.Unspecified, actual.Kind); Equal(wallTime.Ticks, actual.Ticks);
                 var member = mapper.Map<Box<DateTime>>(new Box<string> { Value = text })!.Value;
                 Equal(DateTimeKind.Unspecified, member.Kind); Equal(wallTime.Ticks, member.Ticks);
             });
-            Case($"timezone-independent unspecified DateTimeOffset {text}", () => {
-                var actual = mapper.Map<DateTimeOffset>(text); Equal(TimeSpan.Zero, actual.Offset); Equal(wallTime.Ticks, actual.Ticks);
+            Case($"AutoMapper unspecified DateTimeOffset {text}", () => {
+                var expectedOffset = DateTimeOffset.Parse(text);
+                var actual = mapper.Map<DateTimeOffset>(text); Equal(expectedOffset.Offset, actual.Offset); Equal(expectedOffset.Ticks, actual.Ticks);
                 var member = mapper.Map<Box<DateTimeOffset>>(new Box<string> { Value = text })!.Value;
-                Equal(TimeSpan.Zero, member.Offset); Equal(wallTime.Ticks, member.Ticks);
+                Equal(expectedOffset.Offset, member.Offset); Equal(expectedOffset.Ticks, member.Ticks);
             });
             foreach (var offsetHours in new[] { 0, 8, -5 })
             {
                 var original = new DateTimeOffset(wallTime, TimeSpan.FromHours(offsetHours));
                 var encoded = text + (offsetHours == 0 ? "Z" : offsetHours > 0 ? "+08:00" : "-05:00");
-                Case($"timezone-independent explicit DateTime {encoded}", () => {
-                    var actual = mapper.Map<DateTime>(encoded); Equal(DateTimeKind.Utc, actual.Kind); Equal(original.UtcTicks, actual.Ticks);
+                Case($"AutoMapper explicit DateTime {encoded}", () => {
+                    var expectedDate = Convert.ToDateTime(encoded);
+                    var actual = mapper.Map<DateTime>(encoded); Equal(expectedDate.Kind, actual.Kind); Equal(expectedDate.Ticks, actual.Ticks);
                     var member = mapper.Map<Box<DateTime>>(new Box<string> { Value = encoded })!.Value;
-                    Equal(DateTimeKind.Utc, member.Kind); Equal(original.UtcTicks, member.Ticks);
+                    Equal(expectedDate.Kind, member.Kind); Equal(expectedDate.Ticks, member.Ticks);
                 });
-                Case($"timezone-independent explicit DateTimeOffset {encoded}", () => {
+                Case($"AutoMapper explicit DateTimeOffset {encoded}", () => {
                     var actual = mapper.Map<DateTimeOffset>(encoded); Equal(original.Offset, actual.Offset); Equal(original.Ticks, actual.Ticks);
                     var member = mapper.Map<Box<DateTimeOffset>>(new Box<string> { Value = encoded })!.Value;
                     Equal(original.Offset, member.Offset); Equal(original.Ticks, member.Ticks);

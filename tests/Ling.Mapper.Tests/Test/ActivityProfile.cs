@@ -19,9 +19,13 @@ public class ActivityProfile : MapperProfile
             .Rename(d => d.UserId, "Uid")
 
             // 忽略 InternalCode
-            .Ignore(d => d.InternalCode)
-            
-            // 生成反向映射
-            .ReverseMap();
+            .Ignore(d => d.InternalCode);
+
+        // Name is a computed concatenation, not an invertible member path.
+        // Define the reverse direction explicitly instead of guessing name splitting.
+        CreateMap<MallActivityEntity, ActivityDto>()
+            .Rename(d => d.Uid, "UserId")
+            .Ignore(d => d.FirstName!)
+            .Ignore(d => d.LastName!);
     }
 }

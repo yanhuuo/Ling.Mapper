@@ -2,7 +2,7 @@
 
 	<PropertyGroup>
 		<!-- 包版本 -->
-		<Version>1.2.0</Version>
+		<Version>1.3.0</Version>
 
 
 		<!-- 多目标框架 -->
@@ -21,7 +21,8 @@
 		<DocumentationFile>bin\$(Configuration)\$(TargetFramework)\Ling.Mapper.xml</DocumentationFile>
 
 		<!-- 元数据（NuGet） -->
-		<PackageId>Ling.Mapper</PackageId>
+		<PackageReleaseNotes>1.3.0: AutoMapper-compatible date defaults; dictionaries, immutable constructors, nested destinations, ReverseMap and conventions; explicit-pair Source Generator and verified .NET 10 Linux Native AOT subset. See CHANGELOG.md for compatibility changes and limitations.</PackageReleaseNotes>
+    <PackageId>Ling.Mapper</PackageId>
 		<Authors>yanhuuo</Authors>
 		<Company>Mapper</Company>
 		<Description>轻量级 Fluent 风格对象映射器（Fluent Object Mapper），支持多层级映射、链式 API、DI 注入、运行时映射规则配置。</Description>

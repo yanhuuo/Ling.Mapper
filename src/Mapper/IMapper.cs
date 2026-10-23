@@ -72,3 +72,9 @@ public interface IMapper
         Action<object, object>? afterMapItem = null,
         string[]? ignoreNames = null);
 }
+
+/// <summary>Internal default-options bridge used by Adapt without explicit options.</summary>
+internal interface IDefaultMappingOptions
+{
+    AdaptOptions DefaultOptions { get; }
+}

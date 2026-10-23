@@ -43,20 +43,22 @@ internal sealed partial class Mapper
         }
         return (source, callback, context) =>
         {
-            if (context.TryGet(source, destType, out var cached)) return cached;
+            if (context.TryGet(source, destType, out var cached, ignores)) return cached;
             var countedSource = source as ICollection;
+            var sourceCount = countedSource?.Count;
+            if (sourceCount < 0) throw new InvalidOperationException("Collection Count cannot be negative.");
             var canRegisterEarly = TypeUtils.IsSafelyAssignable(listType, destType) || (destType.IsArray && countedSource != null);
             // Pre-registered lists/arrays already resolve back-edges through TryGet.
             // Only constructor-based or uncounted-array destinations need pending detection.
             if (!canRegisterEarly) context.EnterCollection(source, destType);
             try
             {
-                var list = createList(destType.IsArray && countedSource != null ? 0 : countedSource?.Count ?? 0);
+                var list = createList(destType.IsArray && countedSource != null ? 0 : sourceCount ?? 0);
                 // A list can be registered before its children; arrays are allocated up front
                 // where a count is available so self-references can resolve correctly.
-                Array? array = destType.IsArray && countedSource != null ? createArray!(countedSource.Count) : null;
-                if (array != null) context.Register(source, destType, array);
-                else if (TypeUtils.IsSafelyAssignable(listType, destType)) context.Register(source, destType, list);
+                Array? array = destType.IsArray && countedSource != null ? createArray!(sourceCount!.Value) : null;
+                if (array != null) context.Register(source, destType, array, ignores);
+                else if (TypeUtils.IsSafelyAssignable(listType, destType)) context.Register(source, destType, list, ignores);
                 var index = 0;
                 foreach (var item in (IEnumerable)source)
                 {
@@ -69,8 +71,10 @@ internal sealed partial class Mapper
                     finally { context.Pop(); }
                     index++;
                 }
+                if (array != null && index != array.Length)
+                    throw new InvalidOperationException("Collection Count does not match its enumeration length.");
                 var result = array ?? finish(list);
-                context.Register(source, destType, result);
+                context.Register(source, destType, result, ignores);
                 return result;
             }
             finally

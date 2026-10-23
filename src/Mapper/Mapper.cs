@@ -11,7 +11,7 @@ namespace Ling.Mapper.Mapper;
 
 // Reflection is used only while building plans. Interpretation is a fallback, not a
 // guarantee of NativeAOT/trimming compatibility; generated plans must preserve metadata.
-internal sealed partial class Mapper : IMapper
+internal sealed partial class Mapper : IMapper, IDefaultMappingOptions
 {
     private delegate object? MappingPlan(object source, Action<object, object>? callback, MappingContext context);
     private readonly MapperConfiguration _config;
@@ -38,7 +38,9 @@ internal sealed partial class Mapper : IMapper
     public TDestination? Map<TDestination>(object? source) => Map<TDestination>(source, GetDefaultOptions());
     public TDestination? Map<TDestination>(object? source, AdaptOptions options, Action<object, object>? afterMapItem = null, string[]? ignoreNames = null)
     {
-        var result = Map(source, source?.GetType() ?? typeof(object), typeof(TDestination), options, afterMapItem, ignoreNames);
+        // A boxed value's runtime type and a CLR-instantiated TDestination are
+        // already closed/boxable. Only explicit Type arguments need shape checks.
+        var result = MapCore(source, source?.GetType() ?? typeof(object), typeof(TDestination), options, afterMapItem, ignoreNames, false);
         return result == null ? default : (TDestination)result;
     }
     public object? Map(object? source, Type sourceType, Type destType) => Map(source, sourceType, destType, GetDefaultOptions());
@@ -46,8 +48,23 @@ internal sealed partial class Mapper : IMapper
     {
         ArgumentNullException.ThrowIfNull(sourceType);
         ArgumentNullException.ThrowIfNull(destType);
+        MappingTypeValidation.Validate(sourceType, nameof(sourceType));
+        MappingTypeValidation.Validate(destType, nameof(destType));
+        return MapCore(source, sourceType, destType, options, afterMapItem, ignoreNames, true);
+    }
+
+    private object? MapCore(object? source, Type sourceType, Type destType, AdaptOptions options, Action<object, object>? afterMapItem, string[]? ignoreNames, bool validateDeclaredSource)
+    {
         ValidateOptions(options);
-        if (source != null && !TypeUtils.IsSafelyAssignableValue(source, sourceType))
+        if (ignoreNames != null)
+        {
+            if (ignoreNames.Length == 0) ignoreNames = null;
+            else
+                foreach (var name in ignoreNames)
+                    if (string.IsNullOrWhiteSpace(name))
+                        throw new ArgumentException("Ignored property names cannot be null or empty.", nameof(ignoreNames));
+        }
+        if (validateDeclaredSource && source != null && !TypeUtils.IsSafelyAssignableValue(source, sourceType))
             throw MappingException.Create(sourceType, destType, "$", source,
                 new InvalidCastException("Source value does not match the declared source type."), _config);
         return MapValue(source, sourceType, destType, options, afterMapItem, ignoreNames, new MappingContext());
@@ -74,7 +91,7 @@ internal sealed partial class Mapper : IMapper
             else if ((sourceType == typeof(object) || sourceType.IsInterface || sourceType.IsAbstract) &&
                 !TypeConverterRegistry.TryGetEffective(sourceType, destType, out _)) sourceType = source.GetType();
             var result = GetOrCompile(sourceType, destType, options, ignores)(source, callback, context);
-            if (result != null && !(TypeUtils.IsCollection(sourceType) && TypeUtils.IsCollection(destType)))
+            if (callback != null && result != null && !(TypeUtils.IsCollection(sourceType) && TypeUtils.IsCollection(destType)))
                 callback?.Invoke(result, source);
             return result;
         }
@@ -83,10 +100,10 @@ internal sealed partial class Mapper : IMapper
     }
     private static readonly ConcurrentDictionary<Type, Func<object>> DefaultValues = new();
 
-    private object? MapMember(object? value, Type sourceType, Type destType, AdaptOptions options, string name, bool sensitive, MappingContext context)
+    private object? MapMember(object? value, Type sourceType, Type destType, AdaptOptions options, string name, bool sensitive, string[]? ignoreNames, MappingContext context)
     {
         context.Push(name, sensitive);
-        try { return MapValue(value, sourceType, destType, options, null, null, context); }
+        try { return MapValue(value, sourceType, destType, options, null, ignoreNames, context); }
         finally { context.Pop(); }
     }
 
@@ -117,24 +134,31 @@ internal sealed partial class Mapper : IMapper
 
     private MappingPlan BuildPlan(Type sourceType, Type destType, AdaptOptions options, string[]? ignores)
     {
-        if (TypeUtils.IsSafelyAssignable(sourceType, destType)) return (value, callback, _) =>
+        if (TypeUtils.IsSafelyAssignable(sourceType, destType) && (ignores == null || ignores.Length == 0 || TypeUtils.IsSimple(destType))) return (value, callback, _) =>
         {
             if (callback != null && TypeUtils.IsCollection(sourceType) && TypeUtils.IsCollection(destType))
                 foreach (var item in (System.Collections.IEnumerable)value)
                     if (item != null) callback(item, item);
             return value;
         };
-        if (TypeConverterRegistry.TryGetInvoker(sourceType, destType, out var convert)) return (value, _, _) => convert!(value);
+        if (TypeConverterRegistry.TryGetInvoker(sourceType, destType, out var convert))
+        {
+            if (ignores is { Length: > 0 })
+                return (_, _, _) => throw new NotSupportedException("Member ignore projections cannot be applied inside an opaque type converter. Configure the converter or map the members explicitly.");
+            return (value, _, _) => convert!(value);
+        }
         // KeyValuePair has read-only members: treating dictionaries as ordinary
         // collections would silently produce default keys and values.
         if (TypeUtils.IsDictionary(sourceType) || TypeUtils.IsDictionary(destType))
-            return (_, _, _) => throw new NotSupportedException("Cross-type dictionary mapping requires an explicit registered converter.");
+            return BuildDictionaryPlan(sourceType, destType, options, ignores);
+        if (Nullable.GetUnderlyingType(destType) is { } nullableDestination && !TypeUtils.IsSimple(destType))
+            return (value, _, context) => MapValue(value, Nullable.GetUnderlyingType(sourceType) ?? sourceType, nullableDestination, options, null, ignores, context);
+        if (Nullable.GetUnderlyingType(sourceType) is { } nullableSource && !TypeUtils.IsSimple(sourceType))
+            return BuildPlan(nullableSource, destType, options, ignores);
         if (TypeUtils.IsSimple(sourceType) || TypeUtils.IsSimple(destType))
             return (value, _, _) => ScalarConversion.Convert(value, destType);
         if (TypeUtils.IsCollection(sourceType) || TypeUtils.IsCollection(destType))
             return BuildCollectionPlan(sourceType, destType, options, ignores);
-        if (GeneratedMapperFactoryProxy.TryGetMapper(sourceType, destType, out var generated) && generated != null && ignores == null)
-            return (value, _, _) => generated(value);
         return BuildObjectPlan(sourceType, destType, options, ignores);
     }
 
@@ -142,12 +166,12 @@ internal sealed partial class Mapper : IMapper
     {
         if (destType.IsValueType && !destType.GetProperties(BindingFlags.Public | BindingFlags.Instance)
             .Any(property => property.SetMethod?.IsPublic == true && !property.SetMethod.IsStatic && property.GetIndexParameters().Length == 0))
-            return (_, _, _) => throw new NotSupportedException("Mapping to an immutable or empty struct requires an explicit registered converter.");
+            return BuildImmutablePlan(srcType, destType, options, ignoreNames);
         if (destType.IsAbstract || destType.IsInterface || (!destType.IsValueType && destType.GetConstructor(Type.EmptyTypes) == null))
             return (_, _, _) => _config.StrictMode
                 ? throw new InvalidOperationException("Destination requires a public parameterless constructor.")
                 : null;
-        var cfg = _config.Configs.FirstOrDefault(c => c.SourceType == srcType && c.DestType == destType);
+        var cfg = _config.Configs.Where(c => c.SourceType == srcType && c.DestType == destType).OrderBy(c => c.IsReverseGenerated).FirstOrDefault();
         var rules = cfg == null ? null : new MappingExpressionBase(cfg.ExpressionObject);
         var ignoreCase = options.HasFlag(AdaptOptions.IgnoreCase);
         var ignoreUnderscore = options.HasFlag(AdaptOptions.IgnoreUnderscore);
@@ -159,13 +183,20 @@ internal sealed partial class Mapper : IMapper
         var body = new List<Expression> { Expression.Assign(dest, Expression.New(destType)) };
         var needsReferenceTracking = false;
         var properties = BuildSourcePropertyMap(srcType.GetProperties().Where(p => p.GetMethod?.IsPublic == true && !p.GetMethod.IsStatic && p.GetIndexParameters().Length == 0).ToArray(), ignoreCase, ignoreUnderscore);
-        foreach (var property in destType.GetProperties().Where(p => p.SetMethod?.IsPublic == true && !p.SetMethod.IsStatic && p.GetIndexParameters().Length == 0))
+        var paths = destType.GetProperties().Where(p => p.SetMethod?.IsPublic == true && !p.SetMethod.IsStatic && p.GetIndexParameters().Length == 0).Select(p => p.Name)
+            .Concat(rules?.ConfiguredPaths ?? Enumerable.Empty<string>()).Distinct(StringComparer.Ordinal).ToArray();
+        var protectedPaths = (rules?.ConfiguredPaths ?? Enumerable.Empty<string>()).Concat(rules?.IgnoredPaths ?? Enumerable.Empty<string>()).Concat(ignoreNames ?? Array.Empty<string>()).ToArray();
+        foreach (var destinationPath in paths)
         {
-            if (rules?.IsIgnored(property.Name) == true || ignoreNames?.Contains(property.Name) == true) continue;
+            if (rules?.IgnoredPaths.Any(ignored => destinationPath == ignored || destinationPath.StartsWith(ignored + ".", StringComparison.Ordinal)) == true ||
+                ignoreNames?.Any(ignored => destinationPath == ignored || destinationPath.StartsWith(ignored + ".", StringComparison.Ordinal)) == true) continue;
+            var property = ResolveDestinationProperty(destType, destinationPath);
+            var childIgnores = protectedPaths.Where(path => path.StartsWith(destinationPath + ".", StringComparison.Ordinal)).Select(path => path.Substring(destinationPath.Length + 1)).ToArray();
+            var nestedIgnores = childIgnores.Length == 0 ? null : childIgnores;
             Expression? value;
             Type? valueType;
-            var sensitive = MappingException.IsSensitivePath(property.Name);
-            var custom = rules?.GetCustomBinding(property.Name);
+            var sensitive = MappingException.IsSensitivePath(destinationPath);
+            var custom = rules?.GetCustomBinding(destinationPath);
             if (custom != null)
             {
                 value = new ParameterSubstitution(custom.Parameters[0], src).Visit(custom.Body)!;
@@ -174,30 +205,40 @@ internal sealed partial class Mapper : IMapper
             }
             else
             {
-                var name = rules?.GetRenamedSource(property.Name) ?? property.Name;
+                var name = rules?.GetRenamedSource(destinationPath) ?? destinationPath;
                 sensitive |= MappingException.IsSensitivePath(name);
                 if (name.Contains('.')) value = BuildNullSafeNestedAccess(src, srcType, name, ignoreCase, ignoreUnderscore, out valueType);
                 else if (properties.TryGetValue(NormalizeNameStatic(name, ignoreCase, ignoreUnderscore), out var sp)) { value = Expression.Property(src, sp); valueType = sp.PropertyType; }
-                else continue;
-                if (value == null) continue;
+                else
+                {
+                    if (rules?.GetRenamedSource(destinationPath) != null)
+                        throw new NotSupportedException("The configured source property does not exist or is not publicly readable.");
+                    continue;
+                }
+                if (value == null)
+                {
+                    if (rules?.GetRenamedSource(destinationPath) != null)
+                        throw new NotSupportedException("The configured source path does not exist or is not publicly readable.");
+                    continue;
+                }
             }
-            needsReferenceTracking |= !TypeUtils.IsSafelyAssignable(valueType!, property.PropertyType) &&
+            needsReferenceTracking |= (nestedIgnores != null || !TypeUtils.IsSafelyAssignable(valueType!, property.PropertyType)) &&
                 !TypeUtils.IsSimple(valueType!) && !TypeUtils.IsSimple(property.PropertyType) &&
                 !TypeConverterRegistry.TryGetEffective(valueType!, property.PropertyType, out _);
             var temporary = Expression.Variable(valueType!, "value");
-            var converted = BuildMemberConversion(temporary, property.PropertyType, options, property.Name, sensitive, context);
-            Expression assignment = Expression.Assign(Expression.Property(dest, property), converted);
+            var converted = BuildMemberConversion(temporary, property.PropertyType, options, destinationPath, sensitive, context, nestedIgnores);
+            Expression assignment = BuildDestinationAssignment(dest, destinationPath, converted);
             if (options.HasFlag(AdaptOptions.IgnoreNullValues) && (!valueType!.IsValueType || Nullable.GetUnderlyingType(valueType) != null))
                 assignment = Expression.IfThen(Expression.NotEqual(temporary, Expression.Default(valueType)), assignment);
             var error = Expression.Parameter(typeof(Exception), "error");
             var fail = Expression.Call(Expression.Constant(this), nameof(MemberFailure), null, error,
                 Expression.Constant(valueType!, typeof(Type)), Expression.Constant(property.PropertyType),
-                Expression.Constant(property.Name), Expression.Constant(sensitive), Expression.Convert(temporary, typeof(object)), context);
+                Expression.Constant(destinationPath), Expression.Constant(sensitive), Expression.Convert(temporary, typeof(object)), context);
             // Typed locals avoid boxing on direct assignments and numeric conversions.
             // Evaluate each getter once; build the full path only when an exception occurs.
             var readFailure = Expression.Call(Expression.Constant(this), nameof(MemberFailure), null, error,
                 Expression.Constant(custom != null ? srcType : valueType!, typeof(Type)), Expression.Constant(property.PropertyType),
-                Expression.Constant(property.Name), Expression.Constant(sensitive), Expression.Constant(null, typeof(object)), context);
+                Expression.Constant(destinationPath), Expression.Constant(sensitive), Expression.Constant(null, typeof(object)), context);
             var read = Expression.TryCatch(Expression.Assign(temporary, value), Expression.Catch(error, Expression.Throw(readFailure, valueType!)));
             var operation = Expression.Block(assignment, Expression.Empty());
             body.Add(Expression.Block(new[] { temporary }, read, Expression.TryCatch(operation,
@@ -205,27 +246,27 @@ internal sealed partial class Mapper : IMapper
         }
         body.Add(Expression.Convert(dest, typeof(object)));
         if (needsReferenceTracking)
-            body.Insert(1, Expression.Call(context, nameof(MappingContext.Register), null, srcObj, Expression.Constant(destType), Expression.Convert(dest, typeof(object))));
+            body.Insert(1, Expression.Call(context, nameof(MappingContext.Register), null, srcObj, Expression.Constant(destType), Expression.Convert(dest, typeof(object)), Expression.Constant(ignoreNames, typeof(string[]))));
         var compiled = CompileLambda(Expression.Lambda<MappingPlan>(Expression.Block(new[] { dest }, body), srcObj, callback, context));
         return needsReferenceTracking
-            ? (source, cb, ctx) => ctx.TryGet(source, destType, out var existing) ? existing : compiled(source, cb, ctx)
+            ? (source, cb, ctx) => ctx.TryGet(source, destType, out var existing, ignoreNames) ? existing : compiled(source, cb, ctx)
             : (source, cb, ctx) =>
             {
-                if (ctx.TryGet(source, destType, out var existing)) return existing;
+                if (ctx.TryGet(source, destType, out var existing, ignoreNames)) return existing;
                 var result = compiled(source, cb, ctx);
-                if (ctx.HasReferences && result != null) ctx.Register(source, destType, result);
+                if (ctx.HasReferences && result != null) ctx.Register(source, destType, result, ignoreNames);
                 return result;
             };
     }
-    private Expression BuildMemberConversion(Expression value, Type destination, AdaptOptions options, string name, bool sensitive, ParameterExpression context)
+    private Expression BuildMemberConversion(Expression value, Type destination, AdaptOptions options, string name, bool sensitive, ParameterExpression context, string[]? ignoreNames = null)
     {
         var source = value.Type;
-        if (TypeUtils.IsSafelyAssignable(source, destination)) return Expression.Convert(value, destination);
+        if (ignoreNames == null && TypeUtils.IsSafelyAssignable(source, destination)) return Expression.Convert(value, destination);
         var fallback = Expression.Convert(Expression.Call(Expression.Constant(this), MapMemberMethod, Expression.Convert(value, typeof(object)),
-            Expression.Constant(source), Expression.Constant(destination), Expression.Constant(options), Expression.Constant(name), Expression.Constant(sensitive), context), destination);
+            Expression.Constant(source), Expression.Constant(destination), Expression.Constant(options), Expression.Constant(name), Expression.Constant(sensitive), Expression.Constant(ignoreNames, typeof(string[])), context), destination);
         // Runtime assignability wins over rules even when a member is declared object
         // or an interface. MapValue also resolves its concrete runtime mapping type.
-        if (source == typeof(object) || source.IsInterface || source.IsAbstract) return fallback;
+        if (ignoreNames != null || source == typeof(object) || source.IsInterface || source.IsAbstract) return fallback;
         Expression converted;
         if (TypeConverterRegistry.TryGetEffective(source, destination, out var converter))
         {
@@ -279,13 +320,24 @@ internal sealed partial class Mapper : IMapper
             foreach (var seg in segments)
             {
                 var normalized = NormalizeNameStatic(seg, ignoreCase, ignoreUnderscore);
-                var prop = currentType.GetProperties(BindingFlags.Public | BindingFlags.Instance)
-                    .FirstOrDefault(p => p.CanRead && p.GetIndexParameters().Length == 0 && NormalizeNameStatic(p.Name, ignoreCase, ignoreUnderscore) == normalized);
-
+                var readable = BuildSourcePropertyMap(currentType.GetProperties(BindingFlags.Public | BindingFlags.Instance)
+                    .Where(p => p.GetMethod?.IsPublic == true && !p.GetMethod.IsStatic && p.GetIndexParameters().Length == 0).ToArray(), ignoreCase, ignoreUnderscore);
+                readable.TryGetValue(normalized, out var prop);
+                var underlying = Nullable.GetUnderlyingType(currentType);
+                Expression owner = currentExpr;
+                if (prop == null && underlying != null)
+                {
+                    readable = BuildSourcePropertyMap(underlying.GetProperties(BindingFlags.Public | BindingFlags.Instance)
+                        .Where(p => p.GetMethod?.IsPublic == true && !p.GetMethod.IsStatic && p.GetIndexParameters().Length == 0).ToArray(), ignoreCase, ignoreUnderscore);
+                    readable.TryGetValue(normalized, out prop);
+                    owner = Expression.Property(currentExpr, "Value");
+                }
                 if (prop == null) return null;
 
-                Expression accessExpr = Expression.Property(currentExpr, prop);
-                if (!currentType.IsValueType)
+                Expression accessExpr = Expression.Property(owner, prop);
+                if (underlying != null)
+                    accessExpr = Expression.Condition(Expression.Property(currentExpr, "HasValue"), accessExpr, Expression.Default(prop.PropertyType));
+                else if (!currentType.IsValueType)
                 {
                     accessExpr = Expression.Condition(
                         Expression.Equal(currentExpr, Expression.Constant(null, currentType)),
@@ -307,7 +359,9 @@ internal sealed partial class Mapper : IMapper
         private static Dictionary<string, PropertyInfo> BuildSourcePropertyMap(PropertyInfo[] props, bool ignoreCase, bool ignoreUnderscore)
         {
             var map = new Dictionary<string, PropertyInfo>(StringComparer.Ordinal);
-            foreach (var p in props) map[NormalizeNameStatic(p.Name, ignoreCase, ignoreUnderscore)] = p;
+            foreach (var p in props)
+                if (!map.TryAdd(NormalizeNameStatic(p.Name, ignoreCase, ignoreUnderscore), p))
+                    throw new NotSupportedException("Source property names are ambiguous under the selected naming options.");
             return map;
         }
 
@@ -324,6 +378,7 @@ internal sealed partial class Mapper : IMapper
             return new string(buf[..idx]);
         }
 
-        private AdaptOptions GetDefaultOptions() => _config.DefaultAdaptOptions ?? AdaptOptions.Default;
+        public AdaptOptions DefaultOptions => GetDefaultOptions();
+        private AdaptOptions GetDefaultOptions() => _config.EffectiveDefaultOptions;
 
 }

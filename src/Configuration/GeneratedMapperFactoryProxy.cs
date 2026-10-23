@@ -1,22 +1,17 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+namespace Ling.Mapper.Configuration;
 
-namespace Ling.Mapper.Configuration
+/// <summary>Generated lookup boundary retained for internal compatibility.</summary>
+internal static class GeneratedMapperFactoryProxy
 {
-    /// <summary>
-    /// Reserved generated-mapper lookup boundary. No source generator ships in this
-    /// package yet; runtime reflection/interpretation alone does not guarantee NativeAOT.
-    /// A future generator integration must provide dispatch here, not redeclare this method.
-    /// </summary>
-    internal static partial class GeneratedMapperFactoryProxy
+    public static bool TryGetMapper(Type source, Type destination, out Func<object, object?>? mapper)
     {
-        public static bool TryGetMapper(Type src, Type dest, out Func<object, object?>? mapper)
+        if (!System.Runtime.CompilerServices.RuntimeFeature.IsDynamicCodeSupported && GeneratedMapperRegistry.TryGet(source, destination, out _))
         {
-            mapper = null;
-            return false;
+            var generated = GeneratedMapperRegistry.CreateMapper();
+            mapper = value => generated.Map(value, source, destination);
+            return true;
         }
+        mapper = null;
+        return false;
     }
 }

@@ -39,12 +39,16 @@ public sealed class OrderDto
 
 同型或安全可赋值的对象通常直接返回原引用，**不是深拷贝**。null 与转换失败不同：通用 `Adapt<T>(null)` 遵循空值策略，不再自动创建空 DTO；非法文本不会静默变成默认值。
 
-自动跨类型字典、不可变结构体转换和嵌套目标属性写入不属于当前自动映射能力，可按场景注册显式转换器或调整模型。ReverseMap 自动登记、全局约定驱动计划及真实 Source Generator 尚未实现；**不宣称已通过 Native AOT 验证**。
+工作树新增泛型字典键值转换、不可变结构体构造绑定、嵌套目标写入、可逆路径 ReverseMap 与全局命名约定。真实 Source Generator 提供显式登记类型对的受限后端，不等同于运行时全部功能；Native AOT 验证状态见[新增功能与验证记录](https://github.com/yanhuuo/Ling.Mapper/blob/main/docs/新增功能与验证记录.md)。已发布版本与工作树能力请分别查看，不以源码存在代表已发布。
 
 ## 文档导航
 
+[版本更新日志](https://github.com/yanhuuo/Ling.Mapper/blob/main/CHANGELOG.md)：1.3.0 新增能力、日期默认行为变化与兼容性说明。
+
+
 | 需要了解 | 文档 |
 |---|---|
+| 本轮新增能力、限制与待完成验证 | [新增功能与验证记录](https://github.com/yanhuuo/Ling.Mapper/blob/main/docs/新增功能与验证记录.md) |
 | 当前版本变化、验证环境与发布状态 | [版本与验证记录](https://github.com/yanhuuo/Ling.Mapper/blob/main/docs/版本与验证记录.md) |
 | 如何使用 API、Profile、选项和回调 | [使用文档](https://github.com/yanhuuo/Ling.Mapper/blob/main/docs/使用文档.md) |
 | 转换顺序、数值/日期、null、异常与并发契约 | [转换与诊断](https://github.com/yanhuuo/Ling.Mapper/blob/main/docs/转换与诊断.md) |

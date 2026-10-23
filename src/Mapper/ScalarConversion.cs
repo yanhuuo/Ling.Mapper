@@ -3,7 +3,7 @@ using Ling.Mapper.Utils;
 
 namespace Ling.Mapper;
 
-/// <summary>Shared invariant-culture scalar conversions for runtime and generated mapping code.
+/// <summary>Shared scalar conversions for runtime and generated mapping code. Numeric conversions use invariant culture; date text follows the current culture for AutoMapper-compatible defaults.
 /// Does not map objects or collections, or apply registry rules. Type-based enum operations
 /// still require appropriate metadata in trimmed applications.</summary>
 public static class ScalarConversion
@@ -15,17 +15,19 @@ public static class ScalarConversion
         ArgumentNullException.ThrowIfNull(destinationType);
         var target = Nullable.GetUnderlyingType(destinationType) ?? destinationType;
         var source = value.GetType();
-        if (TypeUtils.IsSafelyAssignable(source, target)) return value;
+        // This public helper handles scalar values only. Object/collection assignment
+        // belongs to the mapper and must not pull reflection-based collection discovery into AOT.
         if (!TypeUtils.IsSimple(source) || !TypeUtils.IsSimple(target)) throw new InvalidCastException("Not a scalar conversion.");
+        if (target.IsAssignableFrom(source)) return value;
         var culture = CultureInfo.InvariantCulture;
         if (target == typeof(string))
             return value switch
             {
-                DateTime date => date.ToString("O", culture),
-                DateTimeOffset date => date.ToString("O", culture),
-                DateOnly date => date.ToString("O", culture),
-                TimeOnly time => time.ToString("O", culture),
-                TimeSpan time => time.ToString("c", culture),
+                DateTime date => date.ToString(),
+                DateTimeOffset date => date.ToString(),
+                DateOnly date => date.ToString(),
+                TimeOnly time => time.ToString(),
+                TimeSpan time => time.ToString(),
                 IFormattable formattable => formattable.ToString(null, culture),
                 _ => System.Convert.ToString(value, culture)!
             };
@@ -38,11 +40,11 @@ public static class ScalarConversion
         if (value is string s)
         {
             if (target == typeof(Guid)) return Guid.Parse(s);
-            if (target == typeof(DateTime)) return DateTime.Parse(s, culture, DateTimeStyles.AdjustToUniversal);
-            if (target == typeof(DateTimeOffset)) return DateTimeOffset.Parse(s, culture, DateTimeStyles.AssumeUniversal);
-            if (target == typeof(DateOnly)) return DateOnly.Parse(s, culture);
-            if (target == typeof(TimeOnly)) return TimeOnly.Parse(s, culture);
-            if (target == typeof(TimeSpan)) return TimeSpan.Parse(s, culture);
+            if (target == typeof(DateTime)) return System.Convert.ToDateTime(s);
+            if (target == typeof(DateTimeOffset)) return DateTimeOffset.Parse(s);
+            if (target == typeof(DateOnly)) return DateOnly.Parse(s);
+            if (target == typeof(TimeOnly)) return TimeOnly.Parse(s);
+            if (target == typeof(TimeSpan)) return TimeSpan.Parse(s);
         }
         if (value is DateTime dt && target == typeof(DateOnly)) return DateOnly.FromDateTime(dt);
         if (value is DateTime timeValue && target == typeof(TimeOnly)) return TimeOnly.FromDateTime(timeValue);

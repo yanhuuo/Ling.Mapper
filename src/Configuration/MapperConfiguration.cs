@@ -44,12 +44,23 @@ namespace Ling.Mapper.Configuration
         /// config.DefaultAdaptOptions = null;  // 精确匹配
         /// </code>
         /// </remarks>
-        public AdaptOptions? DefaultAdaptOptions { get; set; } = AdaptOptions.Default;
+        private AdaptOptions? _defaultAdaptOptions = AdaptOptions.Default;
+        private bool _hasExplicitDefault;
+        public AdaptOptions? DefaultAdaptOptions
+        {
+            get => _defaultAdaptOptions;
+            set { _defaultAdaptOptions = value; _hasExplicitDefault = true; }
+        }
+        internal AdaptOptions EffectiveDefaultOptions => _hasExplicitDefault || _globalConventions.Count == 0
+            ? _defaultAdaptOptions ?? AdaptOptions.Default
+            : (GlobalOptions.CaseInsensitiveNameMatch ? AdaptOptions.IgnoreCase : AdaptOptions.Strict) |
+              (GlobalOptions.IgnoreSpecialCharacters ? AdaptOptions.IgnoreUnderscore : AdaptOptions.Strict);
 
         /// <summary>
         /// 所有注册的映射配置集合。
         /// </summary>
         internal IEnumerable<IMappingConfig> Configs => _configs;
+        internal bool HasExplicitConventions => _globalConventions.Count != 0;
 
         /// <summary>
         /// 是否启用严格模式，默认为 false。
@@ -124,6 +135,12 @@ namespace Ling.Mapper.Configuration
             if (MaxDiagnosticValueLength < 0)
                 throw new ArgumentOutOfRangeException(nameof(MaxDiagnosticValueLength));
             BuildGlobalConventions();
+            if (!System.Runtime.CompilerServices.RuntimeFeature.IsDynamicCodeSupported)
+            {
+                if (_configs.Count != 0 || HasExplicitConventions)
+                    throw new NotSupportedException("Generated mapping does not support runtime profiles or conventions. Use explicitly generated pairs and supported options.");
+                return GeneratedMapperRegistry.CreateMapper(this);
+            }
             return new Mapper.Mapper(this);
         }
     }

@@ -17,7 +17,6 @@ namespace Ling.Mapper.Provider
     {
         private static IMapper? _current;
         private static readonly object _lock = new object();
-        private static bool _isInitialized = false;
 
         /// <summary>
         /// 获取当前全局 Mapper 实例。如果未设置，将自动创建一个默认实例。
@@ -26,18 +25,18 @@ namespace Ling.Mapper.Provider
         {
             get
             {
-                if (_current == null && !_isInitialized)
+                var current = System.Threading.Volatile.Read(ref _current);
+                if (current != null) return current;
+                lock (_lock)
                 {
-                    lock (_lock)
+                    current = _current;
+                    if (current == null)
                     {
-                        if (_current == null && !_isInitialized)
-                        {
-                            _current = CreateDefaultMapper();
-                            _isInitialized = true;
-                        }
+                        current = CreateDefaultMapper();
+                        System.Threading.Volatile.Write(ref _current, current);
                     }
+                    return current;
                 }
-                return _current!;
             }
         }
 
@@ -50,8 +49,8 @@ namespace Ling.Mapper.Provider
         {
             lock (_lock)
             {
-                _current = mapper ?? throw new ArgumentNullException(nameof(mapper));
-                _isInitialized = true;
+                ArgumentNullException.ThrowIfNull(mapper);
+                System.Threading.Volatile.Write(ref _current, mapper);
             }
         }
 
@@ -62,8 +61,7 @@ namespace Ling.Mapper.Provider
         {
             lock (_lock)
             {
-                _current = null;
-                _isInitialized = false;
+                System.Threading.Volatile.Write(ref _current, null);
             }
         }
 

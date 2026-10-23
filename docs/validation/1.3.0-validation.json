@@ -1,0 +1,201 @@
+{
+  "version": "1.3.0",
+  "publication": "NOT_PUBLISHED",
+  "date": "2026-10-23",
+  "runtime_matrix": {
+    "net6.0": "6.0.36",
+    "net8.0": "8.0.32",
+    "net10.0": "10.0.13",
+    "net11.0": "11.0.0-rc.2.26504.105"
+  },
+  "all_suites": {
+    "executed_per_runtime": 40,
+    "failed_per_runtime": 0,
+    "legacy_demonstration_caveat": "COMPLETED does not mean every printed expectation has an assertion."
+  },
+  "date_matrix": {
+    "suites": {
+      "ConversionRegressionTests": 538,
+      "DateCultureRegressionTests": 1880
+    },
+    "timezones": [
+      "UTC",
+      "Asia/Shanghai",
+      "America/New_York"
+    ],
+    "runs": 24
+  },
+  "advanced_cases": 78,
+  "advanced_concurrency_cases": 21,
+  "advanced_concurrency_assertions": 7849,
+  "scalar_boundary_assertions": 9,
+  "automapper_parity": {
+    "package": "16.2.0",
+    "assembly": "16.0.0.0",
+    "passed_per_timezone": 1985,
+    "excluded_observations_per_timezone": 1215
+  },
+  "native_aot": {
+    "sdk": "10.0.402",
+    "rid": "linux-x64",
+    "compiler": "official ILCompiler with gcc",
+    "publish_exit": 0,
+    "execution_exit": 0,
+    "dynamic_code_supported": false,
+    "assertions": 62,
+    "il_aot_trim_warnings": 0,
+    "xml_documentation_warnings": 0,
+    "executable_sha256": "4dd9df0b1f8968f96dac58c5b0e28e0edce289582e6d1ab6a29d538d9e996091",
+    "scope": "Explicit-pair generated subset, not every runtime mapping feature.",
+    "note": "Latest native publish log has no warnings. Separate clean library builds have known XML documentation warnings; tests retain nullable warnings."
+  },
+  "generator_negative_compile": {
+    "exit": 1,
+    "expected_diagnostics": [
+      "LMG001",
+      "LMG002"
+    ]
+  },
+  "package_consumer": {
+    "local_packages": [
+      "Ling.Mapper.1.3.0",
+      "Ling.Mapper.Generator.1.3.0"
+    ],
+    "logged_assertions_passed": 62,
+    "process_exit_verified": true,
+    "exit_code": 0,
+    "source": "final local packages only, isolated fresh cache, offline restore/build/run; NuGet audit disabled for this local-only verification"
+  },
+  "performance": {
+    "baseline": {
+      "same-type object": [
+        219.83,
+        48.0
+      ],
+      "numeric property": [
+        256.79,
+        96.0
+      ],
+      "object collection (100 items)": [
+        65322.66,
+        18880.0
+      ],
+      "root numeric collection": [
+        514.59,
+        688.0
+      ]
+    },
+    "current": {
+      "same-type object": [
+        204.39,
+        48.0
+      ],
+      "numeric property": [
+        239.54,
+        96.0
+      ],
+      "object collection (100 items)": [
+        58064.08,
+        18888.0
+      ],
+      "root numeric collection": [
+        494.42,
+        696.0
+      ]
+    }
+  },
+  "code_sha256": {
+    "src/Helpers/MappingExpressionBase.cs": "43540482300e1f6206ca3ea84f9885c604c4aa0ca22b5fdab9aad7ac20e356e3",
+    "src/Provider/MapperProvider.cs": "3f183d062baa3ad053b9ac61e367f1c74cdbb9e7d9da2badcb555dc5829ba507",
+    "src/Models/AdaptOptionsKey.cs": "4ce581f6d00a2d48cee3370de4b7a4576ae8c9f76f9e79859c0685caca67a8d3",
+    "src/Models/AdaptOptions.cs": "b6bf29b8c1fac40d9628891a5c1bd9eebd41471a453cd56e7da91efea6aeec3a",
+    "src/Models/MapperProfile.cs": "7df73f958d44a68ff20b2a577ec4f120e905c329c86f493382f66f6ee99cdced",
+    "src/Models/MappingExpression.cs": "22fec635e288cb8f09a86ef2bc7b4d7f634b10cc5dff9c0b35447aa1ad8c7711",
+    "src/Extensions/AdaptExtensions.cs": "e30553566a1c5a37d26ec193b73056d276e132e095eab384812b5a18e19990dc",
+    "src/Configuration/MapperConfiguration.cs": "9e885e3452b8d6da7a11d6318b2d8073dffda05d355946f11f4d17299a4b90bd",
+    "src/Configuration/GeneratedMapperFactoryProxy.cs": "8f4cab0ed053d3fd8f44e9395e4debdec9aa6de682d1ee849e61219e8a1bd872",
+    "src/Mapper/Mapper.Collections.cs": "4709a216a9550027cc45d145c4f812f455bd00d069c752f91aacaecbf54feb37",
+    "src/Mapper/Mapper.DestinationPaths.cs": "f52326bdb0d02489e266de75a79c2dd8fbe9824696f50ec17bacc5ee70672bd0",
+    "src/Mapper/MappingException.cs": "f957704642628c6d8dfade5bc436699283da897e1daccfbc782177c151e8d2e3",
+    "src/Mapper/Mapper.Dictionaries.cs": "54be9278a1beb4179ab03001640b40ef99748d4ee1906361e0c490275c16741e",
+    "src/Mapper/IMapper.cs": "5044ce9ff8713ddeccd64d153074c32bfe1c51cb3cd844b5b4bc156d358dd329",
+    "src/Mapper/ScalarConversion.cs": "a10b9ff107adec9d2dda755645db4e3bfe18cd65172d0fbcf1721c310aed4a47",
+    "src/Mapper/Mapper.Constructors.cs": "c804a375588020c1c19105555c959b59c4ab6ae67e7d7bc316425ebbdd3d9037",
+    "src/Mapper/Mapper.cs": "142bc0827d60e38f833709ee7ae7de87f70eb23a591de9ce8a483495fdc396d6",
+    "src/Mapper/MappingContext.cs": "779948a65d4175e25a4143238b0f625df9e2976a8c48f0cc7b9c828c00bf8131",
+    "src/Utils/TypeUtils.cs": "27e4c39b8aee0eb766f1c97ed9ed4c65414d8c7ba5661f3b49784fe017b1d68b",
+    "src/Utils/MappingTypeValidation.cs": "6edadb9d0bfa2889c3913b97cb01fc0d7b8d9bb42f265249c538d3cffaaba7bc",
+    "src/Generated/GeneratedMapperRegistry.cs": "911c5c9af1ecb256ae83157bc75a5401055ea67f6c223403920945c709d3b992",
+    "src/Generated/GeneratedMapAttribute.cs": "52688147d11dd2128bf7e216c39bbbede1d393099419521436e1c76a63b156b4",
+    "src/Registry/MapperRegistry.cs": "880bef240f7b1e2131073444a4dba4719b20a16a5b77d17a6b32bcf9102933f8",
+    "src/TypeConverter/TypeConverterRegistry.cs": "f09523dac86c0635aa2a82f8c6de4ad59e57317442a8325be7bef3ed5b6fee31",
+    "tests/Ling.Mapper.AotSmoke/Program.cs": "4664728b6fe144f73168af1df8b73f65e32d20f92baf77491155edfc4179feb3",
+    "tests/Ling.Mapper.GeneratorDiagnostics/Unsupported.cs": "ed4fa3c2948a9c58e62ace51ea18b9d514b374411c2bab8ce39b303a878d90ce",
+    "tests/Ling.Mapper.AutoMapperParity/Program.cs": "561da66fac81501b9a8176de72d966d026dded3b797306d5c35835e7cee46d90",
+    "tests/Ling.Mapper.Tests/Program.cs": "28505197d7d2096ecf212f18c2f3937959b777357c8bcebd32c60a2ebca5ecd4",
+    "tests/Ling.Mapper.Tests/Test/NestedPropertyMappingTest.cs": "c1cc957cfb94f5214118a497cf17f5926cd60b8b0f812d8fe3e05e6b05a5cdb3",
+    "tests/Ling.Mapper.Tests/Test/ActivityProfile.cs": "1782654a7dfa2796a8b34cae6bff7cdbdd8b6dfa067abc39b7851a32948769c7",
+    "tests/Ling.Mapper.Tests/Test/CircularReferenceDetailedTest.cs": "4616d2bbe69ad01b42a039f20fbd395fde046f4fd42e872afbf6b6967c39bb65",
+    "tests/Ling.Mapper.Tests/Test/ConcurrencyRegressionTests.cs": "42b159cc312e0d70018dda52cc97ac71726ac5f5459f37215a13a5fc331422db",
+    "tests/Ling.Mapper.Tests/Test/DiagnosticsBoundaryRegressionTests.cs": "c3baee715664e1bb43f8d6e796c503a0ea687d5e5f676165d59424acbe94a1cb",
+    "tests/Ling.Mapper.Tests/Test/MapperV2ValidationTests.cs": "8ea40461281d8364a135e69d4097fd91028816683cd679de01a6e7c0718526e7",
+    "tests/Ling.Mapper.Tests/Test/AdvancedMappingRegressionTests.cs": "f02f1889244e4673b4d7684eae0d0e9dbc5a7ddbc61d71e51211a2665e9a51fe",
+    "tests/Ling.Mapper.Tests/Test/ConcurrenyLifecycleRegressionTests.cs": "ce47938157c71978a8a1a3d4ace5fcec2348b852a4aeda5058510f1160f23e24",
+    "tests/Ling.Mapper.Tests/Test/LongToDateTimeDemo.cs": "cf1b881ad97003d9fc73baed05a5f51dabcda2a1f41567f9c34f26ec96ca47af",
+    "tests/Ling.Mapper.Tests/Test/UserProfile.cs": "33b80de63ba4d7803d618c42aaf6ab222072d6a17b2c338ae899d8c5e39efca8",
+    "tests/Ling.Mapper.Tests/Test/PerformanceBenchmarkTest.cs": "7b832720ccb2ce1daaa7b2cb5a1912e9e8ebc2b68b57b4f5fae1c9837584e2e6",
+    "tests/Ling.Mapper.Tests/Test/DefaultFlexibleOptionTest.cs": "5f2fe5483dd7c331a0c83e70ad90ad430bff7a5a7631daf4edb767efc2ef9105",
+    "tests/Ling.Mapper.Tests/Test/LegacyContractRegressionTests.cs": "0a77bea2b7247ab99097925bca35ea0ee4432de039f7d7ddd3a48785bfb501ba",
+    "tests/Ling.Mapper.Tests/Test/NestedCollectionTest.cs": "a46ec75b36ef312c230740cfaeabfe8cafe938626a23fc9814bc7292b317b536",
+    "tests/Ling.Mapper.Tests/Test/TestDtos.cs": "b55b6050fbcdf76119140e9bca4ea7402760906353fbbffcec21d654fb797ea6",
+    "tests/Ling.Mapper.Tests/Test/AdaptOptionsDemo.cs": "6eeac863ac10a3adbdcf5578388ee6a7620feb4fa218368505416c04f67230da",
+    "tests/Ling.Mapper.Tests/Test/EnumConversionDemo.cs": "8b1e91080dfd1b6ca70f7f36b5e1c0a15b9c711212224290d88b2d6b6ed91300",
+    "tests/Ling.Mapper.Tests/Test/ConversionRegressionTests.cs": "a2465a2b3778efc61a4e7af6016c304723f56d4a509aca896b52fa28ec1cb392",
+    "tests/Ling.Mapper.Tests/Test/ExceptionHandlingTest.cs": "1eaad6758aa2fe36c54ad4cad7251c44a0dfe68a4599b08c2d6cd62b58a9b7c8",
+    "tests/Ling.Mapper.Tests/Test/BasicMappingTest.cs": "e19121c9fa3a388ee5398e22c1587281f3d9610390dd629b3d90c0c806d088ea",
+    "tests/Ling.Mapper.Tests/Test/DebugIgnoreUnderscoreTest.cs": "65337d3f8257e17dbf39edac32a851321b0f4b570f17056240a5b9ee33cfa6bc",
+    "tests/Ling.Mapper.Tests/Test/AdaptListDemo.cs": "ec990ca6cb963229522db4add93db05d9706ac165951d39b72800771c203523c",
+    "tests/Ling.Mapper.Tests/Test/CircularReferenceTest.cs": "74283376260cf2299d62a035bc59d04cbbcbd3b9303dff4bdb6766df8083b547",
+    "tests/Ling.Mapper.Tests/Test/ProductOnShelvesSelectTest.cs": "85aa13707c81e23bc663ba8a7f192d83b265a3eecdbc56b58c5db0e38ad11138",
+    "tests/Ling.Mapper.Tests/Test/AdvancedConcurrencyRegressionTests.cs": "d3d2dba363c9b860f5f8940180b4924e1e31e6eb155548fa3b2387d0b5d9b73f",
+    "tests/Ling.Mapper.Tests/Test/AdaptExtensionsTest.cs": "8b060263f9455392e2f42980a99c64a5e7bf0c895eda6488bff02a64aff4b869",
+    "tests/Ling.Mapper.Tests/Test/NullableTypeDemo.cs": "16f556d00c580edc7eed2a9b6761928b0509152b0e4fafceef9c3a8367dceb1c",
+    "tests/Ling.Mapper.Tests/Test/StructuralBoundaryRegressionTests.cs": "e9059b029b6859501b1abe665b2b3ee0445cc906b66b66492f5908304281a898",
+    "tests/Ling.Mapper.Tests/Test/PublicContractRegressionTests.cs": "9a54d029ddac365e987d9248ff78a2aabac2afce3ad233acfe9e04bd3acfe84d",
+    "tests/Ling.Mapper.Tests/Test/NullableTypeProfile.cs": "ac2d997838e05ba39f3cf5e540b05ea24d5b1664cca2008f17ee1981b87fe6ea",
+    "tests/Ling.Mapper.Tests/Test/StackOverflowFixTest.cs": "463597241d5000bdf6517f2ad3325e343769c3746a20b176ca68fb75ffa89ca6",
+    "tests/Ling.Mapper.Tests/Test/StressTest.cs": "10e7de4b4f831d79d78cbf0e9ac09dd0167474ef89dc06f71845b0f5c10d2b52",
+    "tests/Ling.Mapper.Tests/Test/IgnorePropertiesDemo.cs": "12c47d6a3e49576156e0837546a3a65e857a0378dc72cf06a0d0fe791741e483",
+    "tests/Ling.Mapper.Tests/Test/DiagnosticsAndCacheRegressionTests.cs": "3fe7491a024abc541a6353a4d1aad40c106b7816f962b8b4a614088ee2fbd120",
+    "tests/Ling.Mapper.Tests/Test/DateCultureRegressionTests.cs": "ad1d421feb744324c2951d576d0dc465264b902edf1acddac7815f153ce4ec2a",
+    "tests/Ling.Mapper.Tests/Test/AdaptOptionsFlexibleTest.cs": "964790b1dd5d94f362764bd83f72c4e20fe896a81c4ca9c87c7c28e7285d88ff",
+    "tests/Ling.Mapper.Tests/Test/ComplexObjectMappingTest.cs": "a7dbd510f36cb092548e6502bc811aa361cdc4719a3f6af67db4a88b1c92debe",
+    "tests/Ling.Mapper.Tests/Test/ListConversionTest.cs": "e823df0fbeab46f04c21373b861a533b19ad9d792711aece9faa9a255d000a51",
+    "tests/Ling.Mapper.Tests/Test/NumericBoundaryRegressionTests.cs": "9b42dd2df015799b1c135578e7c16c709bab6a3232845f203df1c753fd58f41b",
+    "tests/Ling.Mapper.Tests/Test/CollectionAutoDetectionTest.cs": "e78faaccf1a7651ddabb0241d91ba4e479d4adcf3ff4e182a2645e01df91796e",
+    "tests/Ling.Mapper.Tests/Test/ValueAndApiBoundaryRegressionTests.cs": "994eedc0798354c336386748ce0ac74648362ed56ad34e21fa3376fc994fda94",
+    "tests/Ling.Mapper.Tests/Test/ScalarBoundaryRegressionTests.cs": "f14e3cad770b011dde7715acb7716c703fd56ca7bdc157370caa5ecbce983f1b",
+    "tests/Ling.Mapper.Tests/Test/AutoMapperProviderTest.cs": "8dee037f56d400c6ee9d818e8e7e62b07a0aa0301a7273daf9d8c317e425e150",
+    "tests/Ling.Mapper.Tests/Utils/ProgressBar.cs": "e70c7f0fa2c57050577baabe3f679c07a5b5ebf0aea8406ba551b9ccd8e3f071",
+    "tests/Ling.Mapper.Tests/Utils/TestHelper.cs": "23a726975ec71a464969609201a40214a1e2ad8cb501262b1dbf0a5206bc555f",
+    "tests/Ling.Mapper.Tests/Utils/RegressionRunner.cs": "e0493108a4c2907fbfa7928ab1331db8975110c59fc89dd1dbb8071881b80b47",
+    "tests/Ling.Mapper.Tests/Utils/CleanBenchmark.cs": "e55ded38e7269915c1676ff1a5d3101e57e79d6c36937368ad4173ba8e19c60b",
+    "generators/Ling.Mapper.Generator/MapperGenerator.cs": "12a9dc09c8f7523bb5b5fd0365c4480325a6301fffd0b716215444e19b06209f"
+  },
+  "post_validation_metadata_changes": [
+    "Ling.Mapper.slnx includes generator, AOT smoke and parity projects; SDK10 solution build verified."
+  ],
+  "snapshot": "release-final-2026-10-23T10:14Z",
+  "value_api_cases": 905,
+  "structural_cases": {
+    "net6.0": 59,
+    "net8.0": 61,
+    "net10.0": 61,
+    "net11.0": 61
+  },
+  "conditional_tests": "Two C# required-member tests execute only on NET8_0_OR_GREATER, not on net6.0.",
+  "lifecycle_cases": 10,
+  "lifecycle_assertions": 102416,
+  "diagnostic_boundary_assertions": 74,
+  "changed_during_run": []
+}

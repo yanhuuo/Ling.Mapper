@@ -1,5 +1,4 @@
 using System;
-using System.Collections;
 using Ling.Mapper.Models;
 using Ling.Mapper.Provider;
 
@@ -11,6 +10,8 @@ namespace Ling.Mapper.Extensions
     /// </summary>
     public static class AdaptExtensions
     {
+        private static AdaptOptions GetDefaultOptions(Ling.Mapper.Mapper.IMapper mapper) => mapper is Ling.Mapper.Mapper.IDefaultMappingOptions defaults ? defaults.DefaultOptions : AdaptOptions.Default;
+
         /* ============================================================
          * 一、 核心基础入口 (处理基础映射与选项)
          * ============================================================ */
@@ -21,7 +22,7 @@ namespace Ling.Mapper.Extensions
             /// 基础映射：user.Adapt&lt;UserDto&gt;()
             /// </summary>
             public TDestination Adapt<TDestination>()
-                => source.InternalAdapt<TDestination>(AdaptOptions.Default, null, null);
+                => source.InternalAdapt<TDestination>(null, null, null);
 
             /// <summary>
             /// 带选项映射：user.Adapt&lt;UserDto&gt;(AdaptOptions.FlexibleOption)
@@ -41,7 +42,7 @@ namespace Ling.Mapper.Extensions
                 var ignores = new string[otherIgnores.Length + 1];
                 ignores[0] = firstIgnore;
                 Array.Copy(otherIgnores, 0, ignores, 1, otherIgnores.Length);
-                return source.InternalAdapt<TDestination>(AdaptOptions.Default, null, ignores);
+                return source.InternalAdapt<TDestination>(null, null, ignores);
             }
         }
 
@@ -55,15 +56,17 @@ namespace Ling.Mapper.Extensions
         public static TDestination Adapt<TDestination, TSource>(this TSource source, Action<TDestination, TSource> afterMapItem)
         {
             ArgumentNullException.ThrowIfNull(afterMapItem);
-            if (source == null) return source.InternalAdapt<TDestination>(AdaptOptions.Default, null, null);
+            if (source == null) return source.InternalAdapt<TDestination>(null, null, null);
 
-            var result = MapperProvider.Current.Map<TDestination>(source, AdaptOptions.Default, (d, s) =>
+            var mapper = MapperProvider.Current;
+            var result = mapper.Map<TDestination>(source, GetDefaultOptions(mapper), (d, s) =>
             {
                 if (d is TDestination dest && s is TSource src)
                     afterMapItem(dest, src);
             });
 
-            return result ?? CreateFallback<TDestination>()!;
+            // Preserve the mapper's result, including an explicit converter's null.
+            return result!;
         }
 
         /// <summary>
@@ -72,7 +75,7 @@ namespace Ling.Mapper.Extensions
         public static TDestination Adapt<TDestination>(this object? source, Action<TDestination> afterMap)
         {
             ArgumentNullException.ThrowIfNull(afterMap);
-            var result = source.InternalAdapt<TDestination>(AdaptOptions.Default, null, null);
+            var result = source.InternalAdapt<TDestination>(null, null, null);
             afterMap(result);
             return result;
         }
@@ -85,7 +88,8 @@ namespace Ling.Mapper.Extensions
         {
             ArgumentNullException.ThrowIfNull(afterMapItem);
             if (source == null) return new List<TTargetItem>();
-            return MapperProvider.Current.Map<List<TTargetItem>>(source, AdaptOptions.Default, (d, s) =>
+            var mapper = MapperProvider.Current;
+            return mapper.Map<List<TTargetItem>>(source, GetDefaultOptions(mapper), (d, s) =>
             {
                 if (d is TTargetItem dt && s is TSourceItem sr)
                     afterMapItem(dt, sr);
@@ -98,51 +102,21 @@ namespace Ling.Mapper.Extensions
 
         internal static TDestination InternalAdapt<TDestination>(
             this object? source,
-            AdaptOptions options,
+            AdaptOptions? options,
             Action<object, object>? afterMap,
             string[]? ignores)
         {
+            var mapper = MapperProvider.Current;
+            var effectiveOptions = options ?? GetDefaultOptions(mapper);
             // Generic Adapt shares IMapper's null policy. Only the explicitly typed
             // collection-item overload above promises an empty list for a null source.
             if (source == null)
-                return MapperProvider.Current.Map<TDestination>(null, options, afterMap, ignores)!;
+                return mapper.Map<TDestination>(null, effectiveOptions, afterMap, ignores)!;
 
-            var result = MapperProvider.Current.Map<TDestination>(source, options, afterMap, ignores);
-            return result ?? CreateFallback<TDestination>()!;
+            var result = mapper.Map<TDestination>(source, effectiveOptions, afterMap, ignores);
+            // Preserve the mapper's result, including an explicit converter's null.
+            return result!;
         }
 
-        /// <summary>
-        /// 内部 fallback：解决 IList/IEnumerable 等接口无法 new() 的问题
-        /// </summary>
-        private static T? CreateFallback<T>()
-        {
-            var type = typeof(T);
-            if (type == typeof(string)) return default;
-
-            if (typeof(IEnumerable).IsAssignableFrom(type))
-                return (T)CreateEmptyEnumerable(type);
-
-            try
-            {
-                return (T)Activator.CreateInstance(type)!;
-            }
-            catch
-            {
-                // 对应测试 2：如果实在无法实例化（没有无参构造函数），此处会抛出异常
-                // 如果你希望由 Mapper 抛出，就在这里 throw 
-                throw;
-            }
-        }
-
-        private static object CreateEmptyEnumerable(Type type)
-        {
-            if (type.IsArray) return Array.CreateInstance(type.GetElementType() ?? typeof(object), 0);
-            if (type.IsInterface || type.IsAbstract)
-            {
-                var itemType = type.IsGenericType ? type.GetGenericArguments()[0] : typeof(object);
-                return Activator.CreateInstance(typeof(List<>).MakeGenericType(itemType))!;
-            }
-            return Activator.CreateInstance(type)!;
-        }
     }
 }

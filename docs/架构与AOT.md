@@ -17,12 +17,16 @@
 
 当前常规运行时通过反射读取类型结构，构建表达式树并缓存委托。缓存热路径执行编译后的委托，但类型发现、首次构造与动态集合类型仍依赖运行时能力；因此不能描述成“零反射”。性能回归需分别检查首次构建、缓存热调用、集合与并发场景。
 
-## 本轮不是完整 Native AOT 支持
+## 两个后端与明确边界
 
-`RuntimeFeature.IsDynamicCodeSupported` 检测的是动态代码能力，不是唯一的 AOT 身份开关。表达式解释执行也不能解决元数据裁剪、运行时泛型实例化和全部类型发现问题。
+常规运行时保留表达式计划后端。`Mapper.Dictionaries.cs` 负责泛型键值映射及碰撞检测，`Mapper.Constructors.cs` 负责不可变结构体构造绑定，`Mapper.DestinationPaths.cs` 负责嵌套写入和 struct 写回。MappingContext 按源引用、声明目标类型、忽略投影隔离目标实例，每次 root 调用独立。
 
-仓库的 `GeneratedMapperFactoryProxy` 目前只是占位入口，尚无真实 Source Generator。消费者程序集不能通过同名 partial class 覆盖已编译库的方法。没有发布并运行实际 AOT 产物前，不宣称 AOT 验收通过；多运行时 CoreCLR 回归也不等于 Native AOT 验证。
+`generators/Ling.Mapper.Generator` 是真实增量生成器；assembly `GeneratedMap(typeof(Source), typeof(Target))` 声明显式类型对，生成强类型构造/赋值代码及 ModuleInitializer 注册。`GeneratedMapperRegistry` 与 `GeneratedMappingContext` 提供登记、无反射对象构建的调度、共享引用/循环和安全异常。无动态代码能力时 CreateMapper 选择此后端；未登记且不可安全赋值的类型对明确失败，禁止回退到反射/表达式构建。
 
-未来可保持 `a.Adapt<T>()` 调用方式，采用运行时缓存与编译期生成两条后端，共享转换策略。编译时能识别的类型对可自动生成；`object` 在运行时可识别实际类型并查询已生成映射，不应仅因声明为 `object` 就拒绝。对于编译时无法发现且未登记的类型对，应明确报错，不能在 AOT 下静默退回任意反射构建。类型识别本身不能凭空生成被裁剪的代码。
+生成后端支持显式登记的标量对、公开无参 DTO、已登记子类型对，以及由登记元素对派生的 List/一维数组和 IEnumerable/IList/IReadOnlyList 目标。`object` 入口按实际类型查询登记。标量使用共享转换规则，不能以普通 C# 浮点强转替代 Convert 的舍入语义。
 
-依据：[Microsoft Native AOT 部署说明](https://learn.microsoft.com/en-us/dotnet/core/deploying/native-aot/)，其中明确列出动态代码生成、裁剪和表达式解释执行的限制。
+当前不解释 runtime Profile、TypeConverterRegistry、任意 conventions；相关配置明确拒绝。不可变构造绑定、字典、nested target、计算 ReverseMap 不因运行时支持而自动成为生成后端能力。生成成员不支持的类型组合产生诊断，未知动态类型运行时失败；顶级忽略名可用，dotted 忽略路径拒绝。非 DTO、required/init 目标等需按生成器诊断调整或显式手写 AOT-safe 注册。
+
+源码使用方式与最小可运行工程见 [AOT smoke 项目](../tests/Ling.Mapper.AotSmoke/Ling.Mapper.AotSmoke.csproj)：生成器需作为 Analyzer ProjectReference 引用，不能仅引用主库便假定生成器已安装。Native AOT 发布脚本见 [run-native.sh](../tests/Ling.Mapper.AotSmoke/run-native.sh)。生成器采用独立 `Ling.Mapper.Generator` analyzer 包，必须与 `Ling.Mapper` runtime 包一起引用；接入与支持范围见[生成器说明](../generators/Ling.Mapper.Generator/README.md)。本地包验收不等同于 NuGet 发布。
+
+`RuntimeFeature.IsDynamicCodeSupported` 是后端能力检测，不代表所有模型可 AOT。常规 CoreCLR 测试、生成代码编译、生成后端 JIT smoke、原生 publish 和原生产物执行是不同证据；实际结果单独记录在[新增功能与验证记录](新增功能与验证记录.md)，不能互相替代。不宣称全部 CLR 类型或完整运行时 API 已经 AOT 兼容。

@@ -11,7 +11,7 @@ namespace TestConsole.Test;
 /// <summary>
 /// Public entry-point and structural boundary contracts, not additional repetitions of
 /// the scalar matrix. Unsupported shapes must fail explicitly, never return lost data.
-/// ReverseMap registration, generated plans and NativeAOT are not claimed by this suite.
+/// Generated plans and NativeAOT are not claimed by this suite.
 /// </summary>
 public static class PublicContractRegressionTests
 {
@@ -129,21 +129,20 @@ public static class PublicContractRegressionTests
             Case("nested jagged arrays preserve empty rows and order", () => { var d = mapper.Map<long[][]>(new[] { new[] { 1, 2 }, Array.Empty<int>(), new[] { -1 } })!; Equal(3, d.Length); Sequence(new long[] { 1, 2 }, d[0]); Equal(0, d[1].Length); Sequence(new long[] { -1 }, d[2]); });
             Case("multidimensional destination rejects instead of returning wrong rank", () => Failure(() => mapper.Map<long[,]>(new int[,] { { 1, 2 } }), "$"));
             Case("collection without enumerable constructor rejects", () => Failure(() => mapper.Map<NoEnumerableConstructor<long>>(new[] { 1, 2 }), "$"));
-            Case("dictionary conversion rejects unsupported destination", () => Failure(() => mapper.Map<Dictionary<string, long>>(new Dictionary<string, int> { ["key"] = 7 }), "$"));
+            Case("dictionary cross-type conversion preserves entry", () => { var d = mapper.Map<Dictionary<string, long>>(new Dictionary<string, int> { ["key"] = 7 })!; Equal(1, d.Count); Equal(7L, d["key"]); });
             Case("assignable dictionary preserves identity and data", () => { var s = new Dictionary<string, int> { ["key"] = 7 }; Same(s, mapper.Map<IDictionary<string, int>>(s)); Equal(7, mapper.Map<IDictionary<string, int>>(s)!["key"]); });
             Case("non-generic dictionary conversion rejects", () => Failure(() => mapper.Map<Dictionary<string, long>>(new Hashtable { ["key"] = 7 }), "$"));
-            Case("readonly dictionary source conversion rejects", () => {
+            Case("dictionary to non-dictionary collection remains unsupported", () => {
                 var s = new System.Collections.ObjectModel.ReadOnlyDictionary<string, int>(new Dictionary<string, int> { ["key"] = 7 });
                 Failure(() => mapper.Map<List<KeyValuePair<string, long>>>(s), "$");
             });
-            Case("explicit dictionary converter overrides unsupported shape", () => {
+            Case("explicit dictionary converter overrides automatic mapping", () => {
                 TypeConverterRegistry.Register(typeof(Dictionary<string, short>), typeof(Dictionary<string, long>),
                     new Func<Dictionary<string, short>, Dictionary<string, long>>(s => s.ToDictionary(p => p.Key, p => (long)p.Value)));
                 var d = mapper.Map<Dictionary<string, long>>(new Dictionary<string, short> { ["key"] = 7 })!; Equal(1, d.Count); Equal(7L, d["key"]);
             });
             Case("readonly keyvalue elements cannot silently become default", () => {
-                try { var d = mapper.Map<KeyValuePair<string, long>[]>(new[] { new KeyValuePair<string, int>("key", 7) })!; Equal(1, d.Length); Equal("key", d[0].Key); Equal(7L, d[0].Value); }
-                catch (MappingException) { /* Explicit rejection is valid for this unsupported structural shape. */ }
+                var d = mapper.Map<KeyValuePair<string, long>[]>(new[] { new KeyValuePair<string, int>("key", 7) })!; Equal(1, d.Length); Equal("key", d[0].Key); Equal(7L, d[0].Value);
             });
             Case("shared array properties retain mapped alias", () => { var values = new[] { 3, 9 }; var d = mapper.Map<SharedArraysTarget>(new SharedArraysSource { First = values, Second = values })!; Same(d.First, d.Second); Sequence(new long[] { 3, 9 }, d.First!); });
             Case("collection constructor exception is safely reported", () => { var e = Failure(() => mapper.Map<ThrowingCollection<long>>(new[] { 1 }), "$" ); Private(e, "PRIVATE_CONSTRUCTOR"); });
@@ -159,9 +158,9 @@ public static class PublicContractRegressionTests
             Case("Ignore field selector rejects", () => Throws<InvalidOperationException>(() => new MappingExpression<Source, FieldTarget>().Ignore(d => d.Value)));
             Case("ForMember replacing binding uses last explicit expression", () => { var c = new MapperConfiguration(); c.AddProfile(new ReplaceProfile()); Equal(12, c.CreateMapper().Map<Target>(new Source { Value = 3 })!.Value); });
             Case("Ignore takes precedence over explicit member binding", () => { var c = new MapperConfiguration(); c.AddProfile(new IgnoreProfile()); Equal(0, c.CreateMapper().Map<Target>(new Source { Value = 3 })!.Value); });
-            Case("nested destination ForMember must work or reject explicitly", () => NestedContract("member"));
-            Case("nested destination Rename must work or reject explicitly", () => NestedContract("rename"));
-            Case("nested destination Ignore must work or reject explicitly", () => NestedContract("ignore"));
+            Case("nested destination ForMember maps configured leaf", () => NestedContract("member"));
+            Case("nested destination Rename maps configured leaf", () => NestedContract("rename"));
+            Case("nested destination Ignore maps configured leaf", () => NestedContract("ignore"));
         }
         finally { MapperProvider.SetCurrent(original); }
         Console.WriteLine($"Public contract regression: {count - failures.Count}/{count} passed.");
@@ -170,14 +169,9 @@ public static class PublicContractRegressionTests
 
     private static void NestedContract(string kind)
     {
-        try
-        {
-            var c = new MapperConfiguration(); c.AddProfile(new NestedProfile(kind));
-            var d = c.CreateMapper().Map<NestedTarget>(new NestedSource { Value = 19, Child = new Source { Value = 8 } })!;
-            Equal(kind == "ignore" ? 0 : 19, d.Child.Value);
-        }
-        catch (NotSupportedException) { }
-        catch (MappingException e) when (e.OriginalExceptionType == typeof(NotSupportedException).FullName) { }
+        var c = new MapperConfiguration(); c.AddProfile(new NestedProfile(kind));
+        var d = c.CreateMapper().Map<NestedTarget>(new NestedSource { Value = 19, Child = new Source { Value = 8 } })!;
+        Equal(kind == "ignore" ? 0 : 19, d.Child.Value);
     }
     private static IEnumerable<int> YieldNumbers() { yield return 7; yield return 2; }
     private static T Throws<T>(Action action) where T : Exception { try { action(); } catch (T e) { return e; } throw new Exception($"Expected {typeof(T).Name}."); }

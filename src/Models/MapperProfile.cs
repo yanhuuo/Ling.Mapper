@@ -25,7 +25,7 @@ namespace Ling.Mapper
         [return: NotNull]
         protected MappingExpression<TSource, TDestination> CreateMap<TSource, TDestination>()
         {
-            var expr = new MappingExpression<TSource, TDestination>();
+            var expr = new MappingExpression<TSource, TDestination>(config => Configs.Add(config));
             Configs.Add(new MappingConfig<TSource, TDestination>(expr));
             return expr;
         }
@@ -51,6 +51,7 @@ namespace Ling.Mapper
         /// 使用 object 类型保存，以便统一处理。
         /// </summary>
         object ExpressionObject { get; }
+        bool IsReverseGenerated { get; }
     }
 
     /// <summary>
@@ -68,6 +69,7 @@ namespace Ling.Mapper
 
         /// <inheritdoc />
         public object ExpressionObject => Expression;
+        public bool IsReverseGenerated { get; }
 
         /// <summary>
         /// 映射表达式。
@@ -78,9 +80,10 @@ namespace Ling.Mapper
         /// 使用给定的映射表达式构造配置实例。
         /// </summary>
         /// <param name="expr">映射表达式。</param>
-        public MappingConfig(MappingExpression<TSource, TDestination> expr)
+        public MappingConfig(MappingExpression<TSource, TDestination> expr, bool isReverseGenerated = false)
         {
             Expression = expr;
+            IsReverseGenerated = isReverseGenerated;
         }
     }
 }

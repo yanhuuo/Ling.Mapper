@@ -31,6 +31,11 @@ namespace Ling.Mapper.Helpers
             _renamed = t.GetField("RenamedMembers", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
         }
 
+        public IEnumerable<string> ConfiguredPaths => (_bindings?.Keys ?? Enumerable.Empty<string>())
+            .Concat((_renamed?.GetValue(_expr) as IDictionary)?.Keys.Cast<string>() ?? Enumerable.Empty<string>())
+            .Distinct(StringComparer.Ordinal);
+        public IEnumerable<string> IgnoredPaths => (_ignored?.GetValue(_expr) as IEnumerable)?.Cast<string>() ?? Enumerable.Empty<string>();
+
         public LambdaExpression? GetCustomBinding(string name) => _bindings != null && _bindings.TryGetValue(name, out var binding) ? binding : null;
 
         public bool IsIgnored(string name)

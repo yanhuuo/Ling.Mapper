@@ -1,4 +1,5 @@
 using System.Globalization;
+using System.Text;
 using Ling.Mapper.Configuration;
 using Ling.Mapper.Utils;
 
@@ -45,6 +46,33 @@ public sealed class MappingException : Exception
 
     internal static bool IsSensitivePath(string path) => new[] { "password", "passwd", "pwd", "token", "secret", "credential", "encrypt", "cipher", "privatekey", "apikey" }.Any(word => path.Contains(word, StringComparison.OrdinalIgnoreCase));
 
+    // Limit counts UTF-16 code units, but never emits half of a valid surrogate pair.
+    // Normalize controls before logging; this is a diagnostic copy, never the source value.
+    private static string SanitizePreview(string text, int limit)
+    {
+        var result = new StringBuilder(Math.Min(text.Length, limit));
+        for (var index = 0; index < text.Length && result.Length < limit; index++)
+        {
+            var character = text[index];
+            if (char.IsHighSurrogate(character) && index + 1 < text.Length && char.IsLowSurrogate(text[index + 1]))
+            {
+                if (CharUnicodeInfo.GetUnicodeCategory(text, index) == UnicodeCategory.Format)
+                {
+                    result.Append(' ');
+                    index++;
+                    continue;
+                }
+                if (result.Length + 2 > limit) break;
+                result.Append(character).Append(text[++index]);
+                continue;
+            }
+            if (char.IsSurrogate(character)) { result.Append('\uFFFD'); continue; }
+            var category = char.GetUnicodeCategory(character);
+            result.Append(char.IsControl(character) || category is UnicodeCategory.Format or UnicodeCategory.LineSeparator or UnicodeCategory.ParagraphSeparator ? ' ' : character);
+        }
+        return result.ToString();
+    }
+
     internal static MappingException Create(Type source, Type destination, string path, object? value, Exception error, MapperConfiguration config, bool sensitive = false, object? origin = null)
     {
         string? preview = null;
@@ -56,8 +84,7 @@ public sealed class MappingException : Exception
             {
                 preview = value == null ? "null" : (string)ScalarConversion.Convert(value, typeof(string));
                 var limit = Math.Max(0, config.MaxDiagnosticValueLength);
-                if (preview.Length > limit) preview = preview.Substring(0, limit);
-                preview = preview.Replace("\r", " ").Replace("\n", " ");
+                preview = SanitizePreview(preview, limit);
             }
         }
         return new MappingException(source, destination, path, preview, error, origin);
