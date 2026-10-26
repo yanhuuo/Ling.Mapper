@@ -43,7 +43,7 @@ public sealed class OrderDto
 
 ## 文档导航
 
-[版本更新日志](https://github.com/yanhuuo/Ling.Mapper/blob/main/CHANGELOG.md)：1.3.0 新增能力、日期默认行为变化与兼容性说明。
+[版本更新日志](https://github.com/yanhuuo/Ling.Mapper/blob/main/CHANGELOG.md)：1.3.1 自定义表达式 null 兼容修复，以及 1.3.0 新增能力与兼容性说明。
 
 
 | 需要了解 | 文档 |
@@ -75,3 +75,7 @@ dotnet tests/Ling.Mapper.Tests/bin/Release/net10.0/TestConsole.dll --all
 - [NuGet](https://www.nuget.org/packages/Ling.Mapper/)
 - [问题反馈](https://github.com/yanhuuo/Ling.Mapper/issues)
 - [MIT 许可证](https://github.com/yanhuuo/Ling.Mapper/blob/main/LICENSE)
+
+## 手动发布
+
+当前源码准备 runtime 与 generator 1.3.1 双包；发布状态以 NuGet 官方源实际可下载为准。仓库不配置自动 CI/发布工作流，标签不会代替手动验收或发布。参见[手动发布步骤](docs/manual-release/README.md)及[1.3.1 验证记录](docs/1.3.1-validation.md)。

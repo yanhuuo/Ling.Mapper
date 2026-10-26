@@ -7,10 +7,12 @@ reflection-free `GeneratedMapperRegistry`. It does **not** infer every pair from
 
 ## Consumer setup
 
-The generator is a **separate analyzer package**, version 1.3.0. The local package
-is validated separately; this does not mean it has been published to NuGet. The
-existing repository workflow publishes only the main runtime package. No CI or
-package-publication workflow is changed or triggered by this implementation.
+The generator is a **separate analyzer package**, version 1.3.1, kept in sync
+with the runtime release. This patch does not add generator capabilities or
+interpret runtime Profiles. Version 1.3.0 was published and independently
+consumed from NuGet; the 1.3.1 source version alone is not publication evidence.
+Both packages are released manually. No active GitHub Actions workflow remains;
+see [manual release](../../docs/manual-release/README.md).
 
 The generator is a **separate analyzer package**. Reference both `Ling.Mapper`
 and `Ling.Mapper.Generator`; installing only the runtime package does not enable
@@ -99,7 +101,10 @@ A successful build alone is not an AOT validation. Run the native executable and
 check `dynamic-code-supported=False` and its assertion summary. Compiler/linker
 prerequisites and the matching official ILCompiler package must be installed.
 
-### This workspace's native build environment
+### Historical 1.3.0 native build environment
+
+The following records historical 1.3.0 validation only. Native AOT execution was
+not rerun or verified for 1.3.1; see [1.3.1 validation](../../docs/1.3.1-validation.md).
 
 The validation workspace prohibits local IPC sockets, and its escalation launcher
 also failed before executing the compiler. Native publishing was completed using

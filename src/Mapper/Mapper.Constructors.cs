@@ -35,7 +35,7 @@ internal sealed partial class Mapper
                 var sourceName = rules?.GetRenamedSource(member) ?? member;
                 Expression? value = null;
                 Type? valueType = null;
-                if (custom != null) { value = new ParameterSubstitution(custom.Parameters[0], typed).Visit(custom.Body); valueType = custom.ReturnType; }
+                if (custom != null) { value = NullSafeCustomResolution(new ParameterSubstitution(custom.Parameters[0], typed).Visit(custom.Body)!); valueType = custom.ReturnType; }
                 else if (sourceName.Contains('.')) value = BuildNullSafeNestedAccess(typed, sourceType, sourceName, ignoreCase, ignoreUnderscore, out valueType);
                 else if (sourceProperties.TryGetValue(NormalizeNameStatic(sourceName, ignoreCase, ignoreUnderscore), out var property)) { value = Expression.Property(typed, property); valueType = property.PropertyType; }
                 if (value == null)

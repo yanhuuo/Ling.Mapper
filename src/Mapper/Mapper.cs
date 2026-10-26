@@ -201,6 +201,7 @@ internal sealed partial class Mapper : IMapper, IDefaultMappingOptions
             {
                 value = new ParameterSubstitution(custom.Parameters[0], src).Visit(custom.Body)!;
                 valueType = custom.ReturnType;
+                value = NullSafeCustomResolution(value);
                 sensitive |= MappingException.IsSensitivePath(custom.Body.ToString());
             }
             else
@@ -302,6 +303,12 @@ internal sealed partial class Mapper : IMapper, IDefaultMappingOptions
         try { return MappingException.Create(sourceType, destType, context.GetPath(), value, error, _config, context.IsSensitive, context.Origin); }
         finally { context.Pop(); }
     }
+    // Only expression resolution has this compatibility contract. Never wrap
+    // conversion, constructor invocation, destination setters, or callbacks here.
+    private static Expression NullSafeCustomResolution(Expression value) => Expression.TryCatch(value,
+        Expression.Catch(typeof(NullReferenceException), Expression.Default(value.Type)),
+        Expression.Catch(typeof(ArgumentNullException), Expression.Default(value.Type)));
+
     private sealed class ParameterSubstitution(ParameterExpression parameter, Expression replacement) : ExpressionVisitor
     {
         protected override Expression VisitParameter(ParameterExpression node) => node == parameter ? replacement : base.VisitParameter(node);
