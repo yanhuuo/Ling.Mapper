@@ -37,6 +37,9 @@ internal sealed partial class Mapper : IMapper, IDefaultMappingOptions
         // A monomorphic hint, not a second plan cache. Alternating shapes replace
         // this reference with already-cached entries; no per-miss wrapper/data.
         internal PlanEntry? LastRoot;
+        // Keep context-bearing generic roots separate so they cannot evict the
+        // existing context-free hint. Both slots contain plans, never graph data.
+        internal PlanEntry? LastComplexRoot;
     }
     private PlanGeneration _generation = new(TypeConverterRegistry.Version);
     private static readonly MethodInfo MapMemberMethod = typeof(Mapper).GetMethod(nameof(MapMember), BindingFlags.Instance | BindingFlags.NonPublic)!;
@@ -116,6 +119,13 @@ internal sealed partial class Mapper : IMapper, IDefaultMappingOptions
                 var root = System.Threading.Volatile.Read(ref generation.LastRoot);
                 if (root != null && root.Source == sourceType && root.Destination == destType && root.Options == options)
                     return root.Root!(source, afterMapItem);
+                // Explicit Type inputs retain their existing metadata guards.
+                if (!validateDeclaredSource)
+                {
+                    var complex = System.Threading.Volatile.Read(ref generation.LastComplexRoot);
+                    if (complex != null && complex.Source == sourceType && complex.Destination == destType && complex.Options == options)
+                        return MapValue(source, sourceType, destType, options, afterMapItem, ignoreNames, new MappingContext(), complex.Plan);
+                }
             }
             // A cached eligible root has already proved this guard. Cache misses
             // retain polymorphic-clone resolution; children and MapInto never use
@@ -130,6 +140,8 @@ internal sealed partial class Mapper : IMapper, IDefaultMappingOptions
                     if (ignoreNames == null) System.Threading.Volatile.Write(ref generation.LastRoot, entry);
                     return entry.Root(source, afterMapItem);
                 }
+                if (!validateDeclaredSource && ignoreNames == null)
+                    System.Threading.Volatile.Write(ref generation.LastComplexRoot, entry);
                 return MapValue(source, sourceType, destType, options, afterMapItem, ignoreNames, new MappingContext(), entry.Plan);
             }
         }
