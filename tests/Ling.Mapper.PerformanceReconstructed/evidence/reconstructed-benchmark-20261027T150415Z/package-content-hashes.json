@@ -1,0 +1,77 @@
+{
+  "BenchmarkDotNet/0.15.8": {
+    "nuget_sha512": "QUZ5ClSA06aLdm+kC7nbpOE2Jlhu7loBg8q8gLDV5wBuQ1aPN7Ns+eHxei1mvgsklDT663a/sJlSxMKAfdFcJw=="
+  },
+  "BenchmarkDotNet.Annotations/0.15.8": {
+    "nuget_sha512": "DFLX2cXJSDNQMO3yJzaKjGZNNxSf5tlLTyIKvzIW8NbGNG4LtM/LbQLvZ/9UEINZ4wArXNq1DPEw29E4vISs7w=="
+  },
+  "CommandLineParser/2.9.1": {
+    "nuget_sha512": "TzZORclmjH58xqkitIjz+lIwM8INekMmlPCmrwXOUo6gSB2DdeL08QMsaZA0e0gDzpoOSAaMb+FexG+xJU8IXQ=="
+  },
+  "Gee.External.Capstone/2.3.0": {
+    "nuget_sha512": "kHnVcF1ZHDuBkSey4Ldj2sq7ISMU6flrL2MvYrRanz4cII8TbfkaSDTdGDijisL9IWHOi1Rf5w+AeLZvxmxKqA=="
+  },
+  "Iced/1.21.0": {
+    "nuget_sha512": "lgvcEHF2Obyoj5rUjUpfUAQNx0JjwoEJ5NTdvdgXSyUJV9X8wjU3MQQxuRauH9Gtxwb0Wt9qubuAHVMpFFkRZA=="
+  },
+  "Mapster/10.0.13": {
+    "nuget_sha512": "1Hp9ieRTKykKdumW1ZKftvyHLI6LE2EYy8GDaUnU+DY8t4coX351YWmMOlaFS5ZcAq8j6dEZkyqmxLPefSr0Pg=="
+  },
+  "Mapster.Core/10.0.13": {
+    "nuget_sha512": "DG7pQ1rJaLOkA4ARI8lA15TyxMZE/n8OFDNoWkO9SwLvK25Wt/NiBwi9mIUwD/f+dPD60OLhFHT4lRV9Ywo6Pg=="
+  },
+  "Microsoft.CodeAnalysis.Analyzers/3.11.0": {
+    "nuget_sha512": "tP9SLzLK72XCExlh8KXfrKbU6ycmZL3ExGl/a3Ml7LNy2Uaam7gFjjUmdzyTYkMXTyckCHHpzx7bD6BMumh8Bg=="
+  },
+  "Microsoft.CodeAnalysis.Common/4.14.0": {
+    "nuget_sha512": "k9AIzOrtcZVqr9+lmcEW0vY80emyXx5JB/757K0HUF96GeUeiTD+djOlFF2y7k4XPZo20Lru4tDgQos+VKBr0w=="
+  },
+  "Microsoft.CodeAnalysis.CSharp/4.14.0": {
+    "nuget_sha512": "kqS2NihVvNQHxzLePtyYiiJmFzoYO9Wm46O9DhfUgIIf5NwTbvSy66kV9EM+qAHmGpi7zQy4w8JU6DFnPlAyTA=="
+  },
+  "Microsoft.Diagnostics.NETCore.Client/0.2.510501": {
+    "nuget_sha512": "gbZWvs9SVPM+P7/9oNzssmgX2VZntsXsXB78bwZD5tDQ5cawEUY2V4XC6KotYLbpuV/+jmoOvgwvTO8Ur5nvjw=="
+  },
+  "Microsoft.Diagnostics.Runtime/3.1.512801": {
+    "nuget_sha512": "hCww6vrXZqAUoFk1FIh6G0rshMyoFOwM8LqD078/mr5ulIDEXMBU1vpjHNjWbMU6ukNK4ik6IRbilL5xpxLtMQ=="
+  },
+  "Microsoft.Diagnostics.Tracing.TraceEvent/3.1.21": {
+    "nuget_sha512": "pjzR9aKCY4SbZe3MAFF5Cc+OjGABtm1CeaZdxT61ECIJ5Buv40tBfH9mGWaGkgt9Gvvd+z0IlLz1izkchBTeww=="
+  },
+  "Microsoft.DotNet.PlatformAbstractions/3.1.6": {
+    "nuget_sha512": "Vbh/VEh0aGvtloiZU7fpnkNCa3mw+sMcxFLg9KJ8pcwIUiwKyWe/nfZJ98BBN6XiVT0TStedXB5pV4NnwrS0xg=="
+  },
+  "Microsoft.Extensions.DependencyInjection/6.0.0": {
+    "nuget_sha512": "wl7voCCnhdhgj4xbwbfUeao/m7MpWqxBoba4FEDujC1obyirX3yb2MdiFSrYlXzHG3q/p9S2yFWSv8J+UVWSig=="
+  },
+  "Microsoft.Extensions.DependencyInjection.Abstractions/6.0.0": {
+    "nuget_sha512": "AVo5KjYsgbNRQ7GcXaTqwJKMwvLhMymrLpRaFaXJ3qB3zWawxGfHXy3+b5DD4L8uzcBZ11CWusObQValP5l70g=="
+  },
+  "Microsoft.Extensions.Logging/6.0.0": {
+    "nuget_sha512": "9d7FkKNTt/uzX9p5nAg9wHhXxw+g1G2uwOAMSVCo1l9CxvOZqGcG4tl+5R+1BCvifzVjdnOiR53E9iNZDVlzEQ=="
+  },
+  "Microsoft.Extensions.Logging.Abstractions/6.0.0": {
+    "nuget_sha512": "v7G0uYJCEEgD0aZaGgUdC45IH7yYf6L0tYphCrRZtNJOh1PFFcMqN23SxoBNHOLTliS5cqgcaOkkgZWOGoox3w=="
+  },
+  "Microsoft.Extensions.Options/6.0.0": {
+    "nuget_sha512": "PDRFK6wCGTJksFY2VLpSgqdLA+3itnWtJfqF69kVvcyoVxWBU+tKSgJAZetOnXvB670jSFSTzYlcTQSaukpd0g=="
+  },
+  "Microsoft.Extensions.Primitives/6.0.0": {
+    "nuget_sha512": "CyaX81VXrv8HhLEK5qTq/XYBv3BhIe1lhKYYeexuSUUU7Ho+DaCqa6qZ8/cW9pAw7HxMgvZXyN/brLY3usRUfw=="
+  },
+  "Perfolizer/0.6.1": {
+    "nuget_sha512": "ZEl6E48b3hYKSS7L5W2Iwp99RGD21j4+NsosvWGrRzpdPTlwH0UbhfA2xp9ptrVJhBh1AjOfjud8qsVkY9fKEA=="
+  },
+  "Pragmastat/3.2.4": {
+    "nuget_sha512": "oj+1XqDcl7Cf0P/y1RqPKb8U/rbuMgUCC5z9lpnrS4ZjnOHbD0Cnc3YyTJfbyK8SrcumyrmmZcmKYNqJR9/tCA=="
+  },
+  "System.CodeDom/9.0.5": {
+    "nuget_sha512": "8zToqP/7XOcORjPJA1VbJAMd5MM5Tt/cfNClW+964LMcvSTwSDF31J0My0+Py6xUrTMK+wuDvSSgm/7lHmRBpA=="
+  },
+  "System.Management/9.0.5": {
+    "nuget_sha512": "0UCF9ysyHwq3W5R2W6Fl4QPJO/2YHkuhgUMTDlfef5nlseLOtcBfEHdXCftSGRRKnjhyWpHrgRtp1MeL994doQ=="
+  },
+  "System.Reflection.TypeExtensions/4.7.0": {
+    "nuget_sha512": "Q/fczHO357fqTntQPZBSwhstHCcZFvgqOwBnkO+lhMyS2pYBDtXyfRQblK3SYXN8GXHOEJzjNM5Tr12zp73c6A=="
+  }
+}

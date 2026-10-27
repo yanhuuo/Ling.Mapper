@@ -1,0 +1,488 @@
+// Validating benchmarks:
+// ***** BenchmarkRunner: Start   *****
+// ***** Found 2 benchmark(s) in total *****
+// ***** Building 1 exe(s) in Parallel: Start   *****
+// start dotnet  restore /m:1 --nodeReuse:false /p:UseSharedCompilation=false /p:Deterministic=true /p:Optimize=true /p:ArtifactsPath="/workspace/scratch/574bb39da4d0/mapper-cloud-recovery-20261027/evidence/reconstructed-baseline-benchmark-20261027T150415Z/frozen-harness/bin/Release/net10.0/Reconstructed-ReconstructedNoTiering-1/" /p:OutDir="/workspace/scratch/574bb39da4d0/mapper-cloud-recovery-20261027/evidence/reconstructed-baseline-benchmark-20261027T150415Z/frozen-harness/bin/Release/net10.0/Reconstructed-ReconstructedNoTiering-1/bin/Release/net10.0/" /p:OutputPath="/workspace/scratch/574bb39da4d0/mapper-cloud-recovery-20261027/evidence/reconstructed-baseline-benchmark-20261027T150415Z/frozen-harness/bin/Release/net10.0/Reconstructed-ReconstructedNoTiering-1/bin/Release/net10.0/" /p:PublishDir="/workspace/scratch/574bb39da4d0/mapper-cloud-recovery-20261027/evidence/reconstructed-baseline-benchmark-20261027T150415Z/frozen-harness/bin/Release/net10.0/Reconstructed-ReconstructedNoTiering-1/publish/" in /workspace/scratch/574bb39da4d0/mapper-cloud-recovery-20261027/evidence/reconstructed-baseline-benchmark-20261027T150415Z/frozen-harness/bin/Release/net10.0/Reconstructed-ReconstructedNoTiering-1
+// command took 1.72 sec and exited with 0
+// start dotnet  build -c Release /m:1 --no-restore --nodeReuse:false /p:UseSharedCompilation=false /p:Deterministic=true /p:Optimize=true /p:ArtifactsPath="/workspace/scratch/574bb39da4d0/mapper-cloud-recovery-20261027/evidence/reconstructed-baseline-benchmark-20261027T150415Z/frozen-harness/bin/Release/net10.0/Reconstructed-ReconstructedNoTiering-1/" /p:OutDir="/workspace/scratch/574bb39da4d0/mapper-cloud-recovery-20261027/evidence/reconstructed-baseline-benchmark-20261027T150415Z/frozen-harness/bin/Release/net10.0/Reconstructed-ReconstructedNoTiering-1/bin/Release/net10.0/" /p:OutputPath="/workspace/scratch/574bb39da4d0/mapper-cloud-recovery-20261027/evidence/reconstructed-baseline-benchmark-20261027T150415Z/frozen-harness/bin/Release/net10.0/Reconstructed-ReconstructedNoTiering-1/bin/Release/net10.0/" /p:PublishDir="/workspace/scratch/574bb39da4d0/mapper-cloud-recovery-20261027/evidence/reconstructed-baseline-benchmark-20261027T150415Z/frozen-harness/bin/Release/net10.0/Reconstructed-ReconstructedNoTiering-1/publish/" --output "/workspace/scratch/574bb39da4d0/mapper-cloud-recovery-20261027/evidence/reconstructed-baseline-benchmark-20261027T150415Z/frozen-harness/bin/Release/net10.0/Reconstructed-ReconstructedNoTiering-1/bin/Release/net10.0/" in /workspace/scratch/574bb39da4d0/mapper-cloud-recovery-20261027/evidence/reconstructed-baseline-benchmark-20261027T150415Z/frozen-harness/bin/Release/net10.0/Reconstructed-ReconstructedNoTiering-1
+// command took 6.07 sec and exited with 0
+// ***** Done, took 00:00:07 (7.93 sec)   *****
+// Found 2 benchmarks:
+//   Custom100DefaultBench.Ling: ReconstructedNoTiering(Affinity=000000100, EnvironmentVariables=DOTNET_TieredCompilation=0, Arguments=/m:1, IterationCount=12, IterationTime=250ms, LaunchCount=2, WarmupCount=6)
+//   Custom100DefaultBench.Mapster: ReconstructedNoTiering(Affinity=000000100, EnvironmentVariables=DOTNET_TieredCompilation=0, Arguments=/m:1, IterationCount=12, IterationTime=250ms, LaunchCount=2, WarmupCount=6)
+
+// **************************
+// Benchmark: Custom100DefaultBench.Ling: ReconstructedNoTiering(Affinity=000000100, EnvironmentVariables=DOTNET_TieredCompilation=0, Arguments=/m:1, IterationCount=12, IterationTime=250ms, LaunchCount=2, WarmupCount=6)
+// *** Execute ***
+// Launch: 1 / 2
+// Execute: dotnet Reconstructed-ReconstructedNoTiering-1.dll --anonymousPipes 126 127 --benchmarkName ReconstructedMapperParity.Custom100DefaultBench.Ling --job ReconstructedNoTiering --benchmarkId 0 in /workspace/scratch/574bb39da4d0/mapper-cloud-recovery-20261027/evidence/reconstructed-baseline-benchmark-20261027T150415Z/frozen-harness/bin/Release/net10.0/Reconstructed-ReconstructedNoTiering-1/bin/Release/net10.0
+// Failed to set up high priority (Permission denied). In order to run benchmarks with high priority, make sure you have the right permissions.
+// BeforeAnythingElse
+
+// Benchmark Process Environment Information:
+// BenchmarkDotNet v0.15.8
+// Runtime=.NET 10.0.14 (10.0.14, 10.0.1426.52326), X64 RyuJIT x86-64-v4
+// GC=Concurrent Workstation
+// HardwareIntrinsics=AVX512 BITALG+VBMI2+VNNI+VPOPCNTDQ,AVX512 IFMA+VBMI,AVX512 F+BW+CD+DQ+VL,AVX2+BMI1+BMI2+F16C+FMA+LZCNT+MOVBE,AVX,SSE3+SSSE3+SSE4.1+SSE4.2+POPCNT,X86Base+SSE+SSE2,AES+PCLMUL VectorSize=256
+// Job: ReconstructedNoTiering(Affinity=100, IterationCount=12, IterationTime=250ms, LaunchCount=2, WarmupCount=6)
+
+PASS Ling exact100 custom calls in order0..99, twice; custom getters/callbacks0; trace disabled after audit
+PASS Mapster exact100 custom calls in order0..99, twice; custom getters/callbacks0; trace disabled after audit
+OverheadJitting  1: 1 op, 196369.00 ns, 196.3690 us/op
+WorkloadJitting  1: 1 op, 181337.00 ns, 181.3370 us/op
+
+OverheadJitting  2: 16 op, 484114.00 ns, 30.2571 us/op
+WorkloadJitting  2: 16 op, 789314.00 ns, 49.3321 us/op
+
+WorkloadPilot    1: 16 op, 152164.00 ns, 9.5103 us/op
+WorkloadPilot    2: 26288 op, 232452367.00 ns, 8.8425 us/op
+WorkloadPilot    3: 28272 op, 257193592.00 ns, 9.0971 us/op
+WorkloadPilot    4: 27488 op, 233629925.00 ns, 8.4993 us/op
+WorkloadPilot    5: 29424 op, 263686247.00 ns, 8.9616 us/op
+WorkloadPilot    6: 27904 op, 235176285.00 ns, 8.4280 us/op
+WorkloadPilot    7: 29664 op, 244949618.00 ns, 8.2575 us/op
+WorkloadPilot    8: 30288 op, 257139053.00 ns, 8.4898 us/op
+
+OverheadWarmup   1: 30288 op, 86698.00 ns, 2.8625 ns/op
+OverheadWarmup   2: 30288 op, 86458.00 ns, 2.8545 ns/op
+OverheadWarmup   3: 30288 op, 86438.00 ns, 2.8539 ns/op
+OverheadWarmup   4: 30288 op, 86287.00 ns, 2.8489 ns/op
+OverheadWarmup   5: 30288 op, 86447.00 ns, 2.8542 ns/op
+OverheadWarmup   6: 30288 op, 86418.00 ns, 2.8532 ns/op
+OverheadWarmup   7: 30288 op, 86748.00 ns, 2.8641 ns/op
+OverheadWarmup   8: 30288 op, 86548.00 ns, 2.8575 ns/op
+
+OverheadActual   1: 30288 op, 86617.00 ns, 2.8598 ns/op
+OverheadActual   2: 30288 op, 86467.00 ns, 2.8548 ns/op
+OverheadActual   3: 30288 op, 86507.00 ns, 2.8561 ns/op
+OverheadActual   4: 30288 op, 86428.00 ns, 2.8535 ns/op
+OverheadActual   5: 30288 op, 86448.00 ns, 2.8542 ns/op
+OverheadActual   6: 30288 op, 109752.00 ns, 3.6236 ns/op
+OverheadActual   7: 30288 op, 86548.00 ns, 2.8575 ns/op
+OverheadActual   8: 30288 op, 86317.00 ns, 2.8499 ns/op
+OverheadActual   9: 30288 op, 86347.00 ns, 2.8509 ns/op
+OverheadActual  10: 30288 op, 86427.00 ns, 2.8535 ns/op
+OverheadActual  11: 30288 op, 86397.00 ns, 2.8525 ns/op
+OverheadActual  12: 30288 op, 86467.00 ns, 2.8548 ns/op
+OverheadActual  13: 30288 op, 86407.00 ns, 2.8528 ns/op
+OverheadActual  14: 30288 op, 86458.00 ns, 2.8545 ns/op
+OverheadActual  15: 30288 op, 86357.00 ns, 2.8512 ns/op
+
+WorkloadWarmup   1: 30288 op, 261674761.00 ns, 8.6396 us/op
+WorkloadWarmup   2: 30288 op, 259138421.00 ns, 8.5558 us/op
+WorkloadWarmup   3: 30288 op, 274466144.00 ns, 9.0619 us/op
+WorkloadWarmup   4: 30288 op, 278195309.00 ns, 9.1850 us/op
+WorkloadWarmup   5: 30288 op, 262128039.00 ns, 8.6545 us/op
+WorkloadWarmup   6: 30288 op, 244703935.00 ns, 8.0792 us/op
+
+// BeforeActualRun
+WorkloadActual   1: 30288 op, 237794376.00 ns, 7.8511 us/op
+WorkloadActual   2: 30288 op, 231196917.00 ns, 7.6333 us/op
+WorkloadActual   3: 30288 op, 232936873.00 ns, 7.6907 us/op
+WorkloadActual   4: 30288 op, 237046383.00 ns, 7.8264 us/op
+WorkloadActual   5: 30288 op, 241259105.00 ns, 7.9655 us/op
+WorkloadActual   6: 30288 op, 259098488.00 ns, 8.5545 us/op
+WorkloadActual   7: 30288 op, 269331647.00 ns, 8.8924 us/op
+WorkloadActual   8: 30288 op, 242602431.00 ns, 8.0099 us/op
+WorkloadActual   9: 30288 op, 262913001.00 ns, 8.6804 us/op
+WorkloadActual  10: 30288 op, 248995275.00 ns, 8.2209 us/op
+WorkloadActual  11: 30288 op, 248318506.00 ns, 8.1986 us/op
+WorkloadActual  12: 30288 op, 240778575.00 ns, 7.9496 us/op
+
+// AfterActualRun
+WorkloadResult   1: 30288 op, 237707928.00 ns, 7.8483 us/op
+WorkloadResult   2: 30288 op, 231110469.00 ns, 7.6304 us/op
+WorkloadResult   3: 30288 op, 232850425.00 ns, 7.6879 us/op
+WorkloadResult   4: 30288 op, 236959935.00 ns, 7.8236 us/op
+WorkloadResult   5: 30288 op, 241172657.00 ns, 7.9626 us/op
+WorkloadResult   6: 30288 op, 259012040.00 ns, 8.5516 us/op
+WorkloadResult   7: 30288 op, 269245199.00 ns, 8.8895 us/op
+WorkloadResult   8: 30288 op, 242515983.00 ns, 8.0070 us/op
+WorkloadResult   9: 30288 op, 262826553.00 ns, 8.6776 us/op
+WorkloadResult  10: 30288 op, 248908827.00 ns, 8.2181 us/op
+WorkloadResult  11: 30288 op, 248232058.00 ns, 8.1957 us/op
+WorkloadResult  12: 30288 op, 240692127.00 ns, 7.9468 us/op
+// GC:  238 0 0 498903936 30288
+// Threading:  0 0 30288
+
+// AfterAll
+// Benchmark Process 167 has exited with code 0.
+// Launch: 2 / 2
+// Execute: dotnet Reconstructed-ReconstructedNoTiering-1.dll --anonymousPipes 126 127 --benchmarkName ReconstructedMapperParity.Custom100DefaultBench.Ling --job ReconstructedNoTiering --benchmarkId 0 in /workspace/scratch/574bb39da4d0/mapper-cloud-recovery-20261027/evidence/reconstructed-baseline-benchmark-20261027T150415Z/frozen-harness/bin/Release/net10.0/Reconstructed-ReconstructedNoTiering-1/bin/Release/net10.0
+// Failed to set up high priority (Permission denied). In order to run benchmarks with high priority, make sure you have the right permissions.
+// BeforeAnythingElse
+
+// Benchmark Process Environment Information:
+// BenchmarkDotNet v0.15.8
+// Runtime=.NET 10.0.14 (10.0.14, 10.0.1426.52326), X64 RyuJIT x86-64-v4
+// GC=Concurrent Workstation
+// HardwareIntrinsics=AVX512 BITALG+VBMI2+VNNI+VPOPCNTDQ,AVX512 IFMA+VBMI,AVX512 F+BW+CD+DQ+VL,AVX2+BMI1+BMI2+F16C+FMA+LZCNT+MOVBE,AVX,SSE3+SSSE3+SSE4.1+SSE4.2+POPCNT,X86Base+SSE+SSE2,AES+PCLMUL VectorSize=256
+// Job: ReconstructedNoTiering(Affinity=100, IterationCount=12, IterationTime=250ms, LaunchCount=2, WarmupCount=6)
+
+PASS Ling exact100 custom calls in order0..99, twice; custom getters/callbacks0; trace disabled after audit
+PASS Mapster exact100 custom calls in order0..99, twice; custom getters/callbacks0; trace disabled after audit
+OverheadJitting  1: 1 op, 451826.00 ns, 451.8260 us/op
+WorkloadJitting  1: 1 op, 237971.00 ns, 237.9710 us/op
+
+OverheadJitting  2: 16 op, 392359.00 ns, 24.5224 us/op
+WorkloadJitting  2: 16 op, 651551.00 ns, 40.7219 us/op
+
+WorkloadPilot    1: 16 op, 132705.00 ns, 8.2941 us/op
+WorkloadPilot    2: 30144 op, 261944918.00 ns, 8.6898 us/op
+WorkloadPilot    3: 28784 op, 247018079.00 ns, 8.5818 us/op
+WorkloadPilot    4: 29136 op, 259773050.00 ns, 8.9159 us/op
+WorkloadPilot    5: 28048 op, 254530878.00 ns, 9.0748 us/op
+
+OverheadWarmup   1: 28048 op, 80519.00 ns, 2.8708 ns/op
+OverheadWarmup   2: 28048 op, 132505.00 ns, 4.7242 ns/op
+OverheadWarmup   3: 28048 op, 100849.00 ns, 3.5956 ns/op
+OverheadWarmup   4: 28048 op, 80088.00 ns, 2.8554 ns/op
+OverheadWarmup   5: 28048 op, 80088.00 ns, 2.8554 ns/op
+OverheadWarmup   6: 28048 op, 80098.00 ns, 2.8557 ns/op
+
+OverheadActual   1: 28048 op, 80118.00 ns, 2.8565 ns/op
+OverheadActual   2: 28048 op, 80128.00 ns, 2.8568 ns/op
+OverheadActual   3: 28048 op, 100629.00 ns, 3.5877 ns/op
+OverheadActual   4: 28048 op, 352450.00 ns, 12.5660 ns/op
+OverheadActual   5: 28048 op, 154989.00 ns, 5.5258 ns/op
+OverheadActual   6: 28048 op, 80108.00 ns, 2.8561 ns/op
+OverheadActual   7: 28048 op, 145335.00 ns, 5.1817 ns/op
+OverheadActual   8: 28048 op, 84565.00 ns, 3.0150 ns/op
+OverheadActual   9: 28048 op, 80129.00 ns, 2.8569 ns/op
+OverheadActual  10: 28048 op, 80098.00 ns, 2.8557 ns/op
+OverheadActual  11: 28048 op, 80669.00 ns, 2.8761 ns/op
+OverheadActual  12: 28048 op, 80139.00 ns, 2.8572 ns/op
+OverheadActual  13: 28048 op, 80008.00 ns, 2.8525 ns/op
+OverheadActual  14: 28048 op, 80098.00 ns, 2.8557 ns/op
+OverheadActual  15: 28048 op, 80108.00 ns, 2.8561 ns/op
+OverheadActual  16: 28048 op, 80058.00 ns, 2.8543 ns/op
+OverheadActual  17: 28048 op, 86868.00 ns, 3.0971 ns/op
+
+WorkloadWarmup   1: 28048 op, 271767915.00 ns, 9.6894 us/op
+WorkloadWarmup   2: 28048 op, 250485062.00 ns, 8.9306 us/op
+WorkloadWarmup   3: 28048 op, 256829649.00 ns, 9.1568 us/op
+WorkloadWarmup   4: 28048 op, 265994726.00 ns, 9.4836 us/op
+WorkloadWarmup   5: 28048 op, 231317893.00 ns, 8.2472 us/op
+WorkloadWarmup   6: 28048 op, 241790549.00 ns, 8.6206 us/op
+
+// BeforeActualRun
+WorkloadActual   1: 28048 op, 229188804.00 ns, 8.1713 us/op
+WorkloadActual   2: 28048 op, 224843844.00 ns, 8.0164 us/op
+WorkloadActual   3: 28048 op, 237667538.00 ns, 8.4736 us/op
+WorkloadActual   4: 28048 op, 232815091.00 ns, 8.3006 us/op
+WorkloadActual   5: 28048 op, 227480095.00 ns, 8.1104 us/op
+WorkloadActual   6: 28048 op, 227827005.00 ns, 8.1228 us/op
+WorkloadActual   7: 28048 op, 223357338.00 ns, 7.9634 us/op
+WorkloadActual   8: 28048 op, 230116041.00 ns, 8.2044 us/op
+WorkloadActual   9: 28048 op, 227973941.00 ns, 8.1280 us/op
+WorkloadActual  10: 28048 op, 228007482.00 ns, 8.1292 us/op
+WorkloadActual  11: 28048 op, 228495645.00 ns, 8.1466 us/op
+WorkloadActual  12: 28048 op, 215791946.00 ns, 7.6937 us/op
+
+// AfterActualRun
+WorkloadResult   1: 28048 op, 229108675.00 ns, 8.1684 us/op
+WorkloadResult   2: 28048 op, 224763715.00 ns, 8.0135 us/op
+WorkloadResult   3: 28048 op, 232734962.00 ns, 8.2977 us/op
+WorkloadResult   4: 28048 op, 227399966.00 ns, 8.1075 us/op
+WorkloadResult   5: 28048 op, 227746876.00 ns, 8.1199 us/op
+WorkloadResult   6: 28048 op, 223277209.00 ns, 7.9605 us/op
+WorkloadResult   7: 28048 op, 230035912.00 ns, 8.2015 us/op
+WorkloadResult   8: 28048 op, 227893812.00 ns, 8.1251 us/op
+WorkloadResult   9: 28048 op, 227927353.00 ns, 8.1263 us/op
+WorkloadResult  10: 28048 op, 228415516.00 ns, 8.1437 us/op
+WorkloadResult  11: 28048 op, 215711817.00 ns, 7.6908 us/op
+// GC:  220 0 0 462006656 28048
+// Threading:  0 0 28048
+
+// AfterAll
+// Benchmark Process 174 has exited with code 0.
+
+Mean = 8.104 us, StdErr = 0.063 us (0.78%), N = 23, StdDev = 0.303 us
+Min = 7.630 us, Q1 = 7.954 us, Median = 8.120 us, Q3 = 8.199 us, Max = 8.890 us
+IQR = 0.245 us, LowerFence = 7.586 us, UpperFence = 8.566 us
+ConfidenceInterval = [7.865 us; 8.344 us] (CI 99.9%), Margin = 0.239 us (2.95% of Mean)
+Skewness = 0.74, Kurtosis = 3.37, MValue = 2
+
+// ** Remained 1 (50.0 %) benchmark(s) to run. Estimated finish 2026-10-27 23:04 (0h 0m from now) **
+// **************************
+// Benchmark: Custom100DefaultBench.Mapster: ReconstructedNoTiering(Affinity=000000100, EnvironmentVariables=DOTNET_TieredCompilation=0, Arguments=/m:1, IterationCount=12, IterationTime=250ms, LaunchCount=2, WarmupCount=6)
+// *** Execute ***
+// Launch: 1 / 2
+// Execute: dotnet Reconstructed-ReconstructedNoTiering-1.dll --anonymousPipes 126 127 --benchmarkName ReconstructedMapperParity.Custom100DefaultBench.Mapster --job ReconstructedNoTiering --benchmarkId 1 in /workspace/scratch/574bb39da4d0/mapper-cloud-recovery-20261027/evidence/reconstructed-baseline-benchmark-20261027T150415Z/frozen-harness/bin/Release/net10.0/Reconstructed-ReconstructedNoTiering-1/bin/Release/net10.0
+// Failed to set up high priority (Permission denied). In order to run benchmarks with high priority, make sure you have the right permissions.
+// BeforeAnythingElse
+
+// Benchmark Process Environment Information:
+// BenchmarkDotNet v0.15.8
+// Runtime=.NET 10.0.14 (10.0.14, 10.0.1426.52326), X64 RyuJIT x86-64-v4
+// GC=Concurrent Workstation
+// HardwareIntrinsics=AVX512 BITALG+VBMI2+VNNI+VPOPCNTDQ,AVX512 IFMA+VBMI,AVX512 F+BW+CD+DQ+VL,AVX2+BMI1+BMI2+F16C+FMA+LZCNT+MOVBE,AVX,SSE3+SSSE3+SSE4.1+SSE4.2+POPCNT,X86Base+SSE+SSE2,AES+PCLMUL VectorSize=256
+// Job: ReconstructedNoTiering(Affinity=100, IterationCount=12, IterationTime=250ms, LaunchCount=2, WarmupCount=6)
+
+PASS Ling exact100 custom calls in order0..99, twice; custom getters/callbacks0; trace disabled after audit
+PASS Mapster exact100 custom calls in order0..99, twice; custom getters/callbacks0; trace disabled after audit
+OverheadJitting  1: 1 op, 187587.00 ns, 187.5870 us/op
+WorkloadJitting  1: 1 op, 210060.00 ns, 210.0600 us/op
+
+OverheadJitting  2: 16 op, 507910.00 ns, 31.7444 us/op
+WorkloadJitting  2: 16 op, 443135.00 ns, 27.6959 us/op
+
+WorkloadPilot    1: 16 op, 36364.00 ns, 2.2728 us/op
+WorkloadPilot    2: 110000 op, 107527410.00 ns, 977.5219 ns/op
+WorkloadPilot    3: 255760 op, 242717213.00 ns, 949.0038 ns/op
+WorkloadPilot    4: 263440 op, 253859208.00 ns, 963.6320 ns/op
+WorkloadPilot    5: 259440 op, 238122887.00 ns, 917.8341 ns/op
+WorkloadPilot    6: 272384 op, 259014609.00 ns, 950.9171 ns/op
+WorkloadPilot    7: 262912 op, 250602140.00 ns, 953.1788 ns/op
+
+OverheadWarmup   1: 262912 op, 839079.00 ns, 3.1915 ns/op
+OverheadWarmup   2: 262912 op, 747575.00 ns, 2.8434 ns/op
+OverheadWarmup   3: 262912 op, 857667.00 ns, 3.2622 ns/op
+OverheadWarmup   4: 262912 op, 747554.00 ns, 2.8434 ns/op
+OverheadWarmup   5: 262912 op, 766803.00 ns, 2.9166 ns/op
+OverheadWarmup   6: 262912 op, 797068.00 ns, 3.0317 ns/op
+OverheadWarmup   7: 262912 op, 765992.00 ns, 2.9135 ns/op
+
+OverheadActual   1: 262912 op, 768415.00 ns, 2.9227 ns/op
+OverheadActual   2: 262912 op, 747715.00 ns, 2.8440 ns/op
+OverheadActual   3: 262912 op, 772461.00 ns, 2.9381 ns/op
+OverheadActual   4: 262912 op, 769156.00 ns, 2.9255 ns/op
+OverheadActual   5: 262912 op, 766762.00 ns, 2.9164 ns/op
+OverheadActual   6: 262912 op, 766873.00 ns, 2.9168 ns/op
+OverheadActual   7: 262912 op, 839721.00 ns, 3.1939 ns/op
+OverheadActual   8: 262912 op, 766833.00 ns, 2.9167 ns/op
+OverheadActual   9: 262912 op, 831438.00 ns, 3.1624 ns/op
+OverheadActual  10: 262912 op, 1058574.00 ns, 4.0263 ns/op
+OverheadActual  11: 262912 op, 765300.00 ns, 2.9109 ns/op
+OverheadActual  12: 262912 op, 852028.00 ns, 3.2407 ns/op
+OverheadActual  13: 262912 op, 767945.00 ns, 2.9209 ns/op
+OverheadActual  14: 262912 op, 766663.00 ns, 2.9160 ns/op
+OverheadActual  15: 262912 op, 777028.00 ns, 2.9555 ns/op
+
+WorkloadWarmup   1: 262912 op, 242840796.00 ns, 923.6581 ns/op
+WorkloadWarmup   2: 262912 op, 252879306.00 ns, 961.8401 ns/op
+WorkloadWarmup   3: 262912 op, 265388945.00 ns, 1.0094 us/op
+WorkloadWarmup   4: 262912 op, 251802555.00 ns, 957.7446 ns/op
+WorkloadWarmup   5: 262912 op, 254851319.00 ns, 969.3408 ns/op
+WorkloadWarmup   6: 262912 op, 256757133.00 ns, 976.5896 ns/op
+
+// BeforeActualRun
+WorkloadActual   1: 262912 op, 265672334.00 ns, 1.0105 us/op
+WorkloadActual   2: 262912 op, 260357251.00 ns, 990.2829 ns/op
+WorkloadActual   3: 262912 op, 260313328.00 ns, 990.1158 ns/op
+WorkloadActual   4: 262912 op, 264992409.00 ns, 1.0079 us/op
+WorkloadActual   5: 262912 op, 268423908.00 ns, 1.0210 us/op
+WorkloadActual   6: 262912 op, 268953932.00 ns, 1.0230 us/op
+WorkloadActual   7: 262912 op, 247143092.00 ns, 940.0221 ns/op
+WorkloadActual   8: 262912 op, 262426009.00 ns, 998.1515 ns/op
+WorkloadActual   9: 262912 op, 256232689.00 ns, 974.5949 ns/op
+WorkloadActual  10: 262912 op, 265317259.00 ns, 1.0091 us/op
+WorkloadActual  11: 262912 op, 263665495.00 ns, 1.0029 us/op
+WorkloadActual  12: 262912 op, 266473483.00 ns, 1.0135 us/op
+
+// AfterActualRun
+WorkloadResult   1: 262912 op, 264903919.00 ns, 1.0076 us/op
+WorkloadResult   2: 262912 op, 259588836.00 ns, 987.3602 ns/op
+WorkloadResult   3: 262912 op, 259544913.00 ns, 987.1931 ns/op
+WorkloadResult   4: 262912 op, 264223994.00 ns, 1.0050 us/op
+WorkloadResult   5: 262912 op, 267655493.00 ns, 1.0180 us/op
+WorkloadResult   6: 262912 op, 268185517.00 ns, 1.0201 us/op
+WorkloadResult   7: 262912 op, 246374677.00 ns, 937.0994 ns/op
+WorkloadResult   8: 262912 op, 261657594.00 ns, 995.2288 ns/op
+WorkloadResult   9: 262912 op, 255464274.00 ns, 971.6722 ns/op
+WorkloadResult  10: 262912 op, 264548844.00 ns, 1.0062 us/op
+WorkloadResult  11: 262912 op, 262897080.00 ns, 999.9433 ns/op
+WorkloadResult  12: 262912 op, 265705068.00 ns, 1.0106 us/op
+// GC:  409 0 0 856041472 262912
+// Threading:  0 0 262912
+
+// AfterAll
+// Benchmark Process 180 has exited with code 0.
+// Launch: 2 / 2
+// Execute: dotnet Reconstructed-ReconstructedNoTiering-1.dll --anonymousPipes 126 127 --benchmarkName ReconstructedMapperParity.Custom100DefaultBench.Mapster --job ReconstructedNoTiering --benchmarkId 1 in /workspace/scratch/574bb39da4d0/mapper-cloud-recovery-20261027/evidence/reconstructed-baseline-benchmark-20261027T150415Z/frozen-harness/bin/Release/net10.0/Reconstructed-ReconstructedNoTiering-1/bin/Release/net10.0
+// Failed to set up high priority (Permission denied). In order to run benchmarks with high priority, make sure you have the right permissions.
+// BeforeAnythingElse
+
+// Benchmark Process Environment Information:
+// BenchmarkDotNet v0.15.8
+// Runtime=.NET 10.0.14 (10.0.14, 10.0.1426.52326), X64 RyuJIT x86-64-v4
+// GC=Concurrent Workstation
+// HardwareIntrinsics=AVX512 BITALG+VBMI2+VNNI+VPOPCNTDQ,AVX512 IFMA+VBMI,AVX512 F+BW+CD+DQ+VL,AVX2+BMI1+BMI2+F16C+FMA+LZCNT+MOVBE,AVX,SSE3+SSSE3+SSE4.1+SSE4.2+POPCNT,X86Base+SSE+SSE2,AES+PCLMUL VectorSize=256
+// Job: ReconstructedNoTiering(Affinity=100, IterationCount=12, IterationTime=250ms, LaunchCount=2, WarmupCount=6)
+
+PASS Ling exact100 custom calls in order0..99, twice; custom getters/callbacks0; trace disabled after audit
+PASS Mapster exact100 custom calls in order0..99, twice; custom getters/callbacks0; trace disabled after audit
+OverheadJitting  1: 1 op, 247344.00 ns, 247.3440 us/op
+WorkloadJitting  1: 1 op, 155910.00 ns, 155.9100 us/op
+
+OverheadJitting  2: 16 op, 428832.00 ns, 26.8020 us/op
+WorkloadJitting  2: 16 op, 537382.00 ns, 33.5864 us/op
+
+WorkloadPilot    1: 16 op, 62552.00 ns, 3.9095 us/op
+WorkloadPilot    2: 63952 op, 59401236.00 ns, 928.8409 ns/op
+WorkloadPilot    3: 269168 op, 237248478.00 ns, 881.4141 ns/op
+WorkloadPilot    4: 283648 op, 238887184.00 ns, 842.1959 ns/op
+WorkloadPilot    5: 296848 op, 256012523.00 ns, 862.4364 ns/op
+WorkloadPilot    6: 289888 op, 261737606.00 ns, 902.8922 ns/op
+WorkloadPilot    7: 276896 op, 239003730.00 ns, 863.1534 ns/op
+WorkloadPilot    8: 289648 op, 246646270.00 ns, 851.5380 ns/op
+WorkloadPilot    9: 293600 op, 254434806.00 ns, 866.6036 ns/op
+
+OverheadWarmup   1: 293600 op, 1098881.00 ns, 3.7428 ns/op
+OverheadWarmup   2: 293600 op, 905325.00 ns, 3.0835 ns/op
+OverheadWarmup   3: 293600 op, 902711.00 ns, 3.0746 ns/op
+OverheadWarmup   4: 293600 op, 874790.00 ns, 2.9795 ns/op
+OverheadWarmup   5: 293600 op, 857144.00 ns, 2.9194 ns/op
+OverheadWarmup   6: 293600 op, 863684.00 ns, 2.9417 ns/op
+OverheadWarmup   7: 293600 op, 1030690.00 ns, 3.5105 ns/op
+OverheadWarmup   8: 293600 op, 855201.00 ns, 2.9128 ns/op
+OverheadWarmup   9: 293600 op, 934288.00 ns, 3.1822 ns/op
+OverheadWarmup  10: 293600 op, 855451.00 ns, 2.9137 ns/op
+
+OverheadActual   1: 293600 op, 943602.00 ns, 3.2139 ns/op
+OverheadActual   2: 293600 op, 851876.00 ns, 2.9015 ns/op
+OverheadActual   3: 293600 op, 858085.00 ns, 2.9226 ns/op
+OverheadActual   4: 293600 op, 854830.00 ns, 2.9115 ns/op
+OverheadActual   5: 293600 op, 853119.00 ns, 2.9057 ns/op
+OverheadActual   6: 293600 op, 879537.00 ns, 2.9957 ns/op
+OverheadActual   7: 293600 op, 863774.00 ns, 2.9420 ns/op
+OverheadActual   8: 293600 op, 834721.00 ns, 2.8431 ns/op
+OverheadActual   9: 293600 op, 929010.00 ns, 3.1642 ns/op
+OverheadActual  10: 293600 op, 856172.00 ns, 2.9161 ns/op
+OverheadActual  11: 293600 op, 1001767.00 ns, 3.4120 ns/op
+OverheadActual  12: 293600 op, 955399.00 ns, 3.2541 ns/op
+OverheadActual  13: 293600 op, 909762.00 ns, 3.0986 ns/op
+OverheadActual  14: 293600 op, 855301.00 ns, 2.9132 ns/op
+OverheadActual  15: 293600 op, 861430.00 ns, 2.9340 ns/op
+OverheadActual  16: 293600 op, 856323.00 ns, 2.9166 ns/op
+OverheadActual  17: 293600 op, 853398.00 ns, 2.9067 ns/op
+
+WorkloadWarmup   1: 293600 op, 254466038.00 ns, 866.7099 ns/op
+WorkloadWarmup   2: 293600 op, 264375751.00 ns, 900.4624 ns/op
+WorkloadWarmup   3: 293600 op, 253422048.00 ns, 863.1541 ns/op
+WorkloadWarmup   4: 293600 op, 248110626.00 ns, 845.0634 ns/op
+WorkloadWarmup   5: 293600 op, 249707320.00 ns, 850.5018 ns/op
+WorkloadWarmup   6: 293600 op, 278287034.00 ns, 947.8441 ns/op
+
+// BeforeActualRun
+WorkloadActual   1: 293600 op, 267856184.00 ns, 912.3167 ns/op
+WorkloadActual   2: 293600 op, 279994854.00 ns, 953.6609 ns/op
+WorkloadActual   3: 293600 op, 302158507.00 ns, 1.0292 us/op
+WorkloadActual   4: 293600 op, 264112192.00 ns, 899.5647 ns/op
+WorkloadActual   5: 293600 op, 263363193.00 ns, 897.0136 ns/op
+WorkloadActual   6: 293600 op, 270518679.00 ns, 921.3851 ns/op
+WorkloadActual   7: 293600 op, 269503563.00 ns, 917.9277 ns/op
+WorkloadActual   8: 293600 op, 262246300.00 ns, 893.2095 ns/op
+WorkloadActual   9: 293600 op, 264055388.00 ns, 899.3712 ns/op
+WorkloadActual  10: 293600 op, 264262013.00 ns, 900.0750 ns/op
+WorkloadActual  11: 293600 op, 272973539.00 ns, 929.7464 ns/op
+WorkloadActual  12: 293600 op, 286731548.00 ns, 976.6061 ns/op
+
+// AfterActualRun
+WorkloadResult   1: 293600 op, 266998099.00 ns, 909.3941 ns/op
+WorkloadResult   2: 293600 op, 279136769.00 ns, 950.7383 ns/op
+WorkloadResult   3: 293600 op, 263254107.00 ns, 896.6421 ns/op
+WorkloadResult   4: 293600 op, 262505108.00 ns, 894.0910 ns/op
+WorkloadResult   5: 293600 op, 269660594.00 ns, 918.4625 ns/op
+WorkloadResult   6: 293600 op, 268645478.00 ns, 915.0050 ns/op
+WorkloadResult   7: 293600 op, 261388215.00 ns, 890.2868 ns/op
+WorkloadResult   8: 293600 op, 263197303.00 ns, 896.4486 ns/op
+WorkloadResult   9: 293600 op, 263403928.00 ns, 897.1523 ns/op
+WorkloadResult  10: 293600 op, 272115454.00 ns, 926.8238 ns/op
+WorkloadResult  11: 293600 op, 285873463.00 ns, 973.6835 ns/op
+// GC:  457 0 0 955961600 293600
+// Threading:  0 0 293600
+
+// AfterAll
+// Benchmark Process 186 has exited with code 0.
+
+Mean = 957.163 ns, StdErr = 9.906 ns (1.03%), N = 23, StdDev = 47.508 ns
+Min = 890.287 ns, Q1 = 912.200 ns, Median = 971.672 ns, Q3 = 1,002.467 ns, Max = 1,020.058 ns
+IQR = 90.267 ns, LowerFence = 776.799 ns, UpperFence = 1,137.868 ns
+ConfidenceInterval = [919.597 ns; 994.728 ns] (CI 99.9%), Margin = 37.565 ns (3.92% of Mean)
+Skewness = -0.13, Kurtosis = 1.28, MValue = 3
+
+// ** Remained 0 (0.0 %) benchmark(s) to run. Estimated finish 2026-10-27 23:04 (0h 0m from now) **
+// ***** BenchmarkRunner: Finish  *****
+
+// * Export *
+  workspace/scratch/574bb39da4d0/mapper-cloud-recovery-20261027/evidence/reconstructed-baseline-benchmark-20261027T150415Z/results/Custom100DefaultBench/results/ReconstructedMapperParity.Custom100DefaultBench-report.csv
+lscpu: failed to determine number of CPUs: /sys/devices/system/cpu/possible: No such file or directory
+  workspace/scratch/574bb39da4d0/mapper-cloud-recovery-20261027/evidence/reconstructed-baseline-benchmark-20261027T150415Z/results/Custom100DefaultBench/results/ReconstructedMapperParity.Custom100DefaultBench-report-github.md
+  workspace/scratch/574bb39da4d0/mapper-cloud-recovery-20261027/evidence/reconstructed-baseline-benchmark-20261027T150415Z/results/Custom100DefaultBench/results/ReconstructedMapperParity.Custom100DefaultBench-report.html
+  workspace/scratch/574bb39da4d0/mapper-cloud-recovery-20261027/evidence/reconstructed-baseline-benchmark-20261027T150415Z/results/Custom100DefaultBench/results/ReconstructedMapperParity.Custom100DefaultBench-report-full.json
+
+// * Detailed results *
+Custom100DefaultBench.Ling: ReconstructedNoTiering(Affinity=000000100, EnvironmentVariables=DOTNET_TieredCompilation=0, Arguments=/m:1, IterationCount=12, IterationTime=250ms, LaunchCount=2, WarmupCount=6)
+Runtime = .NET 10.0.14 (10.0.14, 10.0.1426.52326), X64 RyuJIT x86-64-v4; GC = Concurrent Workstation
+Mean = 8.104 us, StdErr = 0.063 us (0.78%), N = 23, StdDev = 0.303 us
+Min = 7.630 us, Q1 = 7.954 us, Median = 8.120 us, Q3 = 8.199 us, Max = 8.890 us
+IQR = 0.245 us, LowerFence = 7.586 us, UpperFence = 8.566 us
+ConfidenceInterval = [7.865 us; 8.344 us] (CI 99.9%), Margin = 0.239 us (2.95% of Mean)
+Skewness = 0.74, Kurtosis = 3.37, MValue = 2
+-------------------- Histogram --------------------
+[7.600 us ; 7.879 us) | @@@@@
+[7.879 us ; 8.222 us) | @@@@@@@@@@@@@@
+[8.222 us ; 8.475 us) | @
+[8.475 us ; 8.754 us) | @@
+[8.754 us ; 9.029 us) | @
+---------------------------------------------------
+
+Custom100DefaultBench.Mapster: ReconstructedNoTiering(Affinity=000000100, EnvironmentVariables=DOTNET_TieredCompilation=0, Arguments=/m:1, IterationCount=12, IterationTime=250ms, LaunchCount=2, WarmupCount=6)
+Runtime = .NET 10.0.14 (10.0.14, 10.0.1426.52326), X64 RyuJIT x86-64-v4; GC = Concurrent Workstation
+Mean = 957.163 ns, StdErr = 9.906 ns (1.03%), N = 23, StdDev = 47.508 ns
+Min = 890.287 ns, Q1 = 912.200 ns, Median = 971.672 ns, Q3 = 1,002.467 ns, Max = 1,020.058 ns
+IQR = 90.267 ns, LowerFence = 776.799 ns, UpperFence = 1,137.868 ns
+ConfidenceInterval = [919.597 ns; 994.728 ns] (CI 99.9%), Margin = 37.565 ns (3.92% of Mean)
+Skewness = -0.13, Kurtosis = 1.28, MValue = 3
+-------------------- Histogram --------------------
+[886.629 ns ;   930.481 ns) | @@@@@@@@@
+[930.481 ns ;   981.700 ns) | @@@@
+[981.700 ns ; 1,025.552 ns) | @@@@@@@@@@
+---------------------------------------------------
+
+// * Summary *
+
+BenchmarkDotNet v0.15.8, Linux Debian GNU/Linux 13 (trixie)
+AMD EPYC 9V74 2.60GHz, 1 CPU, 9 logical and 9 physical cores
+.NET SDK 10.0.403
+  [Host]                 : .NET 10.0.14 (10.0.14, 10.0.1426.52326), X64 RyuJIT x86-64-v4
+  ReconstructedNoTiering : .NET 10.0.14 (10.0.14, 10.0.1426.52326), X64 RyuJIT x86-64-v4
+
+Job=ReconstructedNoTiering  Affinity=000000100  EnvironmentVariables=DOTNET_TieredCompilation=0  
+Arguments=/m:1  IterationCount=12  IterationTime=250ms  
+LaunchCount=2  WarmupCount=6  
+
+| Method  | Mean       | Error     | StdDev    | Ratio | RatioSD | Gen0   | Allocated | Alloc Ratio |
+|-------- |-----------:|----------:|----------:|------:|--------:|-------:|----------:|------------:|
+| Ling    | 8,104.1 ns | 239.41 ns | 302.78 ns |  8.49 |    0.52 | 7.8437 |  16.09 KB |        5.06 |
+| Mapster |   957.2 ns |  37.57 ns |  47.51 ns |  1.00 |    0.07 | 1.5565 |   3.18 KB |        1.00 |
+
+// * Warnings *
+MultimodalDistribution
+  Custom100DefaultBench.Mapster: ReconstructedNoTiering -> It seems that the distribution can have several modes (mValue = 3)
+
+// * Hints *
+Outliers
+  Custom100DefaultBench.Ling: ReconstructedNoTiering -> 2 outliers were removed (8.68 us, 8.89 us)
+
+// * Legends *
+  Mean        : Arithmetic mean of all measurements
+  Error       : Half of 99.9% confidence interval
+  StdDev      : Standard deviation of all measurements
+  Ratio       : Mean of the ratio distribution ([Current]/[Baseline])
+  RatioSD     : Standard deviation of the ratio distribution ([Current]/[Baseline])
+  Gen0        : GC Generation 0 collects per 1000 operations
+  Allocated   : Allocated memory per single operation (managed only, inclusive, 1KB = 1024B)
+  Alloc Ratio : Allocated memory ratio distribution ([Current]/[Baseline])
+  1 ns        : 1 Nanosecond (0.000000001 sec)
+
+// * Diagnostic Output - MemoryDiagnoser *
+
+
+// ***** BenchmarkRunner: End *****
+Run time: 00:00:27 (27.48 sec), executed benchmarks: 2
+
+Global total time: 00:00:35 (35.72 sec), executed benchmarks: 2
+// * Artifacts cleanup *
+Artifacts cleanup is finished

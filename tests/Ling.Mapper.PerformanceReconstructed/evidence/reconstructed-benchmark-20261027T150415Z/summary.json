@@ -1,0 +1,138 @@
+[
+  {
+    "case": "Custom100DefaultBench",
+    "method": "Ling",
+    "mean_ns": 8104.098754883908,
+    "bytes": 16472,
+    "sd_ns": 302.780652968386,
+    "n": 23,
+    "ci_lower": 7864.685882468565,
+    "ci_upper": 8343.51162729925,
+    "cv_pct": 3.736142193305779,
+    "launch_means_ns": {
+      "1": 8119.92153383078,
+      "2": 8086.83754148732
+    },
+    "launch_spread_pct": 0.40910915019292116,
+    "source": "results/Custom100DefaultBench/results/ReconstructedMapperParity.Custom100DefaultBench-report-full.json"
+  },
+  {
+    "case": "Custom100DefaultBench",
+    "method": "Mapster",
+    "mean_ns": 957.1626552708541,
+    "bytes": 3256,
+    "sd_ns": 47.5081226154153,
+    "n": 23,
+    "ci_lower": 919.5973221265184,
+    "ci_upper": 994.7279884151898,
+    "cv_pct": 4.963432531952643,
+    "launch_means_ns": {
+      "1": 995.5010957405266,
+      "2": 915.3389020312113
+    },
+    "launch_spread_pct": 8.757651786833144,
+    "source": "results/Custom100DefaultBench/results/ReconstructedMapperParity.Custom100DefaultBench-report-full.json"
+  },
+  {
+    "case": "Custom100PreserveControl",
+    "method": "Ling",
+    "mean_ns": 8683.430307289376,
+    "bytes": 16472,
+    "sd_ns": 458.0608899323938,
+    "n": 23,
+    "ci_lower": 8321.235192361431,
+    "ci_upper": 9045.625422217321,
+    "cv_pct": 5.27511448497342,
+    "launch_means_ns": {
+      "1": 8560.73115381779,
+      "2": 8795.904531305
+    },
+    "launch_spread_pct": 2.7471178952084063,
+    "source": "results/Custom100PreserveControl/results/ReconstructedMapperParity.Custom100PreserveControl-report-full.json"
+  },
+  {
+    "case": "Custom100PreserveControl",
+    "method": "MapsterPreserve",
+    "mean_ns": 9870.66961603909,
+    "bytes": 16352,
+    "sd_ns": 1134.4626830120721,
+    "n": 24,
+    "ci_lower": 8998.195660111985,
+    "ci_upper": 10743.143571966193,
+    "cv_pct": 11.493269728820184,
+    "launch_means_ns": {
+      "1": 10075.623769253827,
+      "2": 9665.715462824352
+    },
+    "launch_spread_pct": 4.240848057301472,
+    "source": "results/Custom100PreserveControl/results/ReconstructedMapperParity.Custom100PreserveControl-report-full.json"
+  },
+  {
+    "case": "List100DefaultBench",
+    "method": "Ling",
+    "mean_ns": 8995.523650046927,
+    "bytes": 22872,
+    "sd_ns": 478.5055173864666,
+    "n": 23,
+    "ci_lower": 8617.162683911996,
+    "ci_upper": 9373.884616181858,
+    "cv_pct": 5.3193736796408775,
+    "launch_means_ns": {
+      "1": 8935.981823331502,
+      "2": 9050.103657869398
+    },
+    "launch_spread_pct": 1.277104595713574,
+    "source": "results/List100DefaultBench/results/ReconstructedMapperParity.List100DefaultBench-report-full.json"
+  },
+  {
+    "case": "List100DefaultBench",
+    "method": "Mapster",
+    "mean_ns": 1372.3940319901994,
+    "bytes": 9656,
+    "sd_ns": 93.44028685635517,
+    "n": 24,
+    "ci_lower": 1300.5325085242398,
+    "ci_upper": 1444.255555456159,
+    "cv_pct": 6.808561147766813,
+    "launch_means_ns": {
+      "1": 1411.5072077889486,
+      "2": 1333.2808561914499
+    },
+    "launch_spread_pct": 5.867207290514487,
+    "source": "results/List100DefaultBench/results/ReconstructedMapperParity.List100DefaultBench-report-full.json"
+  },
+  {
+    "case": "List100PreserveControl",
+    "method": "Ling",
+    "mean_ns": 9017.316026640025,
+    "bytes": 22872,
+    "sd_ns": 328.4627857749687,
+    "n": 22,
+    "ci_lower": 8749.857771134102,
+    "ci_upper": 9284.774282145947,
+    "cv_pct": 3.642578177415375,
+    "launch_means_ns": {
+      "1": 9010.31857442585,
+      "2": 9024.3134788542
+    },
+    "launch_spread_pct": 0.1553208614406998,
+    "source": "results/List100PreserveControl/results/ReconstructedMapperParity.List100PreserveControl-report-full.json"
+  },
+  {
+    "case": "List100PreserveControl",
+    "method": "MapsterPreserve",
+    "mean_ns": 9513.28817725911,
+    "bytes": 22752,
+    "sd_ns": 490.1863620497263,
+    "n": 24,
+    "ci_lower": 9136.303688616843,
+    "ci_upper": 9890.272665901377,
+    "cv_pct": 5.152649146290813,
+    "launch_means_ns": {
+      "1": 9521.924432123657,
+      "2": 9504.651922394565
+    },
+    "launch_spread_pct": 0.18172690457389784,
+    "source": "results/List100PreserveControl/results/ReconstructedMapperParity.List100PreserveControl-report-full.json"
+  }
+]
