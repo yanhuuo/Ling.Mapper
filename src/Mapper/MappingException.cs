@@ -44,7 +44,13 @@ public sealed class MappingException : Exception
         OriginalExceptionType = error.GetType().FullName ?? error.GetType().Name;
     }
 
-    internal static bool IsSensitivePath(string path) => new[] { "password", "passwd", "pwd", "token", "secret", "credential", "encrypt", "cipher", "privatekey", "apikey" }.Any(word => path.Contains(word, StringComparison.OrdinalIgnoreCase));
+    private static readonly string[] SensitivePathWords = ["password", "passwd", "pwd", "token", "secret", "credential", "encrypt", "cipher", "privatekey", "apikey"];
+    internal static bool IsSensitivePath(string path)
+    {
+        foreach (var word in SensitivePathWords)
+            if (path.Contains(word, StringComparison.OrdinalIgnoreCase)) return true;
+        return false;
+    }
 
     // Limit counts UTF-16 code units, but never emits half of a valid surrogate pair.
     // Normalize controls before logging; this is a diagnostic copy, never the source value.

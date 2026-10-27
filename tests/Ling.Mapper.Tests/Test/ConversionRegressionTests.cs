@@ -28,12 +28,14 @@ public static class ConversionRegressionTests
             Equal(double.PositiveInfinity, mapper.Map<double>("1e9999"));
             Equal(double.PositiveInfinity, mapper.Map<Box<double>>(new Box<string> { Value = "1e9999" })!.Value);
         });
-        Case("concrete base member runtime identity precedes converter", () => {
+        Case("declared base converter precedes runtime compatibility", () => {
+            int calls = 0;
             TypeConverterRegistry.Register(typeof(ConcreteBase), typeof(ConcreteDerived),
-                new Func<ConcreteBase, ConcreteDerived>(_ => new ConcreteDerived()));
-            var value = new ConcreteDerived();
+                new Func<ConcreteBase, ConcreteDerived>(source => { calls++; return new ConcreteDerived { Value = source.Value + 100 }; }));
+            var value = new ConcreteDerived { Value = 7 };
             var result = mapper.Map<ConcreteDerivedHolder>(new ConcreteBaseHolder { Value = value });
-            if (!ReferenceEquals(value, result!.Value)) throw new Exception("Assignable runtime value must retain identity.");
+            True(!ReferenceEquals(value, result!.Value), "Explicit converter returns its independent result");
+            Equal(107, result.Value!.Value); Equal(1, calls); result.Value.Value = 8; Equal(7, value.Value);
         });
         Case("configuration defaults", () => {
             var c = new MapperConfiguration(); Equal(NullValueHandling.UseDefault, c.NullValueHandling);
@@ -132,10 +134,10 @@ public static class ConversionRegressionTests
         Case("integer date does not infer units", () => Failure(() => mapper.Map<DateTime>(1700000000L), typeof(long), typeof(DateTime), "$"));
         Case("date integer does not infer units", () => Failure(() => mapper.Map<long>(date), typeof(DateTime), typeof(long), "$"));
         foreach (var culture in new[] { "en-US", "de-DE", "fr-FR", "tr-TR", "zh-CN" })
-            Case($"invariant culture {culture}", () => {
+            Case($"current culture {culture}", () => {
                 var old = CultureInfo.CurrentCulture; var oldUI = CultureInfo.CurrentUICulture;
                 try { CultureInfo.CurrentCulture = CultureInfo.GetCultureInfo(culture); CultureInfo.CurrentUICulture = CultureInfo.GetCultureInfo(culture);
-                    Equal(1234.56m, mapper.Map<decimal>("1234.56")); Equal("1234.56", mapper.Map<string>(1234.56m));
+                    var numericText = 1234.56m.ToString(CultureInfo.CurrentCulture); Equal(1234.56m, mapper.Map<decimal>(numericText)); Equal(numericText, mapper.Map<string>(1234.56m));
                     Equal(Convert.ToDateTime(date.ToString("O", CultureInfo.InvariantCulture)), mapper.Map<DateTime>(date.ToString("O", CultureInfo.InvariantCulture))); Equal(EInt.Two, mapper.Map<EInt>("two")); }
                 finally { CultureInfo.CurrentCulture = old; CultureInfo.CurrentUICulture = oldUI; }
             });
@@ -186,8 +188,8 @@ public static class ConversionRegressionTests
         Case("runtime object source", () => Equal(19.5m, mapper.Map("19.5", typeof(object), typeof(decimal))));
         Case("runtime object collection", () => { var result = mapper.Map<List<decimal>>(new object[] { "1.5", 2, 3m })!; Equal(1.5m, result[0]); Equal(2m, result[1]); Equal(3m, result[2]); });
         Case("array element mapping", () => { var result = mapper.Map<long[]>(new int[] { 1, 2 })!; Equal(2L, result[1]); });
-        Case("assignable collection identity", () => { var list = new List<int> { 1, 2 }; True(ReferenceEquals(list, mapper.Map<IEnumerable<int>>(list)), "Assignable collection should be directly assigned"); });
-        Case("byte array identity", () => { var bytes = new byte[] { 1, 2 }; True(ReferenceEquals(bytes, mapper.Map<byte[]>(bytes)), "byte[] should be directly assigned"); });
+        Case("assignable collection independent identity", () => { var list = new List<int> { 1, 2 }; var copy = mapper.Map<IEnumerable<int>>(list)!; True(!ReferenceEquals(list, copy) && copy.SequenceEqual(list), "Assignable collection must copy values"); list[0] = 9; True(copy.SequenceEqual(new[] { 1, 2 }), "Source changes leaked into result"); });
+        Case("byte array independent identity", () => { var bytes = new byte[] { 1, 2 }; var copy = mapper.Map<byte[]>(bytes)!; True(!ReferenceEquals(bytes, copy) && copy.SequenceEqual(bytes), "byte[] must be copied"); copy[0] = 9; Equal((byte)1, bytes[0]); });
         Case("complex mapping avoids ToString", () => Equal("mapped", mapper.Map<PlainTarget>(new PoisonSource { Name = "mapped" })!.Name));
         Case("complex to scalar fails without ToString", () => Failure(() => mapper.Map<int>(new PoisonSource()), typeof(PoisonSource), typeof(int), "$"));
         Case("byte array not scalar string", () => Failure(() => mapper.Map<string>(new byte[] { 1, 2 }), typeof(byte[]), typeof(string), "$"));
@@ -240,7 +242,7 @@ public static class ConversionRegressionTests
             TypeConverterRegistry.Register(typeof(RuleEnum), typeof(string), new Func<RuleEnum, string>(_ => "replacement"));
             Equal("replacement", mapper.Map<string>(RuleEnum.Two));
         });
-        Case("assignable beats registered rule", () => { var value = new Identity(); TypeConverterRegistry.Register(typeof(Identity), typeof(Identity), new Func<Identity, Identity>(_ => throw new Exception("Should not invoke"))); True(ReferenceEquals(value, mapper.Map<Identity>(value)), "Identity assignment must precede rules"); });
+        Case("explicit same-type final rule owns identity", () => { var value = new Identity { Value = 7 }; int calls = 0; TypeConverterRegistry.Register(typeof(Identity), typeof(Identity), new Func<Identity, Identity>(source => { calls++; return source; })); var mapped = mapper.Map<Identity>(value)!; True(ReferenceEquals(value, mapped), "Final converter must retain deliberate identity"); Equal(1, calls); mapped.Value = 8; Equal(8, value.Value); });
         Case("explicit byte array rule", () => { TypeConverterRegistry.Register(typeof(byte[]), typeof(ByteToken), new Func<byte[], ByteToken>(b => new() { Length = b.Length })); Equal(3, mapper.Map<ByteToken>(new byte[3])!.Length); });
         Case("rule exception context and safe original type", () => {
             TypeConverterRegistry.Register(typeof(RuleInput), typeof(int), new Func<RuleInput, int>(_ => { var e = new InvalidOperationException("RULE_SECRET", new Exception("INNER_SECRET")); e.Data["token"] = "DATA_SECRET"; throw e; }));
@@ -272,14 +274,23 @@ public static class ConversionRegressionTests
             var config = new MapperConfiguration(); config.AddProfile(new CountingProfile()); var source = new CountingSource();
             Equal(37, config.CreateMapper().Map<Number>(source)!.Value); Equal(1, source.Reads);
         });
-        Case("missing constructor non-strict returns null", () => Equal(null, mapper.Map<NoDefaultConstructor>(new { Value = 4 })));
-        Case("missing constructor strict throws", () => {
-            var strict = new MapperConfiguration { StrictMode = true }.CreateMapper(); var source = new { Value = 4 };
-            Failure(() => strict.Map<NoDefaultConstructor>(source), source.GetType(), typeof(NoDefaultConstructor), "$");
+        Case("bindable public parameterized constructor maps without StrictMode", () => Equal(4, mapper.Map<NoDefaultConstructor>(new { Value = 4 })!.Value));
+        Case("bindable public parameterized constructor maps with StrictMode", () => {
+            var strict = new MapperConfiguration { StrictMode = true }.CreateMapper();
+            Equal(4, strict.Map<NoDefaultConstructor>(new { Value = 4 })!.Value);
         });
-        Case("runtime assignability precedes declared object converter", () => {
-            TypeConverterRegistry.Register(typeof(object), typeof(RuntimeIdentity), new Func<object, RuntimeIdentity>(_ => throw new Exception("Must not invoke declared object converter")));
-            var value = new RuntimeIdentity(); True(ReferenceEquals(value, mapper.Map(value, typeof(object), typeof(RuntimeIdentity))), "Runtime assignability lost priority");
+        Case("missing required constructor source fails safely", () => {
+            var source = new { Other = 4 };
+            Equal(null, mapper.Map<NoDefaultConstructor>(source));
+            var strict = new MapperConfiguration { StrictMode = true }.CreateMapper();
+            var error = Failure(() => strict.Map<NoDefaultConstructor>(source), source.GetType(), typeof(NoDefaultConstructor), "$");
+            Equal(typeof(MissingMethodException).FullName, error.OriginalExceptionType);
+        });
+        Case("declared object converter owns final output despite runtime compatibility", () => {
+            int calls = 0; var cached = new RuntimeIdentity { Value = 99 };
+            TypeConverterRegistry.Register(typeof(object), typeof(RuntimeIdentity), new Func<object, RuntimeIdentity>(_ => { calls++; return cached; }));
+            var value = new RuntimeIdentity { Value = 7 }; var mapped = mapper.Map(value, typeof(object), typeof(RuntimeIdentity));
+            True(ReferenceEquals(cached, mapped), "Explicit declared converter output was remapped"); Equal(1, calls); Equal(99, ((RuntimeIdentity)mapped!).Value); Equal(7, value.Value);
         });
         Case("result-level callback runs once", () => {
             var old = MapperProvider.Current; var calls = 0;
@@ -332,22 +343,24 @@ public static class ConversionRegressionTests
                 });
             }
         }
-        Case("object member runtime identity precedes declared converter", () => {
-            TypeConverterRegistry.Register(typeof(object), typeof(RuntimeIdentity), new Func<object, RuntimeIdentity>(_ => throw new Exception("Must not invoke object member converter")));
-            var value = new RuntimeIdentity(); var mapped = mapper.Map<RuntimeIdentityTarget>(new ObjectIdentitySource { Value = value })!;
-            True(ReferenceEquals(value, mapped.Value), "Object member runtime identity must precede declared converter");
+        Case("object member explicit declared converter precedes runtime compatibility", () => {
+            int calls = 0;
+            TypeConverterRegistry.Register(typeof(object), typeof(RuntimeIdentity), new Func<object, RuntimeIdentity>(source => { calls++; return new() { Value = ((RuntimeIdentity)source).Value + 100 }; }));
+            var value = new RuntimeIdentity { Value = 7 }; var mapped = mapper.Map<RuntimeIdentityTarget>(new ObjectIdentitySource { Value = value })!;
+            True(!ReferenceEquals(value, mapped.Value), "Object member converter result must not be replaced by source"); Equal(107, mapped.Value!.Value); Equal(1, calls); mapped.Value.Value = 9; Equal(7, value.Value);
         });
-        Case("interface member runtime identity precedes declared converter", () => {
-            TypeConverterRegistry.Register(typeof(IRuntimeIdentity), typeof(RuntimeIdentity), new Func<IRuntimeIdentity, RuntimeIdentity>(_ => throw new Exception("Must not invoke interface member converter")));
-            var value = new RuntimeIdentity(); var mapped = mapper.Map<RuntimeIdentityTarget>(new InterfaceIdentitySource { Value = value })!;
-            True(ReferenceEquals(value, mapped.Value), "Interface member runtime identity must precede declared converter");
+        Case("interface member explicit declared converter precedes runtime compatibility", () => {
+            int calls = 0;
+            TypeConverterRegistry.Register(typeof(IRuntimeIdentity), typeof(RuntimeIdentity), new Func<IRuntimeIdentity, RuntimeIdentity>(source => { calls++; return new() { Value = source.Value + 100 }; }));
+            var value = new RuntimeIdentity { Value = 7 }; var mapped = mapper.Map<RuntimeIdentityTarget>(new InterfaceIdentitySource { Value = value })!;
+            True(!ReferenceEquals(value, mapped.Value), "Interface member converter result must not be replaced by source"); Equal(107, mapped.Value!.Value); Equal(1, calls); mapped.Value.Value = 9; Equal(7, value.Value);
         });
         Case("collection mapped to object invokes root callback once", () => {
             var value = new List<int> { 1, 2, 3 }; var calls = 0;
             var result = mapper.Map<object>(value, AdaptOptions.Default, (destination, source) => {
-                calls++; True(ReferenceEquals(value, destination), "Root callback received an item destination"); True(ReferenceEquals(value, source), "Root callback received an item source");
+                calls++; True(destination is List<int> clone && !ReferenceEquals(value, clone) && clone.SequenceEqual(value), "Root callback must receive independent mapped collection"); True(ReferenceEquals(value, source), "Root callback received an item source");
             });
-            True(ReferenceEquals(value, result), "Assignable collection-to-object identity lost"); Equal(1, calls);
+            True(result is List<int> copy && !ReferenceEquals(value, copy) && copy.SequenceEqual(value), "Collection-to-object must independently preserve runtime shape/data"); Equal(1, calls); ((List<int>)result!)[0] = 9; Equal(1, value[0]);
         });
         // Register long/date only after tests proving no implicit date unit assumption.
         Case("explicit long date rule lifts nullable and exact rule wins", () => {
@@ -405,18 +418,18 @@ public static class ConversionRegressionTests
     public class CountingChild { public string Value { get; set; } = "37"; }
     public sealed class CountingProfile : MapperProfile { public CountingProfile() { CreateMap<CountingSource, Number>().Rename(d => d.Value, "Child.Value"); } }
     public class NoDefaultConstructor(int value) { public int Value { get; set; } = value; }
-    public interface IRuntimeIdentity { }
-    public class ConcreteBase { }
+    public interface IRuntimeIdentity { int Value { get; set; } }
+    public class ConcreteBase { public int Value { get; set; } }
     public class ConcreteDerived : ConcreteBase { }
     public class ConcreteBaseHolder { public ConcreteBase? Value { get; set; } }
     public class ConcreteDerivedHolder { public ConcreteDerived? Value { get; set; } }
-    public class RuntimeIdentity : IRuntimeIdentity { }
+    public class RuntimeIdentity : IRuntimeIdentity { public int Value { get; set; } }
     public class ObjectIdentitySource { public object? Value { get; set; } }
     public class InterfaceIdentitySource { public IRuntimeIdentity? Value { get; set; } }
     public class RuntimeIdentityTarget { public RuntimeIdentity? Value { get; set; } }
     public class ThrowingSource { public int ReadValue() => throw new InvalidOperationException("EXPRESSION_SECRET"); }
     public sealed class ThrowingProfile : MapperProfile { public ThrowingProfile() { CreateMap<ThrowingSource, Number>().ForMember(d => d.Value, s => s.ReadValue()); } }
     public sealed class PrivacyProfile : MapperProfile { public PrivacyProfile() { CreateMap<SecretText, Number>().Rename(d => d.Value, nameof(SecretText.Password)); } }
-    public class Identity { } public class ByteToken { public int Length { get; set; } }
+    public class Identity { public int Value { get; set; } } public class ByteToken { public int Length { get; set; } }
     public class RuleInput { } public class RuleContainer { public RuleInput? Value { get; set; } }
 }

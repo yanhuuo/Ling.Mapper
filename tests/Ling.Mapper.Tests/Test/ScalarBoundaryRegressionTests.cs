@@ -20,8 +20,12 @@ public static class ScalarBoundaryRegressionTests
         }
         var mapper = new MapperConfiguration().CreateMapper();
         var source = new[] { 1, 2 };
-        TestHelper.AssertTrue(ReferenceEquals(source, mapper.Map<int[]>(source)), "mapper still preserves safe array identity");
-        TestHelper.AssertTrue(ReferenceEquals(source, mapper.Map<object>(source)), "mapper still assigns array to object");
+        var arrayCopy = mapper.Map<int[]>(source)!;
+        var objectCopy = (int[])mapper.Map<object>(source)!;
+        TestHelper.AssertTrue(!ReferenceEquals(source, arrayCopy) && arrayCopy.SequenceEqual(source), "mapper independently clones same-type arrays");
+        TestHelper.AssertTrue(!ReferenceEquals(source, objectCopy) && objectCopy.SequenceEqual(source), "object target preserves array shape without aliasing");
+        arrayCopy[0] = 9; objectCopy[1] = 8;
+        TestHelper.AssertTrue(source.SequenceEqual(new[] { 1, 2 }), "mapped array mutations cannot affect source");
         TestHelper.AssertTrue(mapper.Map<uint[]>(source)!.SequenceEqual(new uint[] { 1, 2 }), "signed array conversion remains element-wise");
     }
 }

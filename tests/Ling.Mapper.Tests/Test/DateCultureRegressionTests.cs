@@ -8,7 +8,7 @@ namespace TestConsole.Test;
 /// Default date conversion contracts verified against official AutoMapper packages
 /// by the separate .work/automapper-date-parity harness. DateOnly/TimeOnly parsing
 /// is a Ling extension, not a claim of native AutoMapper support. Numeric conversion
-/// intentionally retains invariant culture and is not changed to AutoMapper semantics.
+/// also follows CurrentCulture; explicit user-supplied format providers remain authoritative.
 /// </summary>
 public static class DateCultureRegressionTests
 {
@@ -62,7 +62,7 @@ public static class DateCultureRegressionTests
                             if(expected is DateTimeOffset offset) { Equal(offset.Offset,((DateTimeOffset)actual!).Offset); Equal(offset.Ticks,((DateTimeOffset)actual!).Ticks); }
                         });
                 }
-                Case($"{culture}/amount remains invariant", () => { Equal("1234.56",mapper.Map<string>(1234.56m)); Equal(1234.56m,mapper.Map<decimal>("1234.56")); Equal("1234.56",ScalarConversion.Convert(1234.56m,typeof(string))); });
+                Case($"{culture}/amount follows current culture", () => { var text = 1234.56m.ToString(CultureInfo.CurrentCulture); Equal(text,mapper.Map<string>(1234.56m)); Equal(1234.56m,mapper.Map<decimal>(text)); Equal(text,ScalarConversion.Convert(1234.56m,typeof(string))); });
             }
         }
         finally { CultureInfo.CurrentCulture=previousCulture; }

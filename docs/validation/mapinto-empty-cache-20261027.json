@@ -1,0 +1,69 @@
+{
+  "dateUtc": "2026-10-27",
+  "status": "correctness-validated; performance-remeasurement-pending",
+  "baselineCommit": "b14576e0efc44df03374446ba5640132c8b74cd8",
+  "productionChange": {
+    "file": "src/Mapper/Mapper.ExistingDestination.cs",
+    "method": "MapIntoValue",
+    "onlyChangedCondition": "context.HasReferences && context.TryGet(...)",
+    "reason": "A fresh root context has no reference entries, so computing a scope before an inevitable lookup miss is unnecessary. Plan version checking and reference registration remain unchanged."
+  },
+  "sourceManifest": {
+    "files": 122,
+    "beforeEqualsAfter": true,
+    "sha256": "13344e375be4d99fb73ba9eb672e1809e2779a40be460007bfaea3ac658631fc"
+  },
+  "runtimeFullSuite": {
+    "net10.0": {
+      "executed": 58,
+      "failed": 0,
+      "existingDestinationAssertions": 908,
+      "librarySha256": "5196c9f666b7cdeee0384d4da7e5b80ba059af15520e6d13ed6487f14574fe6a"
+    },
+    "net6.0": {
+      "executed": 58,
+      "failed": 0,
+      "existingDestinationAssertions": 908,
+      "librarySha256": "966f397a138584f516e6c4d14833b98aeb08870173e57761cb580d3a9123ebb7"
+    },
+    "net8.0": {
+      "executed": 58,
+      "failed": 0,
+      "existingDestinationAssertions": 908,
+      "librarySha256": "312dde4fc8c8505fab469cbe888ecd6e4b7fd0beb4f424fa9e5c3792ead83a1b"
+    },
+    "net9.0": {
+      "executed": 58,
+      "failed": 0,
+      "existingDestinationAssertions": 908,
+      "librarySha256": "7e479ec6f3f6b1f32af2c5ea4daf107b1e3737adb7958ce6fc3d17c3f1bf6a71"
+    }
+  },
+  "libraryFourTargetBuild": {
+    "warnings": 0,
+    "errors": 0
+  },
+  "independentAudit": {
+    "existingGraphGroups": 23,
+    "existingScopeGroups": 10,
+    "existingDeclaredCollectionGroups": 8,
+    "additionalWarmUpdateRegistryReplacementAssertions": 8,
+    "failed": 0,
+    "runtimeDllSha256": "5196c9f666b7cdeee0384d4da7e5b80ba059af15520e6d13ed6487f14574fe6a"
+  },
+  "performance": "No timing or allocation gain is claimed by this validation. The b145 baseline remains frozen; same-harness targeted BDN remeasurement is required.",
+  "otherGates": "Public API and generated implementation did not change. Their b145 gate results remain recorded separately; they were not rerun against this binary.",
+  "localEvidence": {
+    "runtime": "../mapper-mapinto-empty-cache-validation-20261027",
+    "auditGraph": "/tmp/mapper-clone-audit-20261027/results-empty-cache-final.log",
+    "auditScope": "/tmp/mapper-perf-audit-20261027/results-empty-cache-final.log",
+    "auditCollections": "/tmp/mapper-collection-declared-audit-20261027/results-empty-cache-final.log",
+    "auditAdditional": "/tmp/mapper-empty-cache-audit-20261027/results-final.log"
+  },
+  "notPerformed": [
+    "remote push",
+    "package publication",
+    "version or CI change",
+    "additional production optimization"
+  ]
+}

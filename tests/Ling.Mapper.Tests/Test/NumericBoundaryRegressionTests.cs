@@ -7,7 +7,7 @@ namespace TestConsole.Test;
 
 /// <summary>
 /// Deterministic boundary matrix, not an exhaustive proof over every numeric value.
-/// BCL Convert.ChangeType with InvariantCulture is an independent oracle. Each
+/// BCL Convert.ChangeType with CurrentCulture is an independent oracle. Each
 /// input/target pair is checked through root, member, collection, and nested paths.
 /// </summary>
 public static class NumericBoundaryRegressionTests
@@ -35,7 +35,7 @@ public static class NumericBoundaryRegressionTests
         {
             object? expected = null;
             Exception? oracleError = null;
-            try { expected = Convert.ChangeType(input.Value, target, CultureInfo.InvariantCulture); }
+            try { expected = Convert.ChangeType(input.Value, target, CultureInfo.CurrentCulture); }
             catch (Exception error) when (error is FormatException or OverflowException or InvalidCastException)
             { oracleError = error; }
 

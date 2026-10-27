@@ -56,7 +56,7 @@ public static class ValueAndApiBoundaryRegressionTests
         foreach(var text in new[]{Guid.Empty.ToString(),"ffffffff-ffff-ffff-ffff-ffffffffffff","{01234567-89ab-cdef-0123-456789abcdef}","0123456789abcdef0123456789abcdef","bad","","01234567-89ab-cdef-0123-456789abcdeg"}) Matrix("Guid parse "+text,text,typeof(Guid),()=>Guid.Parse(text));
         foreach(var guid in new[]{Guid.Empty,Guid.Parse("ffffffff-ffff-ffff-ffff-ffffffffffff")}) Matrix("Guid format",guid,typeof(string),()=>guid.ToString());
         foreach(var value in new object[]{(sbyte)-1,byte.MaxValue,short.MinValue,ushort.MaxValue,int.MinValue,uint.MaxValue,long.MinValue,ulong.MaxValue,decimal.MaxValue,-0.0f,-0.0d,float.NaN,double.NaN,float.PositiveInfinity,double.NegativeInfinity})
-            Matrix("numeric string "+value.GetType().Name,value,typeof(string),()=>((IFormattable)value).ToString(null,CultureInfo.InvariantCulture));
+            Matrix("numeric string "+value.GetType().Name,value,typeof(string),()=>((IFormattable)value).ToString(null,CultureInfo.CurrentCulture));
         var oldCulture=CultureInfo.CurrentCulture;
         try {
             CultureInfo.CurrentCulture=CultureInfo.InvariantCulture;
@@ -186,12 +186,14 @@ public static class ValueAndApiBoundaryRegressionTests
             Equal(mapper.Map<NumberDto>(source,AdaptOptions.Default,ignoreNames:null)!.Value,mapper.Map<NumberDto>(source,AdaptOptions.Default,ignoreNames:Array.Empty<string>())!.Value);
             Equal(((NumberDto)mapper.Map(source,typeof(TextDto),typeof(NumberDto),AdaptOptions.Default,ignoreNames:null)!).Value,((NumberDto)mapper.Map(source,typeof(TextDto),typeof(NumberDto),AdaptOptions.Default,ignoreNames:Array.Empty<string>())!).Value);
         });
-        Case("IMapper empty ignores preserve null and identity fast paths",()=> {
+        Case("IMapper empty ignores preserve null and independent ordinary copies",()=> {
             var same=new NumberDto{Value=2};
             Equal(null,mapper.Map<NumberDto>(null,AdaptOptions.Default,ignoreNames:Array.Empty<string>()));
-            True(ReferenceEquals(same,mapper.Map<NumberDto>(same,AdaptOptions.Default,ignoreNames:Array.Empty<string>())),"Empty ignores changed assignable identity");
+            var genericCopy=mapper.Map<NumberDto>(same,AdaptOptions.Default,ignoreNames:Array.Empty<string>())!;
+            True(!ReferenceEquals(same,genericCopy),"Empty ignores must not alias mutable source"); Equal(2,genericCopy.Value); genericCopy.Value=9; Equal(2,same.Value);
             Equal(null,mapper.Map(null,typeof(TextDto),typeof(NumberDto),AdaptOptions.Default,ignoreNames:Array.Empty<string>()));
-            True(ReferenceEquals(same,mapper.Map(same,typeof(NumberDto),typeof(NumberDto),AdaptOptions.Default,ignoreNames:Array.Empty<string>())),"Empty ignores changed runtime identity");
+            var runtimeCopy=(NumberDto)mapper.Map(same,typeof(NumberDto),typeof(NumberDto),AdaptOptions.Default,ignoreNames:Array.Empty<string>())!;
+            True(!ReferenceEquals(same,runtimeCopy),"Empty ignores must not alias runtime source"); Equal(2,runtimeCopy.Value); runtimeCopy.Value=8; Equal(2,same.Value);
         });
         // Phase 1 must finish for all paths before this unique type receives a rule.
         foreach(var entry in new[]{"R","M","C","N"}) Case("complex IConvertible rejected without user code/"+entry,()=> {

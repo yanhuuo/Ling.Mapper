@@ -58,9 +58,21 @@ public static class AdvancedConcurrencyRegressionTests
             Equal(2, view.Count, "readonly interface count"); Check(second, view[2]);
             var array = mapper.Map<ImmutableValue[]>(new[] { first, second })!;
             Equal(2, array.Length, "readonly struct array count"); Check(first, array[0]); Check(second, array[1]);
-            var direct = mapper.Map<IReadOnlyDictionary<string, TextValue>>(input);
-            True(ReferenceEquals(input, direct), "assignable dictionary preserves identity");
-            Equal(first.Name, input["1"].Name, "source not modified");
+            var direct = mapper.Map<IReadOnlyDictionary<string, TextValue>>(input)!;
+            True(!ReferenceEquals(input, direct), "assignable dictionary is an independent root");
+            Equal(2, direct.Count, "assignable dictionary count");
+            foreach (var key in new[] { "1", "2" })
+            {
+                True(!ReferenceEquals(input[key], direct[key]), "assignable dictionary mutable value is fresh");
+                Equal(input[key].Id, direct[key].Id, "cloned dictionary value id");
+                Equal(input[key].Name, direct[key].Name, "cloned dictionary value name");
+                Equal(input[key].Amount, direct[key].Amount, "cloned dictionary value amount");
+            }
+            var originalName = first.Name; direct["1"].Name = "target-only";
+            Equal(originalName, first.Name, "target dictionary value mutation isolated");
+            var copiedSecondName = direct["2"].Name; second.Name = "source-only";
+            Equal(copiedSecondName, direct["2"].Name, "source dictionary value mutation isolated");
+            Equal(originalName, input["1"].Name, "source not modified");
         });
     }
     private static void DictionaryGraphs(int degree)

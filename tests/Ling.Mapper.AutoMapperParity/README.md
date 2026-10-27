@@ -17,7 +17,7 @@ AutoMapper 13.0.1 and 16.2.0 do not natively support string-to-DateOnly/TimeOnly
 
 AutoMapper's non-generic root `Map(null, typeof(string), typeof(DateTime))` returns null, whereas Ling's documented null policy returns the default non-nullable value (or throws when configured). These root null-policy rows are excluded from date-behavior parity. Member and collection null/default behavior and nullable null behavior are compared normally.
 
-Numeric/money conversion remains invariant in Ling. This harness is not an attempt to change numeric behavior to match AutoMapper.
+Numeric/money conversion now follows CurrentCulture by an explicit product decision (2026-10-27); the previous InvariantCulture default is a deliberate behavior change. This date-only differential harness does not establish numeric parity; the separate CurrentCultureConversionRegressionTests covers numeric culture, cached plans and async context isolation.
 
 ## Run
 

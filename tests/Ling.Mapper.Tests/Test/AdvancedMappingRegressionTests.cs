@@ -200,14 +200,20 @@ public static class AdvancedMappingRegressionTests
             var e = Failure(() => m.Map<OpaqueTarget>(new OpaqueSource { Number = 17 }, AdaptOptions.Default, ignoreNames: ["Number"]));
             Equal(typeof(NotSupportedException).FullName, e.OriginalExceptionType); Equal("$", e.Path); Equal(0, calls);
         });
-        Case("empty ignore arrays preserve assignment identity and converter behavior", () => {
-            var child = new ClassChild { Number = 17, Other = "keep" }; var list = new List<ClassChild> { child }; var dictionary = new Dictionary<int, ClassChild> { [1] = child };
-            Same(child, m.Map<ClassChild>(child, AdaptOptions.Default, ignoreNames: []));
-            Same(child, m.Map<ClassChild>(child, AdaptOptions.Default, ignoreNames: null));
-            Same(list, m.Map<List<ClassChild>>(list, AdaptOptions.Default, ignoreNames: []));
-            Same(list, m.Map<List<ClassChild>>(list, AdaptOptions.Default, ignoreNames: null));
-            Same(dictionary, m.Map<Dictionary<int, ClassChild>>(dictionary, AdaptOptions.Default, ignoreNames: []));
-            Same(dictionary, m.Map<Dictionary<int, ClassChild>>(dictionary, AdaptOptions.Default, ignoreNames: null));
+        Case("empty ignore arrays preserve independent graphs and converter behavior", () => {
+            var child = new ClassChild { Number = 17, Other = "keep" }; var list = new List<ClassChild> { child, child }; var dictionary = new Dictionary<int, ClassChild> { [1] = child, [2] = child };
+            foreach (var ignores in new string[]?[] { [], null })
+            {
+                var copied = m.Map<ClassChild>(child, AdaptOptions.Default, ignoreNames: ignores)!;
+                NotSame(child, copied); Equal(17, copied.Number); Equal("keep", copied.Other);
+                copied.Number = 99; Equal(17, child.Number);
+                var copiedList = m.Map<List<ClassChild>>(list, AdaptOptions.Default, ignoreNames: ignores)!;
+                NotSame(list, copiedList); Equal(2, copiedList.Count); NotSame(child, copiedList[0]); Same(copiedList[0], copiedList[1]); Equal(17, copiedList[0].Number); Equal("keep", copiedList[0].Other);
+                copiedList[0].Other = "target-only"; Equal("keep", child.Other);
+                var copiedDictionary = m.Map<Dictionary<int, ClassChild>>(dictionary, AdaptOptions.Default, ignoreNames: ignores)!;
+                NotSame(dictionary, copiedDictionary); Equal(2, copiedDictionary.Count); NotSame(child, copiedDictionary[1]); Same(copiedDictionary[1], copiedDictionary[2]); Equal(17, copiedDictionary[1].Number); Equal("keep", copiedDictionary[1].Other);
+                child.Number = 23; Equal(17, copiedDictionary[1].Number); child.Number = 17;
+            }
             var calls = 0;
             TypeConverterRegistry.Register(typeof(EmptyIgnoreSource), typeof(EmptyIgnoreTarget), new Func<EmptyIgnoreSource, EmptyIgnoreTarget>(value => { calls++; return new() { Number = value.Number + 1 }; }));
             Equal(18, m.Map<EmptyIgnoreTarget>(new EmptyIgnoreSource { Number = 17 }, AdaptOptions.Default, ignoreNames: [])!.Number);

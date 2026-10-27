@@ -11,6 +11,7 @@ public static class GeneratedMapperRegistry
 {
     internal delegate object? MapDelegate(object source, AdaptOptions options, string[]? ignores, GeneratedMappingContext context);
     private static readonly ConcurrentDictionary<(Type, Type), MapDelegate> Maps = new();
+    private static readonly ConcurrentDictionary<(Type, Type), byte> DeclaredPairs = new();
     private static readonly ConcurrentDictionary<Type, Func<object?>> Defaults = new();
     private static readonly ConcurrentDictionary<Type, Type> ElementTypes = new();
 
@@ -18,9 +19,17 @@ public static class GeneratedMapperRegistry
     public static void Register<TSource, TDestination>(Func<TSource, AdaptOptions, string[]?, GeneratedMappingContext, TDestination> map)
     {
         ArgumentNullException.ThrowIfNull(map);
+        DeclaredPairs[(typeof(TSource), typeof(TDestination))] = 0;
+        if (Nullable.GetUnderlyingType(typeof(TSource)) is { } underlyingSource)
+            DeclaredPairs[(underlyingSource, typeof(TDestination))] = 0;
+        Add<TSource, TDestination>((source, options, ignores, context) => map((TSource)source, options, ignores, context));
+        RegisterCollectionShapes<TSource, TDestination>();
+    }
+    /// <summary>Generated infrastructure: register statically known array/list containers without treating dynamic element objects as identity mappings.</summary>
+    public static void RegisterCollectionShapes<TSource, TDestination>()
+    {
         RegisterElements<TSource>();
         RegisterElements<TDestination>();
-        Add<TSource, TDestination>((source, options, ignores, context) => map((TSource)source, options, ignores, context));
         Add<List<TSource>, List<TDestination>>(List<TSource, TDestination>);
         Add<TSource[], List<TDestination>>(List<TSource, TDestination>);
         Add<List<TSource>, TDestination[]>(Array<TSource, TDestination>);
@@ -41,8 +50,8 @@ public static class GeneratedMapperRegistry
         ElementTypes[typeof(IReadOnlyList<T>)] = typeof(T);
     }
     internal static bool SafelyAssignable(Type source, Type destination)
-        => SafelyAssignable(source, destination, new HashSet<(Type, Type)>());
-    private static bool SafelyAssignable(Type source, Type destination, HashSet<(Type, Type)> visited)
+        => SafelyAssignable(source, destination, null);
+    private static bool SafelyAssignable(Type source, Type destination, HashSet<(Type, Type)>? visited)
     {
         if (source == destination) return true;
         if (!destination.IsAssignableFrom(source)) return false;
@@ -55,6 +64,7 @@ public static class GeneratedMapperRegistry
         if (sourceItem == null || destinationItem == null) return false;
         if (sourceItem == destinationItem) return true;
         if (sourceItem.IsValueType || destinationItem.IsValueType) return false;
+        visited ??= new HashSet<(Type, Type)>();
         if (!visited.Add((source, destination))) return true;
         return SafelyAssignable(sourceItem, destinationItem, visited);
     }
@@ -67,33 +77,11 @@ public static class GeneratedMapperRegistry
         Defaults[typeof(TDestination)] = () => default(TDestination);
     }
     private static object List<TSource, TDestination>(object source, AdaptOptions options, string[]? ignores, GeneratedMappingContext context)
-    {
-        var result = new List<TDestination>();
-        context.Remember(source, context.DestinationType, result);
-        int index = 0;
-        foreach (var item in (IEnumerable<TSource>)source)
-        {
-            TDestination mapped = default!;
-            context.Member(typeof(TSource), typeof(TDestination), "[" + index++ + "]", () => mapped = context.MapItem<TSource, TDestination>(item, options, ignores));
-            result.Add(mapped);
-        }
-        return result;
-    }
+        => context.CopyList<TSource, TDestination>((IEnumerable<TSource>)source, options, ignores);
     private static object Array<TSource, TDestination>(object source, AdaptOptions options, string[]? ignores, GeneratedMappingContext context)
-    {
-        // Both registered source shapes have a non-reflective Count.
-        var input = (ICollection<TSource>)source;
-        var result = new TDestination[input.Count];
-        context.Remember(source, typeof(TDestination[]), result);
-        int index = 0;
-        foreach (var item in input)
-        {
-            int position = index++;
-            context.Member(typeof(TSource), typeof(TDestination), "[" + position + "]", () => result[position] = context.MapItem<TSource, TDestination>(item, options, ignores));
-        }
-        return result;
-    }
+        => context.CopyArray<TSource, TDestination>((ICollection<TSource>)source, options, ignores);
     internal static bool TryGet(Type source, Type destination, out MapDelegate? map) => Maps.TryGetValue((source, destination), out map);
+    internal static bool HasDeclaredPair(Type source, Type destination) => DeclaredPairs.ContainsKey((source, destination));
     internal static object? Default(Type destination) => Defaults.TryGetValue(destination, out var factory) ? factory() :
         throw new NotSupportedException($"No generated destination registered for {destination.FullName}. Declare an assembly GeneratedMap pair.");
 
@@ -109,7 +97,7 @@ public static class GeneratedMapperRegistry
         if (configuration.MaxDiagnosticValueLength < 0) throw new ArgumentOutOfRangeException(nameof(configuration.MaxDiagnosticValueLength));
         return new GeneratedMapper(configuration);
     }
-    private sealed class GeneratedMapper(MapperConfiguration configuration) : IMapper, IDefaultMappingOptions
+    private sealed class GeneratedMapper(MapperConfiguration configuration) : IMapper, IDefaultMappingOptions, Ling.Mapper.Extensions.IRuntimeContextUnsupported
     {
         public AdaptOptions DefaultOptions => configuration.EffectiveDefaultOptions;
         public TDestination? Map<TDestination>(object? source) => Map<TDestination>(source, configuration.EffectiveDefaultOptions);
@@ -131,6 +119,9 @@ public static class GeneratedMapperRegistry
         }
         private static void Validate(AdaptOptions options, string[]? ignores)
         {
+            var callContext = MappingCallContext.Current;
+            if (callContext.Parameters.Count != 0 || callContext.Services != null)
+                throw new NotSupportedException("Generated mapping does not support per-call parameters or service resolution. Use runtime mapping for context-dependent profiles.");
             if ((options & ~(AdaptOptions.Default | AdaptOptions.IgnoreNullValues)) != 0) throw new ArgumentOutOfRangeException(nameof(options));
             if (ignores?.Any(name => name != null && name.Contains('.')) == true) throw new NotSupportedException("Generated mapping currently supports only top-level ignored names, not dotted paths.");
             if (ignores?.Any(string.IsNullOrWhiteSpace) == true) throw new ArgumentException("Ignored names must be nonempty.", nameof(ignores));
@@ -143,24 +134,84 @@ public sealed class GeneratedMappingContext
 {
     private readonly MapperConfiguration configuration;
     private readonly Action<object, object>? callback;
-    private readonly Dictionary<object, Dictionary<(Type Destination, string Projection), object>> seen = new(System.Collections.Generic.ReferenceEqualityComparer.Instance);
-    private string path = "$";
+    private readonly Dictionary<(object Source, Type Destination, string Projection), object> seen = new(ReferenceProjectionComparer.Instance);
+    private static readonly string[] EmptyProjections = { "0:", "1:", "2:", "3:", "4:", "5:", "6:", "7:" };
+    private string? memberName;
+    private List<string>? parentNames;
+    private string path
+    {
+        get
+        {
+            var result = new System.Text.StringBuilder("$");
+            if (parentNames != null) foreach (var name in parentNames) Append(name);
+            if (memberName != null) Append(memberName);
+            return result.ToString();
+            void Append(string name) { if (!name.StartsWith("[", StringComparison.Ordinal)) result.Append('.'); result.Append(name); }
+        }
+    }
     private string projection = "";
     private bool sensitive;
     private bool invokeItemCallbacks;
+    private HashSet<(object Source, Type Destination, string Projection)>? pendingValues;
+    private sealed class ReferenceProjectionComparer : IEqualityComparer<(object Source, Type Destination, string Projection)>
+    {
+        internal static readonly ReferenceProjectionComparer Instance = new();
+        public bool Equals((object Source, Type Destination, string Projection) left, (object Source, Type Destination, string Projection) right)
+            => ReferenceEquals(left.Source, right.Source) && left.Destination == right.Destination && left.Projection == right.Projection;
+        public int GetHashCode((object Source, Type Destination, string Projection) value)
+            => HashCode.Combine(System.Runtime.CompilerServices.RuntimeHelpers.GetHashCode(value.Source), value.Destination, value.Projection);
+    }
     internal Type DestinationType { get; private set; } = typeof(object);
     internal GeneratedMappingContext(MapperConfiguration configuration, Action<object, object>? callback) { this.configuration = configuration; this.callback = callback; }
     /// <summary>Register a destination before mapping children, preserving cycles.</summary>
     public void Remember(object source, Type destinationType, object destination)
     {
-        if (!seen.TryGetValue(source, out var destinations)) seen[source] = destinations = new();
-        destinations[(destinationType, projection)] = destination;
+        seen[(source, destinationType, projection)] = destination;
     }
     /// <summary>Map a declared nested pair using the same root context.</summary>
     public TDestination Map<TSource, TDestination>(TSource source, AdaptOptions options)
         => source is null ? Null<TDestination>(typeof(TSource)) : (TDestination)Dispatch(source, source.GetType(), typeof(TDestination), options, null, false)!;
     internal TDestination MapItem<TSource, TDestination>(TSource source, AdaptOptions options, string[]? ignores)
         => source is null ? Null<TDestination>(typeof(TSource)) : (TDestination)Dispatch(source, source.GetType(), typeof(TDestination), options, ignores, invokeItemCallbacks)!;
+    /// <summary>Generated infrastructure: create an independent list and preserve repeated references and cycles within this graph.</summary>
+    public List<TDestination> CopyList<TSource, TDestination>(IEnumerable<TSource> source, AdaptOptions options, string[]? ignores)
+    {
+        // Do not introduce Count calls on arbitrary hand-written IEnumerable/ICollection implementations.
+        var result = source switch
+        {
+            TSource[] array => new List<TDestination>(array.Length),
+            List<TSource> list => new List<TDestination>(list.Count),
+            _ => new List<TDestination>()
+        };
+        Remember(source, DestinationType, result);
+        int index = 0;
+        foreach (var item in source)
+        {
+            TDestination mapped;
+            using (EnterMember("[" + index++ + "]", false))
+            {
+                try { mapped = MapItem<TSource, TDestination>(item, options, ignores); }
+                catch (Exception error) when (!OwnsException(error)) { throw MemberException(typeof(TSource), typeof(TDestination), error); }
+            }
+            result.Add(mapped);
+        }
+        return result;
+    }
+    /// <summary>Generated infrastructure: create an independent array using a statically supported counted source.</summary>
+    public TDestination[] CopyArray<TSource, TDestination>(ICollection<TSource> source, AdaptOptions options, string[]? ignores)
+    {
+        var result = new TDestination[source.Count];
+        Remember(source, DestinationType, result);
+        int index = 0;
+        foreach (var item in source)
+        {
+            int position = index++;
+            using var scope = EnterMember("[" + position + "]", false);
+            try { result[position] = MapItem<TSource, TDestination>(item, options, ignores); }
+            catch (Exception error) when (!OwnsException(error)) { throw MemberException(typeof(TSource), typeof(TDestination), error); }
+        }
+        return result;
+    }
     /// <summary>Apply configured null policy without reflection-based default construction.</summary>
     public TDestination Null<TDestination>(Type sourceType)
     {
@@ -170,10 +221,18 @@ public sealed class GeneratedMappingContext
     }
     internal object? Dispatch(object? source, Type sourceType, Type destinationType, AdaptOptions options, string[]? ignores, bool invokeCallback = true)
     {
+        // Opaque assignable slots (object/interface/base) clone the actual mutable type
+        // unless an explicitly registered pair owns the result. Never return an unknown object as-is.
+        if (source != null && !TypeUtils.IsImmutableAtomic(sourceType) &&
+            GeneratedMapperRegistry.SafelyAssignable(sourceType, destinationType) &&
+            !GeneratedMapperRegistry.HasDeclaredPair(sourceType, destinationType))
+            destinationType = sourceType;
         var previousDestination = DestinationType;
         string previousProjection = projection;
-        projection = ((int)options).ToString(System.Globalization.CultureInfo.InvariantCulture) + ":" +
-            (ignores == null ? "" : string.Concat(ignores.Distinct(StringComparer.Ordinal).OrderBy(name => name, StringComparer.Ordinal).Select(name => name.Length + ":" + name)));
+        projection = ignores == null || ignores.Length == 0
+            ? unchecked((uint)options) < (uint)EmptyProjections.Length ? EmptyProjections[(int)options] : ((int)options).ToString(System.Globalization.CultureInfo.InvariantCulture) + ":"
+            : ((int)options).ToString(System.Globalization.CultureInfo.InvariantCulture) + ":" +
+                string.Concat(ignores.Distinct(StringComparer.Ordinal).OrderBy(name => name, StringComparer.Ordinal).Select(name => name.Length + ":" + name));
         bool previousCallbacks = invokeItemCallbacks;
         invokeItemCallbacks = invokeCallback;
         DestinationType = destinationType;
@@ -186,7 +245,7 @@ public sealed class GeneratedMappingContext
                 if (value != null && configuration.NullValueHandling == NullValueHandling.Throw) throw new InvalidCastException();
                 return value;
             }
-            if ((ignores == null || ignores.Length == 0) && GeneratedMapperRegistry.SafelyAssignable(sourceType, destinationType))
+            if ((ignores == null || ignores.Length == 0) && TypeUtils.IsImmutableAtomic(sourceType) && GeneratedMapperRegistry.SafelyAssignable(sourceType, destinationType))
             {
                 if (invokeCallback && callback != null)
                 {
@@ -203,14 +262,23 @@ public sealed class GeneratedMappingContext
                 }
                 return source;
             }
-            if (seen.TryGetValue(source, out var destinations) && destinations.TryGetValue((destinationType, projection), out var cached))
+            if (seen.TryGetValue((source, destinationType, projection), out var cached))
             {
                 if (invokeCallback && callback != null && (source is not System.Collections.IEnumerable || source is string)) callback(cached, source);
                 return cached;
             }
             if (!GeneratedMapperRegistry.TryGet(sourceType, destinationType, out var map))
                 throw new NotSupportedException("No generated mapping pair registered. Declare an assembly GeneratedMap pair; reflection fallback is disabled.");
-            var result = map!(source, options, ignores, this);
+            object? result;
+            if (sourceType.IsValueType || destinationType.IsValueType)
+            {
+                var key = (source, destinationType, projection);
+                if (!(pendingValues ??= new(ReferenceProjectionComparer.Instance)).Add(key))
+                    throw new NotSupportedException("A generated value-type graph cannot preserve this boxed circular reference before construction completes.");
+                try { result = map!(source, options, ignores, this); }
+                finally { pendingValues.Remove(key); }
+            }
+            else result = map!(source, options, ignores, this);
             if (result != null) Remember(source, destinationType, result);
             if (result != null && invokeCallback && callback != null && (source is not System.Collections.IEnumerable || source is string)) callback(result, source);
             return result;
@@ -219,16 +287,42 @@ public sealed class GeneratedMappingContext
         catch (Exception error) { throw MappingException.Create(sourceType, destinationType, path, source, error, configuration, sensitive, origin: this); }
         finally { DestinationType = previousDestination; invokeItemCallbacks = previousCallbacks; projection = previousProjection; }
     }
+    /// <summary>Generated infrastructure: track a member without allocating a closure or a full path.</summary>
+    public MemberScope EnterMember(string name, bool isSensitive)
+    {
+        var scope = new MemberScope(this, memberName, sensitive);
+        if (memberName != null) (parentNames ??= new List<string>()).Add(memberName);
+        memberName = name;
+        sensitive |= isSensitive;
+        return scope;
+    }
+    /// <summary>Generated infrastructure: preserve exceptions already attributed to this graph.</summary>
+    public bool OwnsException(Exception error) => error is MappingException mapping && ReferenceEquals(mapping.Origin, this);
+    /// <summary>Generated infrastructure: attribute a getter/conversion/setter failure before leaving its member scope.</summary>
+    public MappingException MemberException(Type sourceType, Type destinationType, Exception error)
+        => MappingException.Create(sourceType, destinationType, path, null, error, configuration, sensitive, origin: this);
+    /// <summary>Value-type generated path scope. Dispose exactly once, in reverse entry order.</summary>
+    public readonly struct MemberScope : IDisposable
+    {
+        private readonly GeneratedMappingContext context;
+        private readonly string? previousName;
+        private readonly bool previousSensitive;
+        internal MemberScope(GeneratedMappingContext context, string? previousName, bool previousSensitive)
+        { this.context = context; this.previousName = previousName; this.previousSensitive = previousSensitive; }
+        /// <summary>Restore the enclosing member path and sensitivity.</summary>
+        public void Dispose()
+        {
+            if (previousName != null) context.parentNames!.RemoveAt(context.parentNames.Count - 1);
+            context.memberName = previousName;
+            context.sensitive = previousSensitive;
+        }
+    }
     /// <summary>Wrap getter/conversion/setter failures with a safe full destination path.</summary>
     public void Member(Type sourceType, Type destinationType, string name, Action action, bool sensitiveSource = false)
     {
-        string previous = path; bool previousSensitive = sensitive;
-        path += name.StartsWith("[", StringComparison.Ordinal) ? name : "." + name;
-        sensitive |= sensitiveSource || MappingException.IsSensitivePath(name);
+        using var scope = EnterMember(name, sensitiveSource || MappingException.IsSensitivePath(name));
         try { action(); }
-        catch (MappingException error) when (ReferenceEquals(error.Origin, this)) { throw; }
-        catch (Exception error) { throw MappingException.Create(sourceType, destinationType, path, null, error, configuration, sensitive, origin: this); }
-        finally { path = previous; sensitive = previousSensitive; }
+        catch (Exception error) when (!OwnsException(error)) { throw MemberException(sourceType, destinationType, error); }
     }
     /// <summary>Same scalar semantics as runtime mapping, without object reflection mapping.</summary>
     public TDestination Scalar<TSource, TDestination>(TSource source)

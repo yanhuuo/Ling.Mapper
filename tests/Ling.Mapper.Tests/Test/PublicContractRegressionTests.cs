@@ -116,7 +116,7 @@ public static class PublicContractRegressionTests
             Case("private source getter is not invoked", () => Equal(0, mapper.Map<Target>(new PrivateGetter())!.Value));
             Case("static properties are neither read nor written", () => { StaticTarget.Value = 63; Equal("ok", mapper.Map<StaticTarget>(new StaticSource())!.Label); Equal(63, StaticTarget.Value); });
             Case("indexers are neither read nor written", () => Equal(8, mapper.Map<IndexedTarget>(new IndexedSource { Value = 8 })!.Value));
-            Case("same class preserves object identity", () => { var s = new Source { Value = 4 }; Same(s, mapper.Map<Source>(s)); });
+            Case("same class preserves values with independent identity", () => { var s = new Source { Value = 4, Label = "source" }; var d = mapper.Map<Source>(s)!; NotSame(s, d); Equal(4, d.Value); Equal("source", d.Label); d.Value = 8; Equal(4, s.Value); });
             Case("same struct preserves all fields", () => { var s = new ValueSource { Value = 4, Label = "struct" }; Equal(s, mapper.Map<ValueSource>(s)); });
             Case("different struct maps public setters", () => { var d = mapper.Map<ValueTarget>(new ValueSource { Value = 4, Label = "struct" }); Equal(4L, d.Value); Equal("struct", d.Label); });
             Case("boxed nullable declared source preserves present value", () => { int? s = 17; Equal(17L, mapper.Map(s, typeof(int?), typeof(long?))); });
@@ -130,7 +130,7 @@ public static class PublicContractRegressionTests
             Case("multidimensional destination rejects instead of returning wrong rank", () => Failure(() => mapper.Map<long[,]>(new int[,] { { 1, 2 } }), "$"));
             Case("collection without enumerable constructor rejects", () => Failure(() => mapper.Map<NoEnumerableConstructor<long>>(new[] { 1, 2 }), "$"));
             Case("dictionary cross-type conversion preserves entry", () => { var d = mapper.Map<Dictionary<string, long>>(new Dictionary<string, int> { ["key"] = 7 })!; Equal(1, d.Count); Equal(7L, d["key"]); });
-            Case("assignable dictionary preserves identity and data", () => { var s = new Dictionary<string, int> { ["key"] = 7 }; Same(s, mapper.Map<IDictionary<string, int>>(s)); Equal(7, mapper.Map<IDictionary<string, int>>(s)!["key"]); });
+            Case("assignable dictionary preserves data with independent identity", () => { var s = new Dictionary<string, int> { ["key"] = 7 }; var d = mapper.Map<IDictionary<string, int>>(s)!; NotSame(s, d); Equal(1, d.Count); Equal(7, d["key"]); d["key"] = 9; Equal(7, s["key"]); });
             Case("non-generic dictionary conversion rejects", () => Failure(() => mapper.Map<Dictionary<string, long>>(new Hashtable { ["key"] = 7 }), "$"));
             Case("dictionary to non-dictionary collection remains unsupported", () => {
                 var s = new System.Collections.ObjectModel.ReadOnlyDictionary<string, int>(new Dictionary<string, int> { ["key"] = 7 });

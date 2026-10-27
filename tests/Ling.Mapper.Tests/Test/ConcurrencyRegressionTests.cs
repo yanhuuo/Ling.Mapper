@@ -49,7 +49,13 @@ public static class ConcurrencyRegressionTests
             var result = mapper.Map<ValueTarget>(source)!;
             CheckRow(source, result);
             NotSame(source, result, "DTO must be mapped, not assigned");
-            Same(source, mapper.Map<ValueSource>(source), "assignable object identity");
+            var cloned = mapper.Map<ValueSource>(source)!;
+            NotSame(source, cloned, "assignable object is fresh");
+            Equal(source.Id, cloned.Id, "cloned id"); Equal(source.Name, cloned.Name, "cloned name");
+            Equal(source.Amount, cloned.Amount, "cloned amount"); Equal(source.Enabled, cloned.Enabled, "cloned enabled");
+            Equal(source.State, cloned.State, "cloned enum text"); Equal(source.Optional, cloned.Optional, "cloned optional text");
+            var originalName = source.Name; cloned.Name = "target-only"; Equal(originalName, source.Name, "target mutation isolated");
+            var clonedAmount = cloned.Amount; source.Amount = "source-only"; Equal(clonedAmount, cloned.Amount, "source mutation isolated");
             Equal(null, mapper.Map<int?>(null), "nullable root");
             Equal(0, mapper.Map<int>(null), "default root");
             Equal(12.75m, mapper.Map<decimal>("12.75"), "scalar amount");
@@ -103,7 +109,10 @@ public static class ConcurrencyRegressionTests
             var array = mapper.Map<ValueTarget[]>(source.Items)!;
             Equal(2, array.Length, "array count"); CheckRow(source.Items[1], array[1]);
             var direct = new List<int> { seed, seed + 1 };
-            Same(direct, mapper.Map<IEnumerable<int>>(direct), "assignable collection identity");
+            var copied = mapper.Map<IEnumerable<int>>(direct)!;
+            NotSame(direct, copied, "assignable collection is fresh");
+            Equal(2, copied.Count(), "assignable collection count"); Equal(seed, copied.First(), "assignable collection first value"); Equal(seed + 1, copied.Last(), "assignable collection last value");
+            direct[0] = seed + 10000; Equal(seed, copied.First(), "source collection mutation isolated");
             var numbers = mapper.Map<List<int?>>(new string?[] { "17", null, "29" })!;
             Equal(17, numbers[0], "nullable element"); Equal(null, numbers[1], "null element"); Equal(29, numbers[2], "last element");
         });

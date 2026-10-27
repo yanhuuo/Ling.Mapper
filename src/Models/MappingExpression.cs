@@ -34,6 +34,9 @@ namespace Ling.Mapper
         /// </summary>
         internal readonly Dictionary<string, string> RenamedMembers = new();
 
+        internal readonly Dictionary<string, MemberRule> MemberRules = new();
+        internal LambdaExpression? ConstructionFactory;
+
         /// <summary>
         /// 标志是否请求了反向映射。
         /// 目前仅做标记，你可以在后续扩展里使用它来自动生成反向配置。
@@ -61,6 +64,37 @@ namespace Ling.Mapper
             ArgumentNullException.ThrowIfNull(srcExpr);
             var name = GetPropName(destMember);
             CustomMemberBindings[name] = srcExpr;
+            return this;
+        }
+
+        /// <summary>Configure independent source selection, preconditions, assignment conditions and null behavior for a destination member.</summary>
+        /// <remarks>Ignore takes precedence over explicit selection, then Rename, then convention. Calling this overload again replaces this member's options.</remarks>
+        public MappingExpression<TSource, TDestination> ForMember<TMember>(
+            Expression<Func<TDestination, TMember>> destMember,
+            Action<MemberOptions<TSource, TDestination, TMember>> configure)
+        {
+            ArgumentNullException.ThrowIfNull(configure);
+            var name = GetPropName(destMember);
+            Expression selectedMember = destMember.Body;
+            while (selectedMember is UnaryExpression conversion &&
+                (conversion.NodeType == ExpressionType.Convert || conversion.NodeType == ExpressionType.ConvertChecked))
+                selectedMember = conversion.Operand;
+            if (selectedMember.Type != typeof(TMember))
+                throw new ArgumentException("Member options require the destination property's actual type; do not box or cast the destination selector.", nameof(destMember));
+            var options = new MemberOptions<TSource, TDestination, TMember>();
+            configure(options);
+            MemberRules[name] = options.Rule;
+            if (options.SourceExpression != null) CustomMemberBindings[name] = options.SourceExpression;
+            if (options.IsIgnored) IgnoredMembers.Add(name);
+            return this;
+        }
+
+        /// <summary>Create the initial destination with a source-aware factory, then apply ordinary writable-member rules.
+        /// Use a registered type converter instead when the returned object must be the final mapping result.</summary>
+        public MappingExpression<TSource, TDestination> ConstructUsing(Expression<Func<TSource, TDestination>> factory)
+        {
+            ArgumentNullException.ThrowIfNull(factory);
+            ConstructionFactory = factory;
             return this;
         }
 
@@ -106,10 +140,17 @@ namespace Ling.Mapper
         public MappingExpression<TDestination, TSource> ReverseMap()
         {
             if (_reverse != null) return _reverse;
+            bool Ignored(string path) => IgnoredMembers.Any(ignored => path == ignored || path.StartsWith(ignored + ".", StringComparison.Ordinal));
+            if (MemberRules.Any(pair => !Ignored(pair.Key) &&
+                (pair.Value.IsFinalConverter || pair.Value.PreCondition != null || pair.Value.Condition != null || pair.Value.HasNullSubstitute || pair.Value.IgnoreNullValues != null)))
+                throw new NotSupportedException("ReverseMap cannot invert final converters, member conditions or null rules. Configure the reverse mapping explicitly.");
             var reverse = _register == null ? new MappingExpression<TDestination, TSource>() : new MappingExpression<TDestination, TSource>(_register);
             foreach (var pair in RenamedMembers) reverse.RenamedMembers.Add(pair.Value, pair.Key);
             foreach (var pair in CustomMemberBindings)
             {
+                if (Ignored(pair.Key)) continue;
+                if (pair.Value.Parameters.Count != 1)
+                    throw new NotSupportedException("ReverseMap cannot invert a context-aware resolver. Configure the reverse mapping explicitly.");
                 Expression memberBody = pair.Value.Body;
                 while (memberBody is UnaryExpression conversion &&
                     (conversion.NodeType == ExpressionType.Convert || conversion.NodeType == ExpressionType.ConvertChecked) &&
@@ -132,8 +173,8 @@ namespace Ling.Mapper
         }
 
         /// <summary>
-        /// 从 lambda 表达式中解析直接目标属性名称。
-        /// 支持：x => x.Property；嵌套目标路径不受支持并立即抛出异常。
+        /// 从 lambda 表达式中解析目标属性路径。
+        /// 支持：x => x.Property 或 x => x.A.B.C。
         /// Rename 的源属性字符串仍可使用 A.B.C 路径。
         /// 自动处理 UnaryExpression（如 Convert）。
         /// </summary>

@@ -28,9 +28,9 @@ public static class StructuralBoundaryRegressionTests
         Case("abstract destination strict has root failure", () => Path(() => strict.Map<AbstractTarget>(new Source { Value = 4 }), "$"));
         Case("interface destination non-strict returns null", () => Equal(null, m.Map<ITarget>(new Source { Value = 4 })));
         Case("interface destination strict has root failure", () => Path(() => strict.Map<ITarget>(new Source { Value = 4 }), "$"));
-        Case("nested no-constructor non-strict sets null", () => Equal(null, m.Map<NoCtorRoot>(new SourceRoot { Child = new() { Value = 4 } })!.Child));
-        Case("nested no-constructor strict has member failure", () => Path(() => strict.Map<NoCtorRoot>(new SourceRoot { Child = new() { Value = 4 } }), "$.Child"));
-        Case("null nested no-constructor stays null even in strict mode", () => Equal(null, strict.Map<NoCtorRoot>(new SourceRoot())!.Child));
+        Case("nested bindable public constructor maps without StrictMode", () => Equal(4, m.Map<NoCtorRoot>(new SourceRoot { Child = new() { Value = 4 } })!.Child!.Value));
+        Case("nested bindable public constructor maps with StrictMode", () => Equal(4, strict.Map<NoCtorRoot>(new SourceRoot { Child = new() { Value = 4 } })!.Child!.Value));
+        Case("null nested parameterized destination stays null even in strict mode", () => Equal(null, strict.Map<NoCtorRoot>(new SourceRoot())!.Child));
         Case("Adapt non-strict private constructor preserves mapper null", () => WithProvider(m, () => Equal(null, new Source().Adapt<PrivateConstructor>())));
         Case("Adapt strict private constructor preserves MappingException", () => WithProvider(strict, () => Path(() => new Source().Adapt<PrivateConstructor>(), "$")));
         Case("Adapt strict interface preserves MappingException", () => WithProvider(strict, () => Path(() => new Source().Adapt<ITarget>(), "$")));
@@ -55,7 +55,12 @@ public static class StructuralBoundaryRegressionTests
             var source = Array.CreateInstance(typeof(int), new[] { 3 }, new[] { 5 }); source.SetValue(3, 5); source.SetValue(1, 6); source.SetValue(4, 7);
             Sequence(new long[] { 3, 1, 4 }, m.Map<long[]>(source)!);
         });
-        Case("same multidimensional array preserves identity", () => { var source = new int[,] { { 1, 2 }, { 3, 4 } }; Same(source, m.Map<int[,]>(source)); Equal(4, m.Map<int[,]>(source)![1, 1]); });
+        Case("same multidimensional array explicitly rejects unsupported clone shape", () => {
+            var source = new int[,] { { 1, 2 }, { 3, 4 } };
+            var error = Throws<MappingException>(() => m.Map<int[,]>(source)); Equal("$", error.Path);
+            Equal(typeof(InvalidCastException).FullName, error.OriginalExceptionType);
+            Equal(1, source[0, 0]); Equal(2, source[0, 1]); Equal(3, source[1, 0]); Equal(4, source[1, 1]);
+        });
         Case("cross-type multidimensional destination rejects", () => Path(() => m.Map<long[,]>(new int[,] { { 1, 2 }, { 3, 4 } }), "$"));
         Case("jagged conversion failure reports full item indices", () => Path(() => m.Map<int[][]>(new[] { new[] { "1" }, new[] { "2", "bad" } }), "$[1][1]"));
         Case("distinct equal nodes must not collapse reference identity", () => {
@@ -78,7 +83,7 @@ public static class StructuralBoundaryRegressionTests
 
         Case("Adapt non-strict abstract destination preserves mapper null", () => WithProvider(m, () => Equal(null, new Source().Adapt<AbstractTarget>())));
         Case("Adapt non-strict interface destination preserves mapper null", () => WithProvider(m, () => Equal(null, new Source().Adapt<ITarget>())));
-        Case("Adapt non-strict nested no-constructor preserves null member", () => WithProvider(m, () => Equal(null, new SourceRoot { Child = new() { Value = 4 } }.Adapt<NoCtorRoot>().Child)));
+        Case("Adapt maps nested bindable public constructor", () => WithProvider(m, () => Equal(4, new SourceRoot { Child = new() { Value = 4 } }.Adapt<NoCtorRoot>().Child!.Value)));
 
         Case("duplicate explicit Profile type pair uses first registration", () => {
             var config = new MapperConfiguration(); config.AddProfile(new DuplicateProfile(10)); config.AddProfile(new DuplicateProfile(20));

@@ -20,6 +20,7 @@ namespace Ling.Mapper.Configuration
         /// 全局约定配置的委托列表，用于延迟构建。
         /// </summary>
         private readonly List<Action<GlobalConventionOptions>> _globalConventions = new();
+        private int _builtConventionCount;
 
         /// <summary>
         /// 全局约定选项实例。
@@ -64,10 +65,23 @@ namespace Ling.Mapper.Configuration
 
         /// <summary>
         /// 是否启用严格模式，默认为 false。
-        /// 若为 true，目标对象缺少可用无参构造函数时抛出映射异常；否则该对象映射返回 null。
+        /// 若为 true，不可构造的目标对象在映射时抛出异常；否则未注册且无可绑定构造函数的引用类型映射可返回 null。
+        /// 显式注册映射的构造函数冲突或缺少必要输入始终在计划构建时失败；可用 ConstructUsing 选择构造方式。
         /// 此选项不改变未匹配属性的默认忽略行为，也不抑制标量转换错误。
         /// </summary>
         public bool StrictMode { get; set; } = false;
+
+        /// <summary>Validate registered maps for unmapped destination members when CreateMapper is called.
+        /// Defaults to false; this is separate from StrictMode and does not restrict unregistered runtime type pairs.</summary>
+        public bool RequireDestinationMemberSource { get; set; }
+
+        /// <summary>Validate registered maps, including writable destination source coverage and constructor binding, without executing source getters or user converters.
+        /// Throws an aggregate MappingConfigurationException containing type pairs and member paths.</summary>
+        public void AssertConfigurationIsValid()
+        {
+            BuildGlobalConventions();
+            MappingConfigurationValidator.Validate(this);
+        }
 
         /// <summary>How null values map to non-nullable destinations. Defaults to UseDefault.</summary>
         public NullValueHandling NullValueHandling { get; set; } = NullValueHandling.UseDefault;
@@ -117,9 +131,10 @@ namespace Ling.Mapper.Configuration
         /// </summary>
         internal void BuildGlobalConventions()
         {
-            foreach (var c in _globalConventions)
+            while (_builtConventionCount < _globalConventions.Count)
             {
-                c(GlobalOptions);
+                _globalConventions[_builtConventionCount](GlobalOptions);
+                _builtConventionCount++;
             }
         }
 
@@ -135,6 +150,7 @@ namespace Ling.Mapper.Configuration
             if (MaxDiagnosticValueLength < 0)
                 throw new ArgumentOutOfRangeException(nameof(MaxDiagnosticValueLength));
             BuildGlobalConventions();
+            if (RequireDestinationMemberSource) MappingConfigurationValidator.Validate(this);
             if (!System.Runtime.CompilerServices.RuntimeFeature.IsDynamicCodeSupported)
             {
                 if (_configs.Count != 0 || HasExplicitConventions)
@@ -160,5 +176,11 @@ namespace Ling.Mapper.Configuration
         /// 例如 a_type -> AType。
         /// </summary>
         public bool IgnoreSpecialCharacters { get; set; } = false;
+
+        /// <summary>Opt in to flattening names such as CustomerName from Customer.Name. Direct members take precedence.</summary>
+        public bool EnableFlattening { get; set; }
+
+        /// <summary>Opt in to public, parameterless GetX methods as source members. Properties take precedence.</summary>
+        public bool EnableGetMethods { get; set; }
     }
 }

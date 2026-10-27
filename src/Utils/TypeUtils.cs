@@ -61,6 +61,18 @@ namespace Ling.Mapper.Utils
                    t == typeof(TimeSpan);
         }
 
+        /// <summary>Only the established immutable scalar whitelist may be shared.
+        /// Custom structs and readonly containers may contain mutable references.</summary>
+        public static bool IsImmutableAtomic(Type type)
+        {
+            var actual = Nullable.GetUnderlyingType(type) ?? type;
+            return IsSimple(actual) || actual == typeof(Half)
+#if NET7_0_OR_GREATER
+                || actual == typeof(Int128) || actual == typeof(UInt128)
+#endif
+                ;
+        }
+
         /// <summary>
         /// 判断一个类型是否为集合类型（实现 IEnumerable 且不是 string）。
         /// </summary>

@@ -1,0 +1,117 @@
+{
+  "status": "validated-local-unpublished-candidate",
+  "dateUtc": "2026-10-27",
+  "baselineCommit": "d1b717ca4c4818a449f215c925edf5b52f547d00",
+  "intermediatePerformanceCommit": "b406b4dec9f9421358b5d32aba60743429f81cac",
+  "sourceManifest": {
+    "files": 122,
+    "beforeEqualsAfter": true,
+    "sha256": "8c22d4027c609b56e6026da33722b6bf9fea52a6ddf50bd06e41f12786584ca9",
+    "scope": "src, generators and tests: .cs/.csproj excluding bin/obj; documentation excluded"
+  },
+  "sdk": "10.0.403",
+  "runtimeVersions": {
+    "net6.0": "6.0.36",
+    "net8.0": "8.0.33",
+    "net9.0": "9.0.22",
+    "net10.0": "10.0.14"
+  },
+  "runtimeFullSuite": {
+    "net10.0": {
+      "executed": 58,
+      "failed": 0,
+      "librarySha256": "f608520632fe92c1e40f00c4da7b96d33728c974ca7ebe3e57323d65eaca8ecf"
+    },
+    "net6.0": {
+      "executed": 58,
+      "failed": 0,
+      "librarySha256": "dd6e0e10c72040aff26ed2672207fd4e0aaadea70e961eaf9d84c6fa7bc034fe"
+    },
+    "net8.0": {
+      "executed": 58,
+      "failed": 0,
+      "librarySha256": "b60d807242238265e2bd38f975b902225a34e1746ebb45b6af645c774b26b308"
+    },
+    "net9.0": {
+      "executed": 58,
+      "failed": 0,
+      "librarySha256": "ec56bc786b5446f8948f4785d9916ac7758842e18761b71a805cc7a67bc7e305"
+    }
+  },
+  "libraryFourTargetBuild": {
+    "warnings": 0,
+    "errors": 0
+  },
+  "independentConsumers": {
+    "graphSafetyGroups": 23,
+    "scopeConcurrencyGroups": 10,
+    "declaredCollectionGroups": 8,
+    "failed": 0
+  },
+  "generatedJit": {
+    "graph-negative": {
+      "exit": 1,
+      "uniqueErrors": 9,
+      "ids": [
+        "LMG001"
+      ]
+    },
+    "old-negative": {
+      "exit": 1,
+      "uniqueErrors": 9,
+      "ids": [
+        "LMG001",
+        "LMG002"
+      ]
+    },
+    "graph": 252,
+    "graphChecked": 252,
+    "aotJit": 115,
+    "aotCheckedJit": 115,
+    "projectionExisting": 77,
+    "projectionIndependent": 32,
+    "contextGuards": 12,
+    "nativeAotExecuted": false,
+    "runtimeDllSha256": "f608520632fe92c1e40f00c4da7b96d33728c974ca7ebe3e57323d65eaca8ecf"
+  },
+  "api": {
+    "adaptExpectedChecks": 13,
+    "oldMemberSourceAndBinarySwap": "PASS",
+    "legacyFourMethodIMapperSourceAndBinarySwap": "PASS; new default update APIs throw NotSupportedException",
+    "finalMemberConverterAssertions": {
+      "latest": 33,
+      "csharp10": 33
+    },
+    "expectedCompileDiagnostics": [
+      "CS0411",
+      "CS0121",
+      "CS0029"
+    ],
+    "runtimeDllSha256": "f608520632fe92c1e40f00c4da7b96d33728c974ca7ebe3e57323d65eaca8ecf"
+  },
+  "notExecuted": [
+    "Native AOT for this snapshot",
+    "SQL-provider translation",
+    "post-change performance measurement"
+  ],
+  "breakingChanges": [
+    "ordinary mutable Map/Adapt results form independent graphs",
+    "ForMember/MapFrom complex values continue mapping",
+    "mutable NullSubstitute independently mapped; explicit final converters may retain user identity",
+    "old generated consumers need generator upgrade and recompilation"
+  ],
+  "localEvidence": {
+    "runtime": "../mapper-independent-graphs-validation-20261027/final",
+    "focused": "../mapper-independent-graphs-validation-20261027/focused-artifacts/conversion-type-matrix",
+    "generated": "/tmp/mapper-independent-final-generated-20261027",
+    "api": "../mapper-independent-api-validation-20261027/final-f6085206",
+    "auditGraph": "/tmp/mapper-clone-audit-20261027/results-covariance-fixed.log",
+    "auditScope": "/tmp/mapper-perf-audit-20261027/results-covariance-fixed.log",
+    "auditCollections": "/tmp/mapper-collection-declared-audit-20261027/results-fixed.log"
+  },
+  "notes": [
+    "No remote push, package publication, version/tag/CI change.",
+    "Legacy demonstration completion is not counted as assertion coverage.",
+    "Test build warnings are not the zero-warning library build result."
+  ]
+}

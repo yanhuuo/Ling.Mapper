@@ -9,6 +9,35 @@ namespace Ling.Mapper.Mapper;
 /// </summary>
 public interface IMapper
 {
+    /// <summary>Update a mutable destination in place. Null source leaves the supplied root unchanged.
+    /// Implementations without update support fail explicitly rather than silently replacing the destination.</summary>
+    TDestination MapInto<TDestination>(object? source, TDestination destination) where TDestination : class
+        => throw new NotSupportedException("This mapper backend does not support existing-destination mapping.");
+
+    /// <summary>Update a mutable destination with options, per-item callback and ignored member paths.
+    /// Object updates are not transactional; an error may follow earlier successful member assignments.</summary>
+    TDestination MapInto<TDestination>(object? source, TDestination destination, AdaptOptions options,
+        Action<object, object>? afterMapItem = null, string[]? ignoreNames = null) where TDestination : class
+        => throw new NotSupportedException("This mapper backend does not support existing-destination mapping.");
+
+    /// <summary>Update a destination using explicit declared source and destination types.</summary>
+    object MapInto(object? source, object destination, Type sourceType, Type destinationType)
+        => throw new NotSupportedException("This mapper backend does not support existing-destination mapping.");
+
+    /// <summary>Update a destination using declared types and explicit mapping options.</summary>
+    object MapInto(object? source, object destination, Type sourceType, Type destinationType, AdaptOptions options,
+        Action<object, object>? afterMapItem = null, string[]? ignoreNames = null)
+        => throw new NotSupportedException("This mapper backend does not support existing-destination mapping.");
+
+    /// <summary>Convenience existing-target mapping; preserves the declared source type.</summary>
+    TDestination Map<TSource, TDestination>(TSource source, TDestination destination) where TDestination : class
+        => (TDestination)MapInto(source, destination, typeof(TSource), typeof(TDestination));
+
+    /// <summary>Convenience existing-target mapping with explicit options and per-item callback.</summary>
+    TDestination Map<TSource, TDestination>(TSource source, TDestination destination, AdaptOptions options,
+        Action<object, object>? afterMapItem = null, string[]? ignoreNames = null) where TDestination : class
+        => (TDestination)MapInto(source, destination, typeof(TSource), typeof(TDestination), options, afterMapItem, ignoreNames);
+
     /* ============================================================
      * 一、 泛型映射方法 (通用 API)
      * ============================================================ */

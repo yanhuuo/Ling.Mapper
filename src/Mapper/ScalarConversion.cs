@@ -3,7 +3,7 @@ using Ling.Mapper.Utils;
 
 namespace Ling.Mapper;
 
-/// <summary>Shared scalar conversions for runtime and generated mapping code. Numeric conversions use invariant culture; date text follows the current culture for AutoMapper-compatible defaults.
+/// <summary>Shared scalar conversions for runtime and generated mapping code. Numeric and date text use the culture active at the time of conversion.
 /// Does not map objects or collections, or apply registry rules. Type-based enum operations
 /// still require appropriate metadata in trimmed applications.</summary>
 public static class ScalarConversion
@@ -19,8 +19,10 @@ public static class ScalarConversion
         // belongs to the mapper and must not pull reflection-based collection discovery into AOT.
         if (!TypeUtils.IsSimple(source) || !TypeUtils.IsSimple(target)) throw new InvalidCastException("Not a scalar conversion.");
         if (target.IsAssignableFrom(source)) return value;
-        var culture = CultureInfo.InvariantCulture;
+        var culture = CultureInfo.CurrentCulture;
         if (target == typeof(string))
+        {
+            if (source.IsEnum) return EnumTextConversion.Format(value);
             return value switch
             {
                 DateTime date => date.ToString(),
@@ -31,9 +33,10 @@ public static class ScalarConversion
                 IFormattable formattable => formattable.ToString(null, culture),
                 _ => System.Convert.ToString(value, culture)!
             };
+        }
         if (target.IsEnum)
         {
-            if (value is string text) return Enum.Parse(target, text, true);
+            if (value is string text) return EnumTextConversion.Parse(target, text);
             if (!source.IsEnum && !TypeUtils.IsNumeric(source)) throw new InvalidCastException();
             return Enum.ToObject(target, System.Convert.ChangeType(value, Enum.GetUnderlyingType(target), culture));
         }

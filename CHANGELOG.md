@@ -2,6 +2,33 @@
 
 此文件记录可核查的版本变更。代码合入、生成本地 NuGet 包、发布到 NuGet 是不同状态；未在 NuGet 验证可下载前，不标记为已发布。
 
+## 1.3.2（发布候选，公开源验收前不标记已发布）
+
+### 升级前必读：包含行为变更
+
+本次按用户指定版本号发布，不将补丁版本号解释为无风险行为兼容保证。
+
+- 普通 Map/Adapt 默认创建独立可变对象图；支持范围内保留结果内部共享引用和循环，不复用源可变节点。依赖旧同型 identity 行为的代码需迁移；资源、字段或无法保留的只读状态不冒充完整克隆。
+- 旧 ForMember 与 MapFrom 都是源选择器，复杂返回值继续递归映射。需要保留用户返回实例时显式使用 whole-type/registry converter、转换 operator 或成员 ConvertUsing 最终转换器；其返回值所有权由用户负责。ConstructUsing 是工厂，不是 final converter。
+- 数字及日期字符串转换在执行时采用 CurrentCulture，不再保证数字使用 InvariantCulture；固定协议格式请显式指定文化区域的 converter。同一 mapper 切换区域性即时生效。
+- 升级 runtime 与 generator 两包并重新编译消费者；只替换 runtime DLL 无法修改旧生成代码中已经编译的直接赋值。生成器仍是受限子集，不解释运行时 Profile/ForMember/服务。
+
+### 功能与内部实现
+
+- 新增已有目标 MapInto/AdaptInto、成员 MapFrom/PreCondition/Condition/NullSubstitute/ConvertUsing、构造工厂与显式配置验证，以及 opt-in Flattening/GetX 约定。
+- 新增受限表达式查询投影和单次调用参数/服务上下文；已有目标更新不是事务，集合不按业务键合并。
+- 改善用户转换 operator、EnumMember 文本别名、独立图与生成器诊断；内部增加受守卫的根计划、集合/字典路径、dispatch cache 与精确标量成员计划。不新增后续未经验证的同步 Version 优化，不以性能优化降低数据正确性。
+- 保留已有公开签名；已列出的 API 源码/二进制消费者通过不等于所有调用形态绝对兼容。部分原本可编译但运行无效的 null-ignore 调用现在会产生重载歧义，详见 API compatibility fixture。
+
+### 验证与明确限制
+
+- 功能冻结源 `386fe3a27e2b686f69ce8e8836992821fa62909d`：四目标框架各 66 suites / 0 failed，独立审查 10 fixtures 通过；发布版本/文档变更不改变该运行时实现。
+- **尚未全面达到 Mapster 性能对齐目标**。按用户授权先发布，后续性能调整限内部实现；不宣称普遍领先或性能目标全部通过。
+- 本轮 NativeAOT 发布执行和真实数据库 SQL 翻译均未验证；生成器 JIT、假 provider 与 LINQ-to-Objects 测试不是替代证据。
+- 双包打包及全新 PackageReference 消费按最终发布源码重新验证，结果另行记录；源码存在、标签或上传成功均不等于官方源已可下载。
+
+迁移细节：[独立图](docs/independent-graphs.md)、[运行时补齐](docs/runtime-completion.md)、[投影与上下文](docs/projection-context.md)、[生成器](generators/Ling.Mapper.Generator/README.md)。
+
 ## 1.3.1（待手动发布）
 
 - 运行时 ForMember 来源表达式求值兼容 null 异常回退：仅 NullReferenceException/ArgumentNullException 转为表达式类型 default，保留显式 fallback 和 IgnoreNullValues 语义；不吞格式、溢出、转换器、目标构造/setter 或回调失败。

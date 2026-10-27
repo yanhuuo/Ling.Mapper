@@ -20,11 +20,16 @@ namespace Ling.Mapper.Helpers
         private readonly FieldInfo? _ignored;
         private readonly FieldInfo? _renamed;
         private readonly IDictionary<string, LambdaExpression>? _bindings;
+        private readonly IDictionary<string, MemberRule>? _memberRules;
+
+        public LambdaExpression? ConstructionFactory { get; }
 
         public MappingExpressionBase(object expr)
         {
             _expr = expr;
             _bindings = expr.GetType().GetField("CustomMemberBindings", BindingFlags.Instance | BindingFlags.NonPublic)?.GetValue(expr) as IDictionary<string, LambdaExpression>;
+            _memberRules = expr.GetType().GetField("MemberRules", BindingFlags.Instance | BindingFlags.NonPublic)?.GetValue(expr) as IDictionary<string, MemberRule>;
+            ConstructionFactory = expr.GetType().GetField("ConstructionFactory", BindingFlags.Instance | BindingFlags.NonPublic)?.GetValue(expr) as LambdaExpression;
             var t = expr.GetType();
 
             _ignored = t.GetField("IgnoredMembers", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
@@ -33,10 +38,13 @@ namespace Ling.Mapper.Helpers
 
         public IEnumerable<string> ConfiguredPaths => (_bindings?.Keys ?? Enumerable.Empty<string>())
             .Concat((_renamed?.GetValue(_expr) as IDictionary)?.Keys.Cast<string>() ?? Enumerable.Empty<string>())
+            .Concat(_memberRules?.Keys ?? Enumerable.Empty<string>())
             .Distinct(StringComparer.Ordinal);
         public IEnumerable<string> IgnoredPaths => (_ignored?.GetValue(_expr) as IEnumerable)?.Cast<string>() ?? Enumerable.Empty<string>();
 
         public LambdaExpression? GetCustomBinding(string name) => _bindings != null && _bindings.TryGetValue(name, out var binding) ? binding : null;
+
+        public MemberRule? GetMemberOptions(string name) => _memberRules != null && _memberRules.TryGetValue(name, out var rule) ? rule : null;
 
         public bool IsIgnored(string name)
         {
