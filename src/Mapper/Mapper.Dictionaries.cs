@@ -10,6 +10,9 @@ namespace Ling.Mapper.Mapper;
 
 internal sealed partial class Mapper
 {
+    // Pure BCL widening only: shared code, never mapper configuration or graph data.
+    private static readonly Func<int, long> WidenDictionaryInt32Key = static value => value;
+
     private static Type? DictionaryShape(Type type) => new[] { type }.Concat(type.GetInterfaces())
         .FirstOrDefault(t => t.IsGenericType && (t.GetGenericTypeDefinition() == typeof(IDictionary<,>) || t.GetGenericTypeDefinition() == typeof(IReadOnlyDictionary<,>)));
 
@@ -66,6 +69,11 @@ internal sealed partial class Mapper
         // enumeration, or comparer calls must disable these frozen identities.
         var atomicVersion = TypeConverterRegistry.Version;
         var copyKey = BuildAtomicIdentity<TSourceKey, TKey>(null);
+        // The frozen delegate remains eligible only while the original per-key
+        // registry guard holds. All other key pairs retain their normal dispatch.
+        if (typeof(TSourceKey) == typeof(int) && typeof(TKey) == typeof(long) &&
+            !HasDeclaredMappingIntent(typeof(TSourceKey), typeof(TKey)))
+            copyKey = (Func<TSourceKey, TKey>)(object)WidenDictionaryInt32Key;
         var copyValue = BuildAtomicIdentity<TSourceValue, TValue>(ignores);
         // Exact runtime types need no effective-source resolution. The remaining
         // guard excludes MapValue's unconfigured assignable-target redirection.
