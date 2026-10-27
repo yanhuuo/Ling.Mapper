@@ -1,0 +1,58 @@
+{
+  "recovered": false,
+  "reconstructed": true,
+  "base": "2d5218a7d0a2ddbd25f2601299864c42f39bcc87",
+  "sourceCommit": "20a6bcc698628a286904e239f2cc3a20cf77bc12",
+  "sourceFileCount": 137,
+  "sourceManifestSha256": "3c13626c42d84fb67bb6a78fe951a8e979b7d91be76320187efcb43b7a00408e",
+  "frameworks": [
+    {
+      "tfm": "net6.0",
+      "baselineDllSha256": "d592b21dab64549da05b142117105bdec66bbb496e89fb97fc549bf69ade45c8",
+      "candidateDllSha256": "2a4831181fb615b7abbe3eed8bc80b923a448980da978dbf18994efb561e457f",
+      "suites": 66,
+      "failed": 0,
+      "smoke": 1380,
+      "matrixIdentical": true,
+      "matrixSha256": "1e9aba18a7c4df2e141f299c3499fc1c75b17836c4f2fda4d2c26bc2bb59ea9d"
+    },
+    {
+      "tfm": "net8.0",
+      "baselineDllSha256": "c45cbee7a484fbdc480dfb95f4f4c72777edf60990011efb1a05f7c2c7146d98",
+      "candidateDllSha256": "caed207f263055b60eba3fbf074737048fc408dfbb4c31e715265bc2dbca305b",
+      "suites": 66,
+      "failed": 0,
+      "smoke": 1380,
+      "matrixIdentical": true,
+      "matrixSha256": "12e4c4b910169052ccd57966d576e1989e28348b95cfc5e206b5449b6f1336a0"
+    },
+    {
+      "tfm": "net9.0",
+      "baselineDllSha256": "0cc86957034a7ab828caf534802143026c507c25c9be78fb0d8fdf87443c21cb",
+      "candidateDllSha256": "c50017b0672c46911239774a574c35c945456e06126b9807a910e375a3678c7e",
+      "suites": 66,
+      "failed": 0,
+      "smoke": 1380,
+      "matrixIdentical": true,
+      "matrixSha256": "12e4c4b910169052ccd57966d576e1989e28348b95cfc5e206b5449b6f1336a0"
+    },
+    {
+      "tfm": "net10.0",
+      "baselineDllSha256": "9f1dd5640c160c8f3b909e45847318ff372b133f2ad68d709c8efa47131f0d20",
+      "candidateDllSha256": "9d09638c2ad2c55f06bff859349db9cb7c3fca94a4ff431f6f53a64667c8efb8",
+      "suites": 66,
+      "failed": 0,
+      "smoke": 1380,
+      "matrixIdentical": true,
+      "matrixSha256": "12e4c4b910169052ccd57966d576e1989e28348b95cfc5e206b5449b6f1336a0"
+    }
+  ],
+  "initialFailure": {
+    "tfm": "net8.0",
+    "suite": "TypedScalarExpressionRegressionTests",
+    "typedBytes": 24624,
+    "threshold": 1024,
+    "unmodifiedWholeSuiteRerun": "66/0; typedBytes=0",
+    "rootCause": "Not established; no test/environment/source changes"
+  }
+}

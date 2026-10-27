@@ -1,0 +1,34 @@
+{
+  "source_commit": "20a6bcc698628a286904e239f2cc3a20cf77bc12",
+  "baseline": "2d5218a7d0a2ddbd25f2601299864c42f39bcc87",
+  "candidate_net10_sha256": "9d09638c2ad2c55f06bff859349db9cb7c3fca94a4ff431f6f53a64667c8efb8",
+  "fresh_independent_fixture": {
+    "assertions": 36,
+    "parallel_mappings": 64,
+    "baseline_and_candidate": "PASS; identical executable, swapped verified DLL"
+  },
+  "reconstructed_smoke_external": {
+    "checks": 1380,
+    "baseline_and_candidate": "PASS; identical executable, swapped verified DLL"
+  },
+  "net8_focused_independent": {
+    "baseline": "PASS typed allocation0",
+    "candidate": "PASS typed allocation0"
+  },
+  "four_tfm_matrix_independently_compared": {
+    "net6.0": 9123,
+    "net8.0": 9312,
+    "net9.0": 9312,
+    "net10.0": 9312
+  },
+  "manifest_verified": 137,
+  "limits": [
+    "No historical 15-fixture replay; those files were lost.",
+    "Normal net10 JIT independent mappings; net8 focused test. No new AOT/x86 coverage.",
+    "Initial implementation net8 full run failed typed scalar allocation 24624>1024; original logs retained; unmodified full rerun passed. Root cause unresolved; not claimed fixed.",
+    "Allocation anomaly is not a demonstrated member-cache correctness regression; acceptable for experimental branch + benchmark gate with disclosure, not an unconditional clean first-pass or allocation guarantee."
+  ],
+  "production_review": "Only minimal complex-member fallback and helper; no eager intent discovery, no new static shared cache, complete MappingPlan/context/scope guards retained",
+  "decision": "PASS for experimental recovery correctness gate with documented allocation anomaly",
+  "timing": false
+}

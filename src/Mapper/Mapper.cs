@@ -485,7 +485,7 @@ internal sealed partial class Mapper : IMapper, IDefaultMappingOptions
             var candidate = Expression.Variable(property.PropertyType, "mappedValue");
             Expression converted = rule?.FinalConverter is { } finalConverter
                 ? BuildFinalMemberConversion(temporary, finalConverter, property.PropertyType, options, destinationPath, sensitive, context, nestedIgnores)
-                : BuildMemberConversion(temporary, property.PropertyType, options, destinationPath, sensitive, context, nestedIgnores);
+                : BuildMemberConversion(temporary, property.PropertyType, options, destinationPath, sensitive, context, nestedIgnores, !updating);
             if (updating && custom == null && rule?.IsFinalConverter != true && rule?.Condition == null && !property.PropertyType.IsValueType && !TypeUtils.IsSimple(property.PropertyType))
             {
                 var current = BuildNullSafeNestedAccess(dest, destType, destinationPath, false, false, out _);
@@ -502,7 +502,7 @@ internal sealed partial class Mapper : IMapper, IDefaultMappingOptions
                     throw new NotSupportedException("NullSubstitute must be assignable to its destination member.");
                 Expression substitute = rule.NullSubstitute == null ? Expression.Default(property.PropertyType) :
                     BuildMemberConversion(Expression.Convert(Expression.Constant(rule.NullSubstitute), property.PropertyType),
-                        property.PropertyType, options, destinationPath, sensitive, context, nestedIgnores);
+                        property.PropertyType, options, destinationPath, sensitive, context, nestedIgnores, !updating);
                 converted = Expression.Condition(Expression.Equal(temporary, Expression.Default(valueType)), substitute, converted);
             }
             Expression assignment = BuildDestinationAssignment(dest, destinationPath, candidate);
@@ -585,12 +585,15 @@ internal sealed partial class Mapper : IMapper, IDefaultMappingOptions
         Expression final = Expression.Convert(SubstituteSource(converter, Expression.Convert(value, converter.Parameters[0].Type)), destination);
         if (!value.Type.IsValueType || Nullable.GetUnderlyingType(value.Type) != null)
             final = Expression.Condition(Expression.Equal(value, Expression.Default(value.Type)),
-                BuildMemberConversion(value, destination, options, name, sensitive, context, ignoreNames), final);
+                BuildMemberConversion(value, destination, options, name, sensitive, context, ignoreNames, false), final);
         return final;
     }
 
-    private Expression BuildMemberConversion(Expression value, Type destination, AdaptOptions options, string name, bool sensitive, ParameterExpression context, string[]? ignoreNames = null)
+    private Expression BuildMemberConversion(Expression value, Type destination, AdaptOptions options, string name, bool sensitive, ParameterExpression context, string[]? ignoreNames = null, bool allowCachedPlan = true)
     {
+        // Freeze before intent discovery; user code can change the registry before
+        // this member executes. The guarded helper must then use normal dispatch.
+        var memberVersion = TypeConverterRegistry.Version;
         var source = value.Type;
         // Ordinary selectors are source selection, not final conversion. Only
         // immutable scalar values may be assigned directly; mutable values map.
@@ -632,7 +635,25 @@ internal sealed partial class Mapper : IMapper, IDefaultMappingOptions
                 : Expression.Convert(Expression.Call(typeof(ScalarConversion), nameof(ScalarConversion.Convert), null,
                     Expression.Convert(input, typeof(object)), Expression.Constant(destination)), destination);
         }
-        else return fallback;
+        else
+        {
+            if (allowCachedPlan && ignoreNames == null && !source.IsValueType && !destination.IsValueType &&
+                source != typeof(object) && destination != typeof(object) &&
+                !source.IsInterface && !source.IsAbstract && !destination.IsInterface && !destination.IsAbstract &&
+                !TypeUtils.IsSimple(source) && !TypeUtils.IsSimple(destination) &&
+                (source == destination || !TypeUtils.IsSafelyAssignable(source, destination)))
+            {
+                // Store code only. Eager child compilation here would recurse for
+                // self-referential types; execution resolves the full graph plan lazily.
+                fallback = Expression.Convert(Expression.Call(Expression.Constant(this), nameof(MapKnownMember), null,
+                    Expression.Convert(value, typeof(object)), Expression.Constant(source), Expression.Constant(destination),
+                    Expression.Constant(options), Expression.Constant(name), Expression.Constant(sensitive), context,
+                    Expression.Constant(memberVersion), Expression.Constant(new MemberPlanSlot())), destination);
+                // Retain the existing null shortcut outside the guarded child plan.
+                return Expression.Condition(isNull!, Expression.Default(destination), fallback);
+            }
+            return fallback;
+        }
         if (isNull != null)
         {
             // For the inline conversion path, preserve MapValue's non-nullable
