@@ -98,9 +98,16 @@ internal sealed partial class Mapper : IMapper, IDefaultMappingOptions
         if (validateDeclaredSource && source != null && !TypeUtils.IsSafelyAssignableValue(source, sourceType))
             throw MappingException.Create(sourceType, destType, "$", source,
                 new InvalidCastException("Source value does not match the declared source type."), _config);
+        if (source == null)
+        {
+            // Generic destination types are CLR types. Keep explicit Type inputs
+            // on MapValue's diagnostic path, including user-defined Type metadata.
+            if (!validateDeclaredSource && (!destType.IsValueType || Nullable.GetUnderlyingType(destType) != null))
+                return null;
+        }
         // The generic API already supplied the actual runtime source type. The
         // explicit Type API still requires exactness before using this shortcut.
-        if (source != null && (!validateDeclaredSource || sourceType == source.GetType()))
+        else if (!validateDeclaredSource || sourceType == source.GetType())
         {
             var generation = CurrentGeneration();
             if (ignoreNames == null)
