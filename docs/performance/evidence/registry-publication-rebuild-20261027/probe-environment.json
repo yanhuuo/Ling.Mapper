@@ -1,0 +1,18 @@
+{
+  "architecture": "x86_64",
+  "affinity": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8
+  ],
+  "quota": "unknown",
+  "cgroup": "0::/",
+  "timing": false,
+  "cpu.max-read-error": "[Errno 2] No such file or directory: '/sys/fs/cgroup/cpu.max'"
+}

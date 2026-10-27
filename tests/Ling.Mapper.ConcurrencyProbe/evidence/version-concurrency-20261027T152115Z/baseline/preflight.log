@@ -1,0 +1,10 @@
+PASS List100DefaultBench
+PASS List100PreserveControl
+PASS Ling exact100 custom calls in order0..99, twice; custom getters/callbacks0; trace disabled after audit
+PASS Mapster exact100 custom calls in order0..99, twice; custom getters/callbacks0; trace disabled after audit
+PASS Custom100DefaultBench
+PASS Ling exact100 custom calls in order0..99, twice; custom getters/callbacks0; trace disabled after audit
+PASS Mapster exact100 custom calls in order0..99, twice; custom getters/callbacks0; trace disabled after audit
+PASS Custom100PreserveControl
+PASS full-cycle/alias/container/value/null/new-graph/cross-call/mutation probes; NEW reconstruction preflight
+PASS reused reconstructed exact-work semantic gate; concurrency timing NOT_RUN

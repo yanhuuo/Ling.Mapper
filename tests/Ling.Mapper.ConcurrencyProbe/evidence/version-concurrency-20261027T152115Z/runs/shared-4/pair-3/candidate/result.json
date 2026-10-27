@@ -1,0 +1,73 @@
+{
+  "schema": "reconstructed-c100-concurrency-v1",
+  "sourceSha": "e0af897cc4412a95749d807073cff758980ce2ab",
+  "assemblyHash": "7ce0405c357cd18c38ca34ef634f4314083ff1e2bc2a75dfe2cbc9204b4d36f1",
+  "Location": "/workspace/scratch/574bb39da4d0/mapper-cloud-recovery-20261027/evidence/version-concurrency-20261027T152115Z/candidate/probe/bin/Release/net10.0/Ling.Mapper.dll",
+  "mode": "shared-4",
+  "sharedMapper": true,
+  "sourceSharing": "one-readonly-C100-source-across-all-workers",
+  "workers": 4,
+  "warmSeconds": 2,
+  "requestedMeasureSeconds": 3,
+  "wallSeconds": 3.000708337,
+  "processCpuSeconds": 9.732923,
+  "cpuSecondsPerWallSecond": 3.2435418264377622,
+  "processorCount": 9,
+  "affinityMask": 511,
+  "runtime": "10.0.14",
+  "tieredCompilation": "0",
+  "gcServer": false,
+  "gcLatencyMode": "Interactive",
+  "operations": 805184,
+  "operationsPerSecond": 268331.3103348771,
+  "threadAllocatedBytes": 13262990848,
+  "bytesPerOperation": 16472,
+  "gcCollections": [
+    3400,
+    0,
+    0
+  ],
+  "batchSize": 64,
+  "checksumReadsPerMap": 100,
+  "expectedChecksumPerMap": 14950,
+  "traceEnabled": false,
+  "success": true,
+  "workerResults": [
+    {
+      "worker": 0,
+      "Operations": 204352,
+      "Checksum": 3055062400,
+      "AllocatedBytes": 3366086144,
+      "startOffsetMs": 0.048912,
+      "endOffsetMs": -0.185308,
+      "Error": null
+    },
+    {
+      "worker": 1,
+      "Operations": 202880,
+      "Checksum": 3033056000,
+      "AllocatedBytes": 3341839360,
+      "startOffsetMs": 0.055061,
+      "endOffsetMs": -0.459072,
+      "Error": null
+    },
+    {
+      "worker": 2,
+      "Operations": 210112,
+      "Checksum": 3141174400,
+      "AllocatedBytes": 3460964864,
+      "startOffsetMs": 0.053679,
+      "endOffsetMs": -0.055742,
+      "Error": null
+    },
+    {
+      "worker": 3,
+      "Operations": 187840,
+      "Checksum": 2808208000,
+      "AllocatedBytes": 3094100480,
+      "startOffsetMs": 0.041631,
+      "endOffsetMs": -0.299852,
+      "Error": null
+    }
+  ]
+}

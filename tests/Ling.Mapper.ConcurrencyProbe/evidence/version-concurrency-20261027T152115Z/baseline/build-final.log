@@ -1,0 +1,11 @@
+  Reconstructed -> /workspace/scratch/574bb39da4d0/mapper-cloud-recovery-20261027/evidence/version-concurrency-20261027T152115Z/baseline/parity/bin/Release/net10.0/Reconstructed.dll
+/workspace/scratch/574bb39da4d0/mapper-cloud-recovery-20261027/evidence/version-concurrency-20261027T152115Z/baseline/probe/Program.cs(73,36): warning CA1416: This call site is reachable on all platforms. 'Process.ProcessorAffinity' is supported on: 'linux', 'windows'. (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1416) [/workspace/scratch/574bb39da4d0/mapper-cloud-recovery-20261027/evidence/version-concurrency-20261027T152115Z/baseline/probe/ConcurrencyProbe.csproj]
+  ConcurrencyProbe -> /workspace/scratch/574bb39da4d0/mapper-cloud-recovery-20261027/evidence/version-concurrency-20261027T152115Z/baseline/probe/bin/Release/net10.0/ConcurrencyProbe.dll
+
+Build succeeded.
+
+/workspace/scratch/574bb39da4d0/mapper-cloud-recovery-20261027/evidence/version-concurrency-20261027T152115Z/baseline/probe/Program.cs(73,36): warning CA1416: This call site is reachable on all platforms. 'Process.ProcessorAffinity' is supported on: 'linux', 'windows'. (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1416) [/workspace/scratch/574bb39da4d0/mapper-cloud-recovery-20261027/evidence/version-concurrency-20261027T152115Z/baseline/probe/ConcurrencyProbe.csproj]
+    1 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:02.74

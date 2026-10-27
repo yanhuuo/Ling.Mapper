@@ -1,0 +1,64 @@
+{
+  "base": "35d1fe5048ae0f0aba81e63603e5c1ee10940a85",
+  "sourceCommit": "e0af897cc4412a95749d807073cff758980ce2ab",
+  "sourceFileCount": 141,
+  "sourceManifestSha256": "ffcc1ba85edbfb4075a6e86b31502c2e5e2efa9cbd7d8e65ce1559cb498239a9",
+  "frameworks": [
+    {
+      "tfm": "net6.0",
+      "baselineDllSha256": "c45650c1d9202a022cd3c6f0468c39ecaa43c5c7c2d21a9f7e856486deb61de4",
+      "candidateDllSha256": "714a19680ad1645cfde348d8b3f81dad93ad6dc9bf5d3282526b08c05125ab1c",
+      "suites": 66,
+      "failed": 0,
+      "publicationChecks": 4953,
+      "memberChecks": 1380,
+      "matrixIdentical": true,
+      "matrixSha256": "1e9aba18a7c4df2e141f299c3499fc1c75b17836c4f2fda4d2c26bc2bb59ea9d"
+    },
+    {
+      "tfm": "net8.0",
+      "baselineDllSha256": "ab6b0d8dabeb1560cf505ddea132bddf64ab67f6a1b31ead8a5dbb627025081a",
+      "candidateDllSha256": "e0535592531bb577ce0dd428aa45f2c09eb5336330d6bebe4dc29f65f905c32b",
+      "suites": 66,
+      "failed": 0,
+      "publicationChecks": 4953,
+      "memberChecks": 1380,
+      "matrixIdentical": true,
+      "matrixSha256": "12e4c4b910169052ccd57966d576e1989e28348b95cfc5e206b5449b6f1336a0"
+    },
+    {
+      "tfm": "net9.0",
+      "baselineDllSha256": "2bdc581166c5ee2abfe9485c154f7e38bb80290c1fa7844d323b488c5fcfb482",
+      "candidateDllSha256": "f02ed208397d6a992783f287be85fc19bb9f44e1ec7d1b8d2965bafe18a0c1a4",
+      "suites": 66,
+      "failed": 0,
+      "publicationChecks": 4953,
+      "memberChecks": 1380,
+      "matrixIdentical": true,
+      "matrixSha256": "12e4c4b910169052ccd57966d576e1989e28348b95cfc5e206b5449b6f1336a0"
+    },
+    {
+      "tfm": "net10.0",
+      "baselineDllSha256": "312d1fa10ff6ae083864763ed400e3c7d633b14d96c348a0affe2cd167fa862f",
+      "candidateDllSha256": "7ce0405c357cd18c38ca34ef634f4314083ff1e2bc2a75dfe2cbc9204b4d36f1",
+      "suites": 66,
+      "failed": 0,
+      "publicationChecks": 4953,
+      "memberChecks": 1380,
+      "matrixIdentical": true,
+      "matrixSha256": "12e4c4b910169052ccd57966d576e1989e28348b95cfc5e206b5449b6f1336a0"
+    }
+  ],
+  "jit": {
+    "runtime": "net10.0.14",
+    "architecture": "x64",
+    "tieredCompilation": false,
+    "readyToRun": false,
+    "baseline": "lock cmpxchg at Version/CurrentGeneration",
+    "candidate": "native load, slow-path generation CAS retained",
+    "baselineSha256": "291dc5a4b0dd59b4125325402b29031f3b5fe77110685e010e70efeefa1dc856",
+    "candidateSha256": "c5b0a0413ec41b913bd17a13a8732226267b97b14048d69e981c9c7b4cd801c6"
+  },
+  "x86Executed": false,
+  "performanceMeasured": false
+}

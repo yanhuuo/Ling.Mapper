@@ -1,0 +1,46 @@
+{
+  "schema": "reconstructed-c100-concurrency-v1",
+  "sourceSha": "e0af897cc4412a95749d807073cff758980ce2ab",
+  "assemblyHash": "7ce0405c357cd18c38ca34ef634f4314083ff1e2bc2a75dfe2cbc9204b4d36f1",
+  "Location": "/workspace/scratch/574bb39da4d0/mapper-cloud-recovery-20261027/evidence/version-concurrency-20261027T152115Z/candidate/probe/bin/Release/net10.0/Ling.Mapper.dll",
+  "mode": "shared-1",
+  "sharedMapper": true,
+  "sourceSharing": "one-readonly-C100-source-across-all-workers",
+  "workers": 1,
+  "warmSeconds": 2,
+  "requestedMeasureSeconds": 3,
+  "wallSeconds": 3.00091965,
+  "processCpuSeconds": 3.031012,
+  "cpuSecondsPerWallSecond": 1.0100277093390355,
+  "processorCount": 9,
+  "affinityMask": 511,
+  "runtime": "10.0.14",
+  "tieredCompilation": "0",
+  "gcServer": false,
+  "gcLatencyMode": "Interactive",
+  "operations": 286400,
+  "operationsPerSecond": 95437.41032853044,
+  "threadAllocatedBytes": 4717580800,
+  "bytesPerOperation": 16472,
+  "gcCollections": [
+    1129,
+    0,
+    0
+  ],
+  "batchSize": 64,
+  "checksumReadsPerMap": 100,
+  "expectedChecksumPerMap": 14950,
+  "traceEnabled": false,
+  "success": true,
+  "workerResults": [
+    {
+      "worker": 0,
+      "Operations": 286400,
+      "Checksum": 4281680000,
+      "AllocatedBytes": 4717580800,
+      "startOffsetMs": 0.056693,
+      "endOffsetMs": -0.134874,
+      "Error": null
+    }
+  ]
+}

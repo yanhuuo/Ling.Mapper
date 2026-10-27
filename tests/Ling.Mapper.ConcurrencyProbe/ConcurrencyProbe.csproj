@@ -1,0 +1,7 @@
+<Project Sdk="Microsoft.NET.Sdk">
+ <PropertyGroup><OutputType>Exe</OutputType><TargetFramework>net10.0</TargetFramework><ImplicitUsings>enable</ImplicitUsings><Nullable>enable</Nullable><LangVersion>latest</LangVersion>
+ <ParityHarnessProject Condition="'$(ParityHarnessProject)' == ''">../Ling.Mapper.PerformanceReconstructed/Reconstructed.csproj</ParityHarnessProject></PropertyGroup>
+ <ItemGroup><ProjectReference Include="$(ParityHarnessProject)" /><Reference Include="Ling.Mapper" Condition="'$(MapperLibraryPath)' != ''"><HintPath>$(MapperLibraryPath)</HintPath><Private>true</Private></Reference></ItemGroup>
+ <!-- Archived evidence contains historical source snapshots, not build inputs. -->
+ <ItemGroup><Compile Remove="evidence/**/*.cs" /></ItemGroup>
+</Project>

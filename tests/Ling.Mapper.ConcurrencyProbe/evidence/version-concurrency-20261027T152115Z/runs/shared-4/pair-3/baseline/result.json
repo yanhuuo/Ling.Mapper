@@ -1,0 +1,73 @@
+{
+  "schema": "reconstructed-c100-concurrency-v1",
+  "sourceSha": "35d1fe5048ae0f0aba81e63603e5c1ee10940a85",
+  "assemblyHash": "312d1fa10ff6ae083864763ed400e3c7d633b14d96c348a0affe2cd167fa862f",
+  "Location": "/workspace/scratch/574bb39da4d0/mapper-cloud-recovery-20261027/evidence/version-concurrency-20261027T152115Z/baseline/probe/bin/Release/net10.0/Ling.Mapper.dll",
+  "mode": "shared-4",
+  "sharedMapper": true,
+  "sourceSharing": "one-readonly-C100-source-across-all-workers",
+  "workers": 4,
+  "warmSeconds": 2,
+  "requestedMeasureSeconds": 3,
+  "wallSeconds": 3.001565437,
+  "processCpuSeconds": 10.632979,
+  "cpuSecondsPerWallSecond": 3.542477824713838,
+  "processorCount": 9,
+  "affinityMask": 511,
+  "runtime": "10.0.14",
+  "tieredCompilation": "0",
+  "gcServer": false,
+  "gcLatencyMode": "Interactive",
+  "operations": 428224,
+  "operationsPerSecond": 142666.887991621,
+  "threadAllocatedBytes": 7053705728,
+  "bytesPerOperation": 16472,
+  "gcCollections": [
+    1808,
+    0,
+    0
+  ],
+  "batchSize": 64,
+  "checksumReadsPerMap": 100,
+  "expectedChecksumPerMap": 14950,
+  "traceEnabled": false,
+  "success": true,
+  "workerResults": [
+    {
+      "worker": 0,
+      "Operations": 109888,
+      "Checksum": 1642825600,
+      "AllocatedBytes": 1810075136,
+      "startOffsetMs": 0.07412,
+      "endOffsetMs": -0.215123,
+      "Error": null
+    },
+    {
+      "worker": 1,
+      "Operations": 106624,
+      "Checksum": 1594028800,
+      "AllocatedBytes": 1756310528,
+      "startOffsetMs": 0.089828,
+      "endOffsetMs": -0.349316,
+      "Error": null
+    },
+    {
+      "worker": 2,
+      "Operations": 106944,
+      "Checksum": 1598812800,
+      "AllocatedBytes": 1761581568,
+      "startOffsetMs": 0.076038,
+      "endOffsetMs": -0.043079,
+      "Error": null
+    },
+    {
+      "worker": 3,
+      "Operations": 104768,
+      "Checksum": 1566281600,
+      "AllocatedBytes": 1725738496,
+      "startOffsetMs": 0.054876,
+      "endOffsetMs": -0.21331,
+      "Error": null
+    }
+  ]
+}

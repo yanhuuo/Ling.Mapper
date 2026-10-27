@@ -1,0 +1,73 @@
+{
+  "schema": "reconstructed-c100-concurrency-v1",
+  "sourceSha": "35d1fe5048ae0f0aba81e63603e5c1ee10940a85",
+  "assemblyHash": "312d1fa10ff6ae083864763ed400e3c7d633b14d96c348a0affe2cd167fa862f",
+  "Location": "/workspace/scratch/574bb39da4d0/mapper-cloud-recovery-20261027/evidence/version-concurrency-20261027T152115Z/baseline/probe/bin/Release/net10.0/Ling.Mapper.dll",
+  "mode": "private-4",
+  "sharedMapper": false,
+  "sourceSharing": "one-readonly-C100-source-across-all-workers",
+  "workers": 4,
+  "warmSeconds": 2,
+  "requestedMeasureSeconds": 3,
+  "wallSeconds": 3.000770842,
+  "processCpuSeconds": 10.069805,
+  "cpuSecondsPerWallSecond": 3.3557394183717544,
+  "processorCount": 9,
+  "affinityMask": 511,
+  "runtime": "10.0.14",
+  "tieredCompilation": "0",
+  "gcServer": false,
+  "gcLatencyMode": "Interactive",
+  "operations": 432256,
+  "operationsPerSecond": 144048.32050150933,
+  "threadAllocatedBytes": 7120120832,
+  "bytesPerOperation": 16472,
+  "gcCollections": [
+    1825,
+    0,
+    0
+  ],
+  "batchSize": 64,
+  "checksumReadsPerMap": 100,
+  "expectedChecksumPerMap": 14950,
+  "traceEnabled": false,
+  "success": true,
+  "workerResults": [
+    {
+      "worker": 0,
+      "Operations": 109056,
+      "Checksum": 1630387200,
+      "AllocatedBytes": 1796370432,
+      "startOffsetMs": 0.062487,
+      "endOffsetMs": -0.669232,
+      "Error": null
+    },
+    {
+      "worker": 1,
+      "Operations": 108736,
+      "Checksum": 1625603200,
+      "AllocatedBytes": 1791099392,
+      "startOffsetMs": 0.051756,
+      "endOffsetMs": -0.662422,
+      "Error": null
+    },
+    {
+      "worker": 2,
+      "Operations": 108480,
+      "Checksum": 1621776000,
+      "AllocatedBytes": 1786882560,
+      "startOffsetMs": 0.053218,
+      "endOffsetMs": -0.751984,
+      "Error": null
+    },
+    {
+      "worker": 3,
+      "Operations": 105984,
+      "Checksum": 1584460800,
+      "AllocatedBytes": 1745768448,
+      "startOffsetMs": 0.043334,
+      "endOffsetMs": -0.04738,
+      "Error": null
+    }
+  ]
+}

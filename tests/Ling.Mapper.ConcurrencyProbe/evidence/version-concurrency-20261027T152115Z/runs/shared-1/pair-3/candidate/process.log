@@ -1,0 +1,10 @@
+PASS List100DefaultBench
+PASS List100PreserveControl
+PASS Ling exact100 custom calls in order0..99, twice; custom getters/callbacks0; trace disabled after audit
+PASS Mapster exact100 custom calls in order0..99, twice; custom getters/callbacks0; trace disabled after audit
+PASS Custom100DefaultBench
+PASS Ling exact100 custom calls in order0..99, twice; custom getters/callbacks0; trace disabled after audit
+PASS Mapster exact100 custom calls in order0..99, twice; custom getters/callbacks0; trace disabled after audit
+PASS Custom100PreserveControl
+PASS full-cycle/alias/container/value/null/new-graph/cross-call/mutation probes; NEW reconstruction preflight
+RESULT_JSON {"schema":"reconstructed-c100-concurrency-v1","sourceSha":"e0af897cc4412a95749d807073cff758980ce2ab","assemblyHash":"7ce0405c357cd18c38ca34ef634f4314083ff1e2bc2a75dfe2cbc9204b4d36f1","Location":"/workspace/scratch/574bb39da4d0/mapper-cloud-recovery-20261027/evidence/version-concurrency-20261027T152115Z/candidate/probe/bin/Release/net10.0/Ling.Mapper.dll","mode":"shared-1","sharedMapper":true,"sourceSharing":"one-readonly-C100-source-across-all-workers","workers":1,"warmSeconds":2,"requestedMeasureSeconds":3,"wallSeconds":3.000354757,"processCpuSeconds":3.025246,"cpuSecondsPerWallSecond":1.0082960999668213,"processorCount":9,"affinityMask":511,"runtime":"10.0.14","tieredCompilation":"0","gcServer":false,"gcLatencyMode":"Interactive","operations":354368,"operationsPerSecond":118108.70003730028,"threadAllocatedBytes":5837149696,"bytesPerOperation":16472,"gcCollections":[1396,0,0],"batchSize":64,"checksumReadsPerMap":100,"expectedChecksumPerMap":14950,"traceEnabled":false,"success":true,"workerResults":[{"worker":0,"Operations":354368,"Checksum":5297801600,"AllocatedBytes":5837149696,"startOffsetMs":0.033805,"endOffsetMs":-0.056474,"Error":null}]}

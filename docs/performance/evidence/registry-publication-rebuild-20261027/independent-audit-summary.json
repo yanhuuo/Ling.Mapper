@@ -1,0 +1,27 @@
+{
+  "source_commit": "e0af897cc4412a95749d807073cff758980ce2ab",
+  "base": "35d1fe5048ae0f0aba81e63603e5c1ee10940a85",
+  "candidate_net10_sha256": "7ce0405c357cd18c38ca34ef634f4314083ff1e2bc2a75dfe2cbc9204b4d36f1",
+  "baseline_net10_sha256": "312d1fa10ff6ae083864763ed400e3c7d633b14d96c348a0affe2cd167fa862f",
+  "source_manifest_verified_files": 141,
+  "matrix_byte_identical": {
+    "net6.0": 9123,
+    "net8.0": 9312,
+    "net9.0": 9312,
+    "net10.0": 9312
+  },
+  "independent_executions": {
+    "core": "36 checks + parallel64, fresh baseline/candidate PASS",
+    "handoff_configuration_ownership": "4635 checks,4 readers,8 writer-completed publication rounds; owned and shared mapper pairs preserve distinct config owner fields; fresh baseline/candidate PASS",
+    "reconstructed_publication": "4953 checks copied external, fresh baseline/candidate PASS"
+  },
+  "same_executables_swapped_dlls_verified": true,
+  "jit_evidence_inspected": "normal x64 FullOpts getVersion and CurrentGeneration old lock cmpxchg to native load; slowpath CompareExchange remains; final JIT probe DLL hash verified",
+  "fixture_correction": "Initial handoff fixture incorrectly expected an int-to-long registry converter to affect an already-long ForMember selector. Baseline failed; corrected fixture uses automatic int-to-long Value plus independent configured Owner field. Initial source/log retained. No production change.",
+  "limits": [
+    "Fresh evidence only; not historical a373/6927 records.",
+    "x64 normal JIT; x86 not executed; generated mapper guards are hand-written JIT delegates, not NativeAOT.",
+    "Atomic acquire is not full-fence equivalence and does not claim unsynchronized wall-clock newest-version visibility."
+  ],
+  "decision": "PASS correctness gate; no timing performed"
+}

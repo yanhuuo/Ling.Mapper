@@ -1,0 +1,17 @@
+  Determining projects to restore...
+  Restored /workspace/scratch/574bb39da4d0/mapper-cloud-recovery-20261027/evidence/version-concurrency-20261027T152115Z/baseline/probe/ConcurrencyProbe.csproj (in 341 ms).
+  Restored /workspace/scratch/574bb39da4d0/mapper-cloud-recovery-20261027/evidence/version-concurrency-20261027T152115Z/baseline/parity/Reconstructed.csproj (in 341 ms).
+  Reconstructed -> /workspace/scratch/574bb39da4d0/mapper-cloud-recovery-20261027/evidence/version-concurrency-20261027T152115Z/baseline/parity/bin/Release/net10.0/Reconstructed.dll
+/workspace/scratch/574bb39da4d0/mapper-cloud-recovery-20261027/evidence/version-concurrency-20261027T152115Z/baseline/probe/Program.cs(7,10): error CS0246: The type or namespace name 'Ling' could not be found (are you missing a using directive or an assembly reference?) [/workspace/scratch/574bb39da4d0/mapper-cloud-recovery-20261027/evidence/version-concurrency-20261027T152115Z/baseline/probe/ConcurrencyProbe.csproj]
+/workspace/scratch/574bb39da4d0/mapper-cloud-recovery-20261027/evidence/version-concurrency-20261027T152115Z/baseline/probe/Program.cs(8,7): error CS0246: The type or namespace name 'Ling' could not be found (are you missing a using directive or an assembly reference?) [/workspace/scratch/574bb39da4d0/mapper-cloud-recovery-20261027/evidence/version-concurrency-20261027T152115Z/baseline/probe/ConcurrencyProbe.csproj]
+/workspace/scratch/574bb39da4d0/mapper-cloud-recovery-20261027/evidence/version-concurrency-20261027T152115Z/baseline/probe/Program.cs(9,7): error CS0246: The type or namespace name 'Ling' could not be found (are you missing a using directive or an assembly reference?) [/workspace/scratch/574bb39da4d0/mapper-cloud-recovery-20261027/evidence/version-concurrency-20261027T152115Z/baseline/probe/ConcurrencyProbe.csproj]
+
+Build FAILED.
+
+/workspace/scratch/574bb39da4d0/mapper-cloud-recovery-20261027/evidence/version-concurrency-20261027T152115Z/baseline/probe/Program.cs(7,10): error CS0246: The type or namespace name 'Ling' could not be found (are you missing a using directive or an assembly reference?) [/workspace/scratch/574bb39da4d0/mapper-cloud-recovery-20261027/evidence/version-concurrency-20261027T152115Z/baseline/probe/ConcurrencyProbe.csproj]
+/workspace/scratch/574bb39da4d0/mapper-cloud-recovery-20261027/evidence/version-concurrency-20261027T152115Z/baseline/probe/Program.cs(8,7): error CS0246: The type or namespace name 'Ling' could not be found (are you missing a using directive or an assembly reference?) [/workspace/scratch/574bb39da4d0/mapper-cloud-recovery-20261027/evidence/version-concurrency-20261027T152115Z/baseline/probe/ConcurrencyProbe.csproj]
+/workspace/scratch/574bb39da4d0/mapper-cloud-recovery-20261027/evidence/version-concurrency-20261027T152115Z/baseline/probe/Program.cs(9,7): error CS0246: The type or namespace name 'Ling' could not be found (are you missing a using directive or an assembly reference?) [/workspace/scratch/574bb39da4d0/mapper-cloud-recovery-20261027/evidence/version-concurrency-20261027T152115Z/baseline/probe/ConcurrencyProbe.csproj]
+    0 Warning(s)
+    3 Error(s)
+
+Time Elapsed 00:00:04.86

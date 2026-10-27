@@ -1,0 +1,73 @@
+{
+  "schema": "reconstructed-c100-concurrency-v1",
+  "sourceSha": "35d1fe5048ae0f0aba81e63603e5c1ee10940a85",
+  "assemblyHash": "312d1fa10ff6ae083864763ed400e3c7d633b14d96c348a0affe2cd167fa862f",
+  "Location": "/workspace/scratch/574bb39da4d0/mapper-cloud-recovery-20261027/evidence/version-concurrency-20261027T152115Z/baseline/probe/bin/Release/net10.0/Ling.Mapper.dll",
+  "mode": "private-4",
+  "sharedMapper": false,
+  "sourceSharing": "one-readonly-C100-source-across-all-workers",
+  "workers": 4,
+  "warmSeconds": 2,
+  "requestedMeasureSeconds": 3,
+  "wallSeconds": 3.001427897,
+  "processCpuSeconds": 9.930987,
+  "cpuSecondsPerWallSecond": 3.3087541466267645,
+  "processorCount": 9,
+  "affinityMask": 511,
+  "runtime": "10.0.14",
+  "tieredCompilation": "0",
+  "gcServer": false,
+  "gcLatencyMode": "Interactive",
+  "operations": 416000,
+  "operationsPerSecond": 138600.6974932838,
+  "threadAllocatedBytes": 6852352000,
+  "bytesPerOperation": 16472,
+  "gcCollections": [
+    1755,
+    0,
+    0
+  ],
+  "batchSize": 64,
+  "checksumReadsPerMap": 100,
+  "expectedChecksumPerMap": 14950,
+  "traceEnabled": false,
+  "success": true,
+  "workerResults": [
+    {
+      "worker": 0,
+      "Operations": 103744,
+      "Checksum": 1550972800,
+      "AllocatedBytes": 1708871168,
+      "startOffsetMs": 0.03717,
+      "endOffsetMs": -0.060239,
+      "Error": null
+    },
+    {
+      "worker": 1,
+      "Operations": 104320,
+      "Checksum": 1559584000,
+      "AllocatedBytes": 1718359040,
+      "startOffsetMs": 0.043178,
+      "endOffsetMs": -0.661906,
+      "Error": null
+    },
+    {
+      "worker": 2,
+      "Operations": 103232,
+      "Checksum": 1543318400,
+      "AllocatedBytes": 1700437504,
+      "startOffsetMs": 0.04406,
+      "endOffsetMs": -0.158378,
+      "Error": null
+    },
+    {
+      "worker": 3,
+      "Operations": 104704,
+      "Checksum": 1565324800,
+      "AllocatedBytes": 1724684288,
+      "startOffsetMs": 0.047886,
+      "endOffsetMs": -0.600605,
+      "Error": null
+    }
+  ]
+}

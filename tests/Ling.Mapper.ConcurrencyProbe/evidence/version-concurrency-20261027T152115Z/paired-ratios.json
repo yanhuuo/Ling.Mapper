@@ -1,0 +1,74 @@
+[
+  {
+    "mode": "shared-1",
+    "pair": 1,
+    "throughput_ratio": 1.0859171114495094,
+    "cpu_per_op_ratio": 0.9210697720789924
+  },
+  {
+    "mode": "shared-1",
+    "pair": 2,
+    "throughput_ratio": 0.8945433127984411,
+    "cpu_per_op_ratio": 1.1195431063280425
+  },
+  {
+    "mode": "shared-1",
+    "pair": 3,
+    "throughput_ratio": 1.0504233431409655,
+    "cpu_per_op_ratio": 0.9524012342273506
+  },
+  {
+    "mode": "shared-2",
+    "pair": 1,
+    "throughput_ratio": 1.2674340255162173,
+    "cpu_per_op_ratio": 0.7774045300735771
+  },
+  {
+    "mode": "shared-2",
+    "pair": 2,
+    "throughput_ratio": 1.1834335236762137,
+    "cpu_per_op_ratio": 0.8391444537913675
+  },
+  {
+    "mode": "shared-2",
+    "pair": 3,
+    "throughput_ratio": 1.2231588631818286,
+    "cpu_per_op_ratio": 0.8098132575881493
+  },
+  {
+    "mode": "shared-4",
+    "pair": 1,
+    "throughput_ratio": 1.382326590934478,
+    "cpu_per_op_ratio": 0.6248580337752622
+  },
+  {
+    "mode": "shared-4",
+    "pair": 2,
+    "throughput_ratio": 1.6764621924927117,
+    "cpu_per_op_ratio": 0.5552206004877892
+  },
+  {
+    "mode": "shared-4",
+    "pair": 3,
+    "throughput_ratio": 1.8808240237961629,
+    "cpu_per_op_ratio": 0.4868152773868694
+  },
+  {
+    "mode": "private-4",
+    "pair": 1,
+    "throughput_ratio": 1.5309001397750568,
+    "cpu_per_op_ratio": 0.5901980281452076
+  },
+  {
+    "mode": "private-4",
+    "pair": 2,
+    "throughput_ratio": 1.6259804890193037,
+    "cpu_per_op_ratio": 0.5412333104566927
+  },
+  {
+    "mode": "private-4",
+    "pair": 3,
+    "throughput_ratio": 1.7136813377927955,
+    "cpu_per_op_ratio": 0.5242933373077827
+  }
+]

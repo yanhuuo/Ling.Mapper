@@ -34,7 +34,7 @@ namespace Ling.Mapper
         private sealed record Entry(Delegate Original, Func<object, object?> Invoke);
         private static readonly ConcurrentDictionary<(Type, Type), Entry> _registry = new();
         private static long _version;
-        internal static long Version => System.Threading.Interlocked.Read(ref _version);
+        internal static long Version => System.Threading.Volatile.Read(ref _version);
         internal static bool TryGetInvoker(Type source, Type destination, out Func<object, object?>? invoke)
         {
             if (_registry.TryGetValue((source, destination), out var entry) ||

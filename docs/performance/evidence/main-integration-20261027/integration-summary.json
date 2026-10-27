@@ -1,0 +1,55 @@
+{
+  "testedProductionBuildCommit": "7e278cae6ea379ba3247670f26177e1e50fd6759",
+  "integrationFixCommit": "1754a78e6941af698e0727167e26c31029b69e1c",
+  "productionSourceFilesByteIdenticalToCommit": "e0af897cc4412a95749d807073cff758980ce2ab",
+  "sourceFileCount": 151,
+  "sourceManifestSha256": "50bf1948f32ba3830b1dc42288fa882da90c24b423fbb0cf8602cbbbdc031169",
+  "frameworks": [
+    {
+      "tfm": "net6.0",
+      "suites": 66,
+      "failed": 0,
+      "publicationChecks": 4953,
+      "memberChecks": 1380,
+      "matrixIdentical": true,
+      "dllSha256": "4fb113785c25f62005efa5bd652a9c6bf172b7fc80f49ff7874a643338f98077",
+      "matrixSha256": "1e9aba18a7c4df2e141f299c3499fc1c75b17836c4f2fda4d2c26bc2bb59ea9d"
+    },
+    {
+      "tfm": "net8.0",
+      "suites": 66,
+      "failed": 0,
+      "publicationChecks": 4953,
+      "memberChecks": 1380,
+      "matrixIdentical": true,
+      "dllSha256": "ceb112dced240ef0fb756a90cb5f89c1ee0eb7327a859ff403714dc9996d6f42",
+      "matrixSha256": "12e4c4b910169052ccd57966d576e1989e28348b95cfc5e206b5449b6f1336a0"
+    },
+    {
+      "tfm": "net9.0",
+      "suites": 66,
+      "failed": 0,
+      "publicationChecks": 4953,
+      "memberChecks": 1380,
+      "matrixIdentical": true,
+      "dllSha256": "fb51cb97b0669a50b1a2e6c9ba3e4f5962cc3e4584e91724a859031c1e33a4a8",
+      "matrixSha256": "12e4c4b910169052ccd57966d576e1989e28348b95cfc5e206b5449b6f1336a0"
+    },
+    {
+      "tfm": "net10.0",
+      "suites": 66,
+      "failed": 0,
+      "publicationChecks": 4953,
+      "memberChecks": 1380,
+      "matrixIdentical": true,
+      "dllSha256": "9344c1d9793ce83073d6fe46033b08547f79d0387ec12b5a8c383cd32b18748f",
+      "matrixSha256": "12e4c4b910169052ccd57966d576e1989e28348b95cfc5e206b5449b6f1336a0"
+    }
+  ],
+  "harnessPreflight": {
+    "PerformanceReconstructed": "PASS",
+    "ConcurrencyProbe": "PASS after packaging-only exclusion of archived evidence/**/*.cs"
+  },
+  "firstHarnessBuildFailure": "Default SDK glob compiled archived measured-source snapshots, causing duplicate-type errors; original log retained. No production or measured Program changes.",
+  "formalTimingRerun": false
+}
