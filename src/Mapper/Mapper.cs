@@ -102,7 +102,8 @@ internal sealed partial class Mapper : IMapper, IDefaultMappingOptions
         {
             // Generic destination types are CLR types. Keep explicit Type inputs
             // on MapValue's diagnostic path, including user-defined Type metadata.
-            if (!validateDeclaredSource && (!destType.IsValueType || Nullable.GetUnderlyingType(destType) != null))
+            if (!validateDeclaredSource && (!destType.IsValueType ||
+                (destType.IsGenericType && destType.GetGenericTypeDefinition() == typeof(Nullable<>))))
                 return null;
         }
         // The generic API already supplied the actual runtime source type. The

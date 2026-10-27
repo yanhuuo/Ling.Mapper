@@ -20,6 +20,15 @@ foreach (var policy in new[] { NullValueHandling.UseDefault, NullValueHandling.T
     Action<object, object> callback = (_, _) => calls++;
     Check(mapper.Map<Output>(null, AdaptOptions.Strict, callback) == null, "generic reference null");
     Check(mapper.Map<int?>(null, AdaptOptions.Strict, callback) == null, "generic nullable null");
+    Check(mapper.Map<bool?>(null) == null, "nullable bool null");
+    Check(mapper.Map<decimal?>(null) == null, "nullable decimal null");
+    Check(mapper.Map<Guid?>(null) == null, "nullable Guid null");
+    Check(mapper.Map<DateTime?>(null) == null, "nullable DateTime null");
+    Check(mapper.Map<SampleEnum?>(null) == null, "nullable enum null");
+    Check(mapper.Map<ValueTuple<int, string>?>(null) == null, "nullable generic tuple null");
+    Check(mapper.Map<SampleValue<int>?>(null) == null, "nullable custom generic struct null");
+    Check(mapper.Map<IReadOnlyList<Output>>(null) == null, "generic interface null");
+    Check(mapper.Map<List<int>>(null) == null, "closed generic reference null");
     Check(mapper.Map<string>(null) == null, "string null");
     Check(mapper.Map<List<Output>>(null) == null, "list null");
     Check(mapper.Map<Output[]>(null) == null, "array null");
@@ -36,6 +45,16 @@ foreach (var policy in new[] { NullValueHandling.UseDefault, NullValueHandling.T
         Check(error.Path == "$" && error.OriginalExceptionType == typeof(ApplicationException).FullName,
             "custom Type metadata error remains wrapped");
     }
+    try
+    {
+        mapper.Map(null, typeof(object), new ThrowingGenericMetadata());
+        throw new Exception("custom generic metadata must throw");
+    }
+    catch (MappingException error)
+    {
+        Check(error.Path == "$" && error.OriginalExceptionType == typeof(ApplicationException).FullName,
+            "explicit nullable Type metadata error remains wrapped");
+    }
     Check(calls == 0, "null never item callback");
     Throws<ArgumentException>(() => mapper.Map<Output>(null, (AdaptOptions)int.MaxValue), "invalid options before null");
     Throws<ArgumentException>(() => mapper.Map<int?>(null, AdaptOptions.Strict, ignoreNames: new[] { " " }), "invalid ignores before null");
@@ -47,11 +66,13 @@ foreach (var policy in new[] { NullValueHandling.UseDefault, NullValueHandling.T
     if (policy == NullValueHandling.UseDefault)
     {
         Check(mapper.Map<int>(null) == 0, "value default");
+        Check(mapper.Map<SampleValue<int>>(null).Value == 0, "nonnullable generic struct default");
         Check((int)mapper.Map(null, typeof(object), typeof(int))! == 0, "explicit value default");
     }
     else
     {
         Throws<MappingException>(() => mapper.Map<int>(null), "value throw");
+        Throws<MappingException>(() => mapper.Map<SampleValue<int>>(null), "nonnullable generic struct throw");
         Throws<MappingException>(() => mapper.Map(null, typeof(object), typeof(int)), "explicit value throw");
     }
     var target = new Output { Value = 17 };
@@ -77,6 +98,8 @@ var allocationMapper = new MapperConfiguration().CreateMapper();
 var input = new Input { Value = 5 };
 Measure("null-reference", () => allocationMapper.Map<Output>(null));
 Measure("null-nullable", () => allocationMapper.Map<int?>(null));
+Measure("null-nullable-generic-struct", () => allocationMapper.Map<SampleValue<int>?>(null));
+Measure("explicit-null-nullable", () => allocationMapper.Map(null, typeof(object), typeof(int?)));
 Measure("explicit-null-reference", () => allocationMapper.Map(null, typeof(Input), typeof(Output)));
 Measure("nonnull-flat-negative-control", () => allocationMapper.Map<Output>(input));
 Console.WriteLine($"Null root smoke PASS: {checks} checks; allocation observations only, no timing.");
@@ -95,4 +118,15 @@ public sealed class ThrowingValueType : TypeDelegator
 {
     public ThrowingValueType() : base(typeof(Output)) { }
     protected override bool IsValueTypeImpl() => throw new ApplicationException("metadata");
+}
+
+public enum SampleEnum { None, One }
+public struct SampleValue<T> { public T Value { get; set; } }
+public sealed class ThrowingGenericMetadata : TypeDelegator
+{
+    public ThrowingGenericMetadata() : base(typeof(int?)) { }
+    public override bool ContainsGenericParameters => false;
+    public override bool IsGenericType => true;
+    public override bool IsGenericTypeDefinition => false;
+    public override Type GetGenericTypeDefinition() => throw new ApplicationException("generic metadata");
 }
