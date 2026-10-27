@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType><TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings><Nullable>enable</Nullable><LangVersion>latest</LangVersion>
+    <MapperSourceProject Condition="'$(MapperSourceProject)' == ''">../../src/Ling.Mapper.csproj</MapperSourceProject>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="$(MapperSourceProject)" Condition="'$(MapperLibraryPath)' == ''" />
+    <Reference Include="Ling.Mapper" Condition="'$(MapperLibraryPath)' != ''"><HintPath>$(MapperLibraryPath)</HintPath><Private>true</Private></Reference>
+    <PackageReference Include="Mapster" Version="10.0.13" />
+    <PackageReference Include="BenchmarkDotNet" Version="0.15.8" />
+  </ItemGroup>
+</Project>

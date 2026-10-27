@@ -1,0 +1,13 @@
+/workspace/scratch/574bb39da4d0/mapper-cloud-recovery-20261027/reconstructed-baseline-source/src/Configuration/MapperConfiguration.cs(50,30): warning CS1591: Missing XML comment for publicly visible type or member 'MapperConfiguration.DefaultAdaptOptions' [/workspace/scratch/574bb39da4d0/mapper-cloud-recovery-20261027/reconstructed-baseline-source/src/Ling.Mapper.csproj::TargetFramework=net10.0]
+/workspace/scratch/574bb39da4d0/mapper-cloud-recovery-20261027/reconstructed-baseline-source/src/Models/MapperProfile.cs(83,82): warning CS1573: Parameter 'isReverseGenerated' has no matching param tag in the XML comment for 'MappingConfig<TSource, TDestination>.MappingConfig(MappingExpression<TSource, TDestination>, bool)' (but other parameters do) [/workspace/scratch/574bb39da4d0/mapper-cloud-recovery-20261027/reconstructed-baseline-source/src/Ling.Mapper.csproj::TargetFramework=net10.0]
+  Ling.Mapper -> /workspace/scratch/574bb39da4d0/mapper-cloud-recovery-20261027/reconstructed-baseline-source/src/bin/Release/net10.0/Ling.Mapper.dll
+  Reconstructed -> /workspace/scratch/574bb39da4d0/mapper-cloud-recovery-20261027/reconstructed-harness/bin/Release/net10.0/Reconstructed.dll
+
+Build succeeded.
+
+/workspace/scratch/574bb39da4d0/mapper-cloud-recovery-20261027/reconstructed-baseline-source/src/Configuration/MapperConfiguration.cs(50,30): warning CS1591: Missing XML comment for publicly visible type or member 'MapperConfiguration.DefaultAdaptOptions' [/workspace/scratch/574bb39da4d0/mapper-cloud-recovery-20261027/reconstructed-baseline-source/src/Ling.Mapper.csproj::TargetFramework=net10.0]
+/workspace/scratch/574bb39da4d0/mapper-cloud-recovery-20261027/reconstructed-baseline-source/src/Models/MapperProfile.cs(83,82): warning CS1573: Parameter 'isReverseGenerated' has no matching param tag in the XML comment for 'MappingConfig<TSource, TDestination>.MappingConfig(MappingExpression<TSource, TDestination>, bool)' (but other parameters do) [/workspace/scratch/574bb39da4d0/mapper-cloud-recovery-20261027/reconstructed-baseline-source/src/Ling.Mapper.csproj::TargetFramework=net10.0]
+    2 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:05.83

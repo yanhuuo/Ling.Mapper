@@ -1,0 +1,11 @@
+  Determining projects to restore...
+  Restored /workspace/scratch/574bb39da4d0/mapper-cloud-recovery-20261027/repository/tests/Ling.Mapper.PerformanceReconstructed/Reconstructed.csproj (in 358 ms).
+  1 of 2 projects are up-to-date for restore.
+  Ling.Mapper -> /workspace/scratch/574bb39da4d0/mapper-cloud-recovery-20261027/reconstructed-baseline-source/src/bin/Release/net10.0/Ling.Mapper.dll
+  Reconstructed -> /workspace/scratch/574bb39da4d0/mapper-cloud-recovery-20261027/repository/tests/Ling.Mapper.PerformanceReconstructed/bin/Release/net10.0/Reconstructed.dll
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:04.46
